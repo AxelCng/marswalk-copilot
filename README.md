@@ -16,7 +16,7 @@ Spec completo: [`MarsWalk Copilot — Spec de desarrollo (Space Apps 2026).md`](
 | [`llm/`](llm/) | Manuel | Ollama, herramientas y `/chat` |
 | [`web/map/`](web/map/) | Añe | Mapa MapLibre |
 | [`web/ui/`](web/ui/) | Axl | Panel de chat, fichas, HUD y plan B |
-| raíz | Jeicoll | `params.yaml`, `estaciones.csv`, Docker, despliegue |
+| raíz | Jeicoll | `params.yaml`, `estaciones.csv` (con fuentes en `estaciones_fuentes.md`), Docker, despliegue |
 
 ## Para arrancar (todos)
 
