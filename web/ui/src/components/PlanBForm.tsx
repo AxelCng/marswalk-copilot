@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { EstacionDetalle, PlanBParams, RespuestaMision } from '../types/mission';
 import { api } from '../services/api';
-import { ShieldCheck, Mountain, Clock, Sparkles, Send, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
+import { ShieldCheck, Send, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
 
 interface PlanBFormProps {
   stations: EstacionDetalle[];
@@ -9,6 +9,8 @@ interface PlanBFormProps {
   /** Si viene, la alerta se muestra como alerta (zona roja + tramos evitados) en el mapa. */
   onAlertaCalculada?: (res: RespuestaMision, zona: string) => void;
 }
+
+const PENDIENTES = [15, 20, 25] as const;
 
 export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, onMissionCalculated, onAlertaCalculada }) => {
   const [selectedStations, setSelectedStations] = useState<string[]>(['E1', 'M1', 'M2', 'E2']);
@@ -70,186 +72,117 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, onMissionCalcula
   const candidateStations = stations.filter((s) => s.id !== 'HAB');
 
   return (
-    <div className="bg-[#0c121e] border border-slate-800 rounded-2xl p-5 shadow-2xl space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+    <div className="panel p-4 flex flex-col gap-4">
+      {/* Encabezado */}
+      <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="h-5 w-5 text-amber-400" />
+          <ShieldCheck className="h-5 w-5 text-hud-cyan" />
           <div>
-            <h3 className="font-mono text-sm font-bold text-white tracking-wide uppercase">
-              Formulario de Misión — Modo Plan B
-            </h3>
-            <span className="text-[10px] font-mono text-slate-400">
-              Cálculo directo por motor de grafos (Bypass LLM)
-            </span>
+            <h3 className="m-0 font-display text-base font-semibold text-ink">Plan B · Misión manual</h3>
+            <span className="label-caps">Cálculo directo por el motor de grafos, sin LLM</span>
           </div>
         </div>
-
-        <span className="text-[11px] font-mono bg-amber-950/60 border border-amber-500/50 text-amber-400 px-2 py-0.5 rounded">
-          RESPALDO DEMO
-        </span>
+        <span className="chip warning">Respaldo demo</span>
       </div>
 
-      {/* Stations Selection */}
-      <div>
-        <label className="text-xs font-mono font-semibold uppercase text-slate-300 flex items-center justify-between mb-2">
-          <span>Estaciones Candidatas a Visitar</span>
-          <span className="text-[11px] text-cyan-400 font-mono">
-            {selectedStations.length} seleccionadas
-          </span>
-        </label>
+      {/* Estaciones */}
+      <section className="bloque">
+        <div className="flex items-center justify-between">
+          <h4 className="label-caps m-0">Estaciones a visitar</h4>
+          <span className="font-mono text-[11px] text-hud-cyan">{selectedStations.length} seleccionadas</span>
+        </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <fieldset className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-0.5 border-0 m-0 p-0">
           {candidateStations.map((station) => {
             const isChecked = selectedStations.includes(station.id);
             return (
-              <button
+              <label
                 key={station.id}
-                type="button"
-                onClick={() => toggleStation(station.id)}
-                className={`flex flex-col text-left p-2.5 rounded-xl border transition-all text-xs font-mono ${isChecked
-                    ? 'bg-cyan-950/40 border-cyan-400/80 text-white shadow-sm ring-1 ring-cyan-500/30'
-                    : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                  }`}
+                className={`grid grid-cols-[14px_8px_2.25rem_minmax(0,1fr)_auto] items-center gap-2 px-1 py-1 rounded cursor-pointer hover:bg-hud-cyan/5 ${isChecked ? 'text-ink' : 'text-ink-dim'}`}
               >
-                <div className="flex items-center justify-between w-full mb-1">
-                  <span className="font-bold text-sm text-cyan-300">{station.id}</span>
-                  {station.valor_cientifico > 0 && (
-                    <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-0.5">
-                      <Sparkles className="h-2.5 w-2.5" /> +{station.valor_cientifico}
-                    </span>
-                  )}
-                </div>
-                <span className="text-[11px] truncate text-slate-200">{station.nombre}</span>
-                <span className="text-[9px] text-slate-500 mt-1">{station.capas.pendiente_deg}° pendiente</span>
-              </button>
+                <input type="checkbox" checked={isChecked} onChange={() => toggleStation(station.id)} className="h-3.5 w-3.5 m-0" />
+                <i className="h-2 w-2 rounded-full" style={{ background: `var(--tipo-${station.tipo})` }} aria-hidden />
+                <b className="font-mono text-xs font-semibold">{station.id}</b>
+                <span className="text-xs truncate">{station.nombre}</span>
+                <span className="font-mono text-[10px] text-ink-mute dato-num">
+                  {station.valor_cientifico > 0 ? `+${station.valor_cientifico}` : ''} · {station.capas.pendiente_deg}°
+                </span>
+              </label>
             );
           })}
-        </div>
-      </div>
+        </fieldset>
+      </section>
 
-      {/* Sliders Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Slope slider */}
-        <div className="bg-slate-900/70 border border-slate-800 p-3.5 rounded-xl space-y-2">
-          <div className="flex items-center justify-between text-xs font-mono">
-            <span className="flex items-center gap-1.5 text-slate-300 font-semibold">
-              <Mountain className="h-4 w-4 text-amber-400" /> Pendiente Máx. Traje
+      {/* Restricciones */}
+      <section className="bloque">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <span className="label-caps">Pendiente máxima del traje</span>
+            <div className="segmentado">
+              {PENDIENTES.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPendienteMax(p)}
+                  className={pendienteMax === p ? 'activo' : ''}
+                  aria-pressed={pendienteMax === p}
+                >
+                  {p}°
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <label className="flex flex-col gap-1.5">
+            <span className="label-caps">Tiempo máximo</span>
+            <span className="flex items-center bg-hud-glass/90 border border-hud-border rounded focus-within:border-hud-cyan">
+              <input
+                type="number"
+                min={30}
+                max={480}
+                step={15}
+                value={tiempoMax}
+                onChange={(e) => setTiempoMax(Number(e.target.value))}
+                className="flex-1 min-w-0 px-2 py-1 bg-transparent border-0 outline-none text-ink font-mono text-sm dato-num"
+              />
+              <span className="pr-2 font-mono text-[11px] text-ink-mute">min · {(tiempoMax / 60).toFixed(1)} h</span>
             </span>
-            <span className="font-bold text-base text-amber-400">{pendienteMax}°</span>
-          </div>
+          </label>
+        </div>
 
-          <input
-            type="range"
-            min={10}
-            max={25}
-            step={1}
-            value={pendienteMax}
-            onChange={(e) => setPendienteMax(Number(e.target.value))}
-            className="w-full accent-amber-500 h-2 bg-slate-800 rounded-lg cursor-pointer"
-          />
-
-          <div className="flex justify-between text-[10px] font-mono text-slate-500">
-            <button type="button" onClick={() => setPendienteMax(15)} className="hover:text-amber-400">
-              15° (Demo 1)
+        <div className="flex flex-col gap-1.5">
+          <span className="label-caps">Algoritmo</span>
+          <div className="segmentado">
+            <button type="button" onClick={() => setModo('orientacion')} className={modo === 'orientacion' ? 'activo' : ''} aria-pressed={modo === 'orientacion'}>
+              Orientación · máx. ciencia
             </button>
-            <button type="button" onClick={() => setPendienteMax(20)} className="hover:text-amber-400">
-              20° (Demo 2)
-            </button>
-            <button type="button" onClick={() => setPendienteMax(25)} className="hover:text-amber-400">
-              25° (Máx)
+            <button type="button" onClick={() => setModo('tsp')} className={modo === 'tsp' ? 'activo' : ''} aria-pressed={modo === 'tsp'}>
+              TSP · todas
             </button>
           </div>
         </div>
+      </section>
 
-        {/* Time slider */}
-        <div className="bg-slate-900/70 border border-slate-800 p-3.5 rounded-xl space-y-2">
-          <div className="flex items-center justify-between text-xs font-mono">
-            <span className="flex items-center gap-1.5 text-slate-300 font-semibold">
-              <Clock className="h-4 w-4 text-cyan-400" /> Tiempo Máximo Límite
-            </span>
-            <span className="font-bold text-base text-cyan-400">
-              {tiempoMax} min ({(tiempoMax / 60).toFixed(1)}h)
-            </span>
-          </div>
-
-          <input
-            type="range"
-            min={60}
-            max={300}
-            step={15}
-            value={tiempoMax}
-            onChange={(e) => setTiempoMax(Number(e.target.value))}
-            className="w-full accent-cyan-500 h-2 bg-slate-800 rounded-lg cursor-pointer"
-          />
-
-          <div className="flex justify-between text-[10px] font-mono text-slate-500">
-            <span>1 hora</span>
-            <span>3 horas (180m)</span>
-            <span>5 horas</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Mode selection & action buttons */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-        <div className="flex items-center gap-2 font-mono text-xs">
-          <span className="text-slate-400">Algoritmo:</span>
-          <button
-            type="button"
-            onClick={() => setModo('orientacion')}
-            className={`px-3 py-1 rounded-lg border transition-colors ${modo === 'orientacion'
-                ? 'bg-cyan-950 border-cyan-400 text-cyan-300 font-bold'
-                : 'bg-slate-900 border-slate-800 text-slate-400'
-              }`}
-          >
-            Orientación (Maximizar Ciencia)
+      {/* Acciones */}
+      <section className="bloque">
+        <button
+          type="button"
+          onClick={handleCalculate}
+          disabled={loading || selectedStations.length === 0}
+          className="btn primario w-full"
+        >
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          Calcular ruta óptima
+        </button>
+        <div className="grid grid-cols-2 gap-2">
+          <button type="button" onClick={handleTriggerAlert} disabled={alertaLoading} className="btn alerta">
+            <AlertTriangle className="h-3.5 w-3.5" /> Alerta polvo Z2
           </button>
-          <button
-            type="button"
-            onClick={() => setModo('tsp')}
-            className={`px-3 py-1 rounded-lg border transition-colors ${modo === 'tsp'
-                ? 'bg-cyan-950 border-cyan-400 text-cyan-300 font-bold'
-                : 'bg-slate-900 border-slate-800 text-slate-400'
-              }`}
-          >
-            TSP Estricto
+          <button type="button" onClick={handleReset} title="Quita alertas y recalcula" className="btn">
+            <RefreshCw className="h-3.5 w-3.5" /> Reset
           </button>
         </div>
-
-        {/* Action triggers */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleReset}
-            title="Quita alertas y reinicia restricciones"
-            className="flex items-center gap-1 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:bg-slate-800 font-mono text-xs transition-all cursor-pointer"
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-            <span>Reset</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleTriggerAlert}
-            disabled={alertaLoading}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-950/60 border border-red-500/50 text-red-300 hover:bg-red-900/60 font-mono text-xs font-semibold transition-all cursor-pointer"
-          >
-            <AlertTriangle className="h-3.5 w-3.5" />
-            <span>Alerta Polvo Z2</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCalculate}
-            disabled={loading || selectedStations.length === 0}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-mono text-xs font-bold transition-all shadow-lg shadow-cyan-950/50 cursor-pointer disabled:opacity-50"
-          >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            <span>Calcular Misión</span>
-          </button>
-        </div>
-      </div>
+      </section>
     </div>
   );
 };

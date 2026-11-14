@@ -108,20 +108,20 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0f1b] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+    <div className="panel flex flex-col h-full overflow-hidden">
       {/* Chat Header */}
-      <div className="flex items-center justify-between border-b border-slate-800/80 px-4 py-3 bg-[#0d1424]/90 backdrop-blur-sm">
+      <div className="flex items-center justify-between border-b border-hud-border/80 px-4 py-3 bg-hud-panel/90 backdrop-blur-sm">
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Radio className="h-4 w-4 text-cyan-400 animate-pulse" />
-            <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
+            <Radio className="h-4 w-4 text-hud-cyan animate-pulse" />
+            <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-hud-cyan animate-ping" />
           </div>
           <div>
-            <h3 className="font-mono text-xs font-bold text-white tracking-wider uppercase">
+            <h3 className="m-0 font-display text-sm font-semibold text-ink">
               Canal EVA / Copiloto de Caminata
             </h3>
-            <span className="text-[10px] font-mono text-slate-400">
-              Llamada a funciones FastAPI activa
+            <span className="label-caps">
+              Tool calling · FastAPI
             </span>
           </div>
         </div>
@@ -129,23 +129,23 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
         <button
           onClick={handleClear}
           title="Reiniciar chat"
-          className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+          className="p-1.5 rounded text-ink-dim hover:bg-hud-glass hover:text-ink transition-colors"
         >
           <RefreshCw className="h-3.5 w-3.5" />
         </button>
       </div>
 
       {/* Preset Pills for Space Apps Demo Video */}
-      <div className="flex items-center gap-1.5 px-3 py-2 bg-slate-950/60 border-b border-slate-900 overflow-x-auto text-[11px] font-mono">
-        <span className="text-slate-500 text-[10px] flex-shrink-0 flex items-center gap-1">
-          <Sparkles className="h-3 w-3 text-amber-400" /> GUION DEMO:
+      <div className="flex items-center gap-1.5 px-3 py-2 bg-hud-deep/60 border-b border-hud-subtle overflow-x-auto text-[11px] font-mono">
+        <span className="label-caps flex-shrink-0 flex items-center gap-1">
+          <Sparkles className="h-3 w-3 text-hud-cyan" /> Guion demo
         </span>
         {DEMO_PRESETS.map((preset, i) => (
           <button
             key={i}
             onClick={() => handleSend(preset.text)}
             disabled={loading}
-            className="flex-shrink-0 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 hover:border-cyan-500/60 hover:bg-cyan-950/40 text-slate-300 hover:text-cyan-300 transition-all cursor-pointer disabled:opacity-50"
+            className="flex-shrink-0 px-2.5 py-1 rounded bg-hud-glass/80 border border-hud-border hover:border-hud-cyan text-hud-cyan transition-all cursor-pointer disabled:opacity-50"
           >
             {preset.label}
           </button>
@@ -159,7 +159,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
         ))}
 
         {loading && (
-          <div className="flex items-center gap-2 text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/40 rounded-xl p-3 w-fit animate-pulse">
+          <div className="flex items-center gap-2 text-xs font-mono text-hud-cyan bg-hud-cyan/5 border border-hud-cyan/40 rounded p-3 w-fit animate-pulse">
             <Loader2 className="h-4 w-4 animate-spin" />
             <span>Consultando modelo de coste y optimizador OR-Tools...</span>
           </div>
@@ -168,7 +168,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
       </div>
 
       {/* Input area */}
-      <div className="p-3 bg-[#0d1424] border-t border-slate-800">
+      <div className="p-3 bg-hud-panel border-t border-hud-border">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -182,13 +182,13 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ej: Quiero visitar E1 y M1 con máx 15° de pendiente..."
             disabled={loading}
-            className="flex-1 bg-slate-950/90 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all font-mono"
+            className="flex-1 bg-hud-deep/90 border border-hud-border rounded px-4 py-2.5 text-sm text-ink placeholder-ink-mute focus:outline-none focus:border-hud-cyan focus:shadow-glow-focus transition-all font-mono"
           />
 
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:from-orange-500 hover:to-amber-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md shadow-orange-950/50"
+            className="flex items-center justify-center h-10 w-10 rounded bg-hud-cyan text-hud-deep hover:shadow-glow-cyan disabled:opacity-40 disabled:cursor-not-allowed transition-shadow"
           >
             <Send className="h-4 w-4" />
           </button>
