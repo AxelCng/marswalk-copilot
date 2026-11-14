@@ -167,7 +167,7 @@ export default function App() {
         )}
         {foto && fotoUrl && (
           <p className="credito">
-            {foto.camara} · SOL {foto.sol} · {foto.credito}
+            {foto.camara} · SOL {foto.sol} · {foto.credito} · Terreno USGS SIM 3464
           </p>
         )}
       </div>

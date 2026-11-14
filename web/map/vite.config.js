@@ -8,7 +8,7 @@ const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: { '@contracts': `${repoRoot}contracts` },
+    alias: { '@contracts': `${repoRoot}contracts`, '@repo': repoRoot.slice(0, -1), '@shared': `${repoRoot}web/shared` },
   },
   server: {
     port: 5173,
