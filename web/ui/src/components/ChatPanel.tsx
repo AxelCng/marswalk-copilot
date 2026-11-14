@@ -69,19 +69,19 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
       // Solo la conversación real: un historial vacío hace que /chat empiece de cero.
       const historyPayload = messages
         .filter((m) => !m.local)
-        .map((m) => ({ rol: m.rol, contenido: m.contenido }));
+        .map((m) => ({ role: m.rol === 'usuario' ? 'user' : 'assistant', content: m.contenido }));
 
       const res = await api.postChat(text, historyPayload);
 
       const botMsg: MensajeHistorial = {
         id: `bot-${Date.now()}`,
         rol: 'asistente',
-        contenido: res.respuesta,
+        contenido: res.answer,
         timestamp: hora(),
-        llamadas: res.llamadas,
-        ruta: res.ruta,
-        segundos: res.segundos,
-        numeros_sin_fuente: res.numeros_sin_fuente,
+        llamadas: res.calls,
+        ruta: res.route,
+        segundos: res.seconds,
+        numeros_sin_fuente: res.unsourced_numbers,
         // Con error, /chat igual responde 200: el mensaje no entra al historial y se ofrece el Plan B.
         error: Boolean(res.error),
         local: Boolean(res.error),
@@ -89,8 +89,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
 
       setMessages((prev) => [...prev, botMsg]);
 
-      if (res.ruta && !res.error) {
-        onRouteGenerated?.(res.ruta, res);
+      if (res.route && !res.error) {
+        onRouteGenerated?.(res.route, res);
       }
     } catch (err) {
       console.error(err);

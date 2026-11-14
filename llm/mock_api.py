@@ -1,12 +1,12 @@
 """
-API FALSA con el mismo contrato que la de Said (contracts/api.md). Solo para desarrollo.
+FAKE API with the same contract as the engine (contracts/api.md). Development only.
 
-Lee el mismo grafo que el motor (GRAPH_PATH, por defecto contracts/graph_fake.json), así que las
-estaciones, zonas y resultados coinciden con contracts/ejemplos/. Resuelve las misiones por fuerza
-bruta (con 8 nodos alcanza). Sirve para probar el copiloto y para que el frontend tenga algo que
-llamar mientras el motor real no está listo.
+Reads the same graph as the engine (GRAPH_PATH, default contracts/graph_fake.json), so stations,
+zones and results match contracts/ejemplos/. Solves missions by brute force (enough with 8 nodes).
+Useful to test the copilot without the real engine. Endpoint and field names follow the engine
+contract, which is in Spanish.
 
-Correr (dentro de llm/):  uvicorn mock_api:app --port 8001 --reload
+Run (inside llm/):  uvicorn mock_api:app --port 8001 --reload
 """
 import itertools
 import json
@@ -37,7 +37,7 @@ app = FastAPI(title="MarsWalk API (MOCK)")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
-# ---------------------------------------------------------------- grafo
+# ---------------------------------------------------------------- graph
 def version_para(pendiente_max):
     validas = [l for l in LIMITES if l <= pendiente_max]
     return max(validas) if validas else LIMITES[0]
@@ -52,7 +52,7 @@ def aristas(pendiente_max, zonas=(), sin_comms=False):
 
 
 def caminos(ar):
-    """Floyd-Warshall por tiempo: (dist, siguiente)."""
+    """Floyd-Warshall by time: (dist, next)."""
     dist = {(i, j): (0 if i == j else INF) for i in IDS for j in IDS}
     sig = {}
     for (o, d), e in ar.items():
@@ -78,7 +78,7 @@ def ida_vuelta(origen, s, dist):
 
 
 def motivo_inalcanzable(origen, s, pendiente_max):
-    """Por qué no se llega a s: alerta, comms o pendiente (en ese orden de prueba)."""
+    """Why s cannot be reached: alert, comms or slope (tested in that order)."""
     if ESTADO["zonas"]:
         d, _ = caminos(aristas(pendiente_max, (), ESTADO["sin_comms"]))
         if ida_vuelta(origen, s, d):
@@ -129,7 +129,7 @@ def resolver_mision(estaciones, tiempo_max, pendiente_max, modo, origen):
         t = sum(dist[a, b] for a, b in zip((origen, *orden), (*orden, origen)))
         return t + sum(NODOS[s]["permanencia_min"] for s in orden)
 
-    mejor = None  # (valor, -tiempo, orden)
+    mejor = None  # (value, -time, order)
     tamanos = [len(candidatas)] if modo == "tsp" else range(len(candidatas), 0, -1)
     for r in tamanos:
         for sub in itertools.combinations(candidatas, r):
@@ -243,9 +243,9 @@ def reset():
     return {"ok": True}
 
 
-# /chat de desarrollo: el mismo router que luego incluirá Said en la API real.
+# Development /chat: the same router the engine mounts in the real API.
 try:
     from router import router as chat_router
     app.include_router(chat_router)
-except Exception as e:  # si falta ollama, el mock igual funciona sin /chat
-    print("Aviso: /chat no disponible en el mock:", e)
+except Exception as e:  # without ollama the mock still works, just without /chat
+    print("Warning: /chat not available in the mock:", e)
