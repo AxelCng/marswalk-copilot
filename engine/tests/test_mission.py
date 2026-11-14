@@ -60,9 +60,17 @@ def test_demo(client, demo):
     expected = example(f"post_mision.{demo}.response.json")
     # El generador calcula la pendiente solo en versión 25, el motor calcula
     # el minimax ida/vuelta. Esta discrepancia de datos está en engine/README.
-    assert result["totales"] == expected["totales"]
-    assert result["ruta"] == expected["ruta"]
-    assert result["tramos"] == expected["tramos"]
+    # Puede haber caminos distintos empatados en tiempo: distancia y dosis
+    # no forman parte del objetivo. Verificar los tramos reales de la solución.
+    assert result["totales"]["tiempo_min"] == expected["totales"]["tiempo_min"]
+    assert result["totales"]["margen_min"] == expected["totales"]["margen_min"]
+    slope = example(f"post_mision.{demo}.request.json")["pendiente_max"]
+    edges = {(e["origen"], e["destino"]): e for e in client.get("/grafo", params={"pendiente_max": slope}).json()["edges"]}
+    assert [(t["origen"], t["destino"]) for t in result["tramos"]] == list(zip(result["ruta"], result["ruta"][1:]))
+    for leg in result["tramos"]:
+        assert leg == {key: edges[leg["origen"], leg["destino"]][key] for key in leg}
+    assert result["totales"]["distancia_m"] == sum(t["distancia_m"] for t in result["tramos"])
+    assert result["totales"]["dosis_rel"] == round(sum(t["dosis_rel"] for t in result["tramos"]), 1)
     assert result["factible"] is True
     assert [(o["id"], o["motivo"]) for o in result["omitidas"]] == [(o["id"], o["motivo"]) for o in expected["omitidas"]]
 
@@ -141,17 +149,18 @@ def test_unknown_origin(client):
 
 def test_exact_budget_boundary(client):
     body = example("post_mision.demo1_mision_15deg.request.json")
-    body.update(estaciones=["E1", "M1", "M2"], modo="tsp", tiempo_max_min=138.4)
+    budget = example("post_mision.demo1_mision_15deg.response.json")["totales"]["tiempo_min"]
+    body.update(estaciones=["E1", "M1", "M2"], modo="tsp", tiempo_max_min=budget)
     result = client.post("/mision", json=body).json()
     assert result["factible"] and result["totales"]["margen_min"] == 0
-    body["tiempo_max_min"] = 138.399
+    body["tiempo_max_min"] = budget - 0.001
     assert client.post("/mision", json=body).json()["factible"] is False
 
 
 def test_transit_nodes_do_not_add_service(client):
     result = client.post("/mision", json={"estaciones": ["E2"], "pendiente_max": 20}).json()
     assert result["factible"]
-    assert "REF" in result["ruta"]
+    assert any(n not in {"HAB", "E2"} for n in result["ruta"])
     service = client.get("/estaciones/E2").json()["permanencia_min"]
     assert result["totales"]["tiempo_min"] == round(sum(t["tiempo_min"] for t in result["tramos"]) + service, 1)
 
