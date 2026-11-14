@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import { HUD, COLOR_TIPO } from './tokens.js';
 import './MarsMap.css';
+import { K_ESCALA } from './caminata.js';
 
 // ---------------------------------------------------------------------------
 // MarsMap: el mapa de la demo.
@@ -30,6 +31,10 @@ const BASE_AMPLIA = '/base/ctx_sim3464.json';
 // Capas ráster del SIM 3464 (web/scripts/sim3464/capas_raster.py), de abajo hacia arriba.
 export const CAPAS_INDICE = '/capas/capas.json';
 const ORDEN_RASTER = ['themis_noche', 'relieve_dtm', 'pendiente_dtm'];
+// Teselas de elevación Terrarium de la DTM CTX 20 m (web/scripts/sim3464/dem_tiles.py).
+const DEM_INDICE = '/dem/dem.json';
+const CIELO_MARTE = '#A9805E'; // fondo sobre el horizonte en modo 3D (cielo con polvo)
+const OCULTAS_3D = ['geo-label', 'zonas-label', 'zonas-line', 'aristas', 'geo-crateres'];
 
 async function agregarMapaBase(map, antesDe) {
   try {
@@ -71,7 +76,17 @@ async function agregarMapaBase(map, antesDe) {
   } catch {
     // Sin capas ráster: el panel las muestra como no disponibles.
   }
+  try {
+    const dem = await (await fetch(DEM_INDICE)).json();
+    map.addSource('dem', {
+      type: 'raster-dem', tiles: dem.tiles, tileSize: dem.tileSize, encoding: dem.encoding,
+      minzoom: dem.minzoom, maxzoom: dem.maxzoom, bounds: dem.bounds,
+    });
+  } catch {
+    // Sin teselas de elevación: el modo 3D no está disponible.
+  }
   map.fire('marswalk:capas');
+  map.fire('marswalk:dem');
 }
 
 export { COLOR_TIPO };
@@ -205,8 +220,8 @@ function centroide(poligono) {
 }
 
 export default function MarsMap({
-  grafo, mision, alerta, geologia, capas, margen,
-  onSelectEstacion, onCursor, onPaso,
+  grafo, mision, alerta, geologia, capas, margen, terreno3d = false,
+  onSelectEstacion, onCursor, onPaso, onMapa,
 }) {
   const contenedor = useRef(null);
   const mapRef = useRef(null);
@@ -404,6 +419,7 @@ export default function MarsMap({
     });
 
     mapRef.current = map;
+    onMapa?.(map);
     if (import.meta.env.DEV) window.__marsMap = map; // depuración desde la consola
     return () => {
       listo.current = false;
@@ -562,6 +578,30 @@ export default function MarsMap({
     raf = requestAnimationFrame(latir);
     return () => { cancelAnimationFrame(raf); aviso?.remove(); };
   }), [grafo, alerta]);
+
+  // --- Terreno 3D (modo caminata) ----------------------------------------
+  useEffect(() => cuandoListo((map) => {
+    const aplicar = () => {
+      if (!map.getSource('dem')) return;
+      if (terreno3d) {
+        movido.current = true; // que el ResizeObserver no re-encuadre durante la caminata
+        map.setTerrain({ source: 'dem', exaggeration: K_ESCALA });
+        map.setPaintProperty('fondo', 'background-color', CIELO_MARTE);
+        // En primera persona sobran las etiquetas planas y el grafo completo
+        OCULTAS_3D.forEach((id) => map.getLayer(id) && map.setLayoutProperty(id, 'visibility', 'none'));
+      } else {
+        map.setTerrain(null);
+        map.setPaintProperty('fondo', 'background-color', HUD.bgDeep);
+        map.fire('marswalk:capas'); // vuelve la visibilidad elegida en el panel de capas
+        map.jumpTo({ pitch: 0, bearing: 0 });
+        movido.current = false;
+        if (nodosRef.current) encuadrar(map, nodosRef.current, margenRef.current);
+      }
+    };
+    aplicar();
+    map.on('marswalk:dem', aplicar);
+    return () => map.off('marswalk:dem', aplicar);
+  }), [terreno3d]);
 
   return <div ref={contenedor} className="mapa" />;
 }

@@ -1,0 +1,19 @@
+{
+  "tiles": [
+    "/dem/{z}/{x}/{y}.png"
+  ],
+  "encoding": "terrarium",
+  "tileSize": 256,
+  "minzoom": 8,
+  "maxzoom": 13,
+  "bounds": [
+    76.802,
+    17.702,
+    77.798,
+    18.698
+  ],
+  "elev_min_m": -3148,
+  "elev_max_m": -1374,
+  "fuente": "USGS SIM 3464: DTM CTX 20 m (B18_016575_1978_B17_016219_1978_20m_DTM, J03_045994_1986_J03_046060_1986_20m_DTM); relleno HRSC 75 m",
+  "nota": "Elevación en metros de Marte. El mapa aplica exageración 6378137/3396190 para que la proporción vertical sea real."
+}
