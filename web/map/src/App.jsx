@@ -5,6 +5,7 @@ import { getGeologia } from './geologia.js';
 import FichaEstacion from './FichaEstacion.jsx';
 import PanelCapas, { CAPAS_INICIALES } from './PanelCapas.jsx';
 import Visor3D from './Visor3D.jsx';
+import paramsYaml from '@repo/params.yaml?raw';
 
 // Marco del mapa (mosaico CTX del SIM 3464): el astronauta no sale de acá.
 const MARCO = [76.802, 17.702, 77.798, 18.698];
@@ -16,6 +17,8 @@ const MARCO = [76.802, 17.702, 77.798, 18.698];
 
 const MISION_BASE = { estaciones: ['E1', 'M1', 'M2', 'E2'], tiempo_max_min: 240, modo: 'orientacion', origen: 'HAB' };
 const EJEMPLO_POR_PENDIENTE = { 15: ejemplos.demo1, 20: ejemplos.demo2 };
+// Versiones del grafo que precalcula el motor (params.yaml → costo.limites_pendiente_deg).
+const LIMITES_PENDIENTE = (/limites_pendiente_deg:\s*\[([^\]]+)\]/.exec(paramsYaml)?.[1] ?? '15, 20, 25').split(',').map(Number);
 const MARGEN_MAPA = { top: 60, right: 60, bottom: 110, left: 60 };
 
 const fmt = (n, d = 0) => (n == null || Number.isNaN(n) ? '—' : Number(n).toLocaleString('es', { minimumFractionDigits: d, maximumFractionDigits: d }));
@@ -159,7 +162,7 @@ export default function App() {
           <div className="campo">
             <span className="label-caps" id="lbl-pend">Pendiente máxima</span>
             <div className="segmentado" role="radiogroup" aria-labelledby="lbl-pend">
-              {[15, 20, 25].map((p) => (
+              {LIMITES_PENDIENTE.map((p) => (
                 <button key={p} id={`pend-${p}`} role="radio" aria-checked={pendiente === p} className={pendiente === p ? 'activo' : ''} onClick={() => setPendiente(p)}>
                   {p}°
                 </button>

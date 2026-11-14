@@ -1,0 +1,23 @@
+{
+  "area": "jezero_aoi_v1",
+  "crs_name": "MTM 77.5E",
+  "datum": "Mars_2000_(Sphere)",
+  "proj4": "+proj=tmerc +lat_0=0 +lon_0=77.5 +k=1 +x_0=0 +y_0=0 +R=3396190 +units=m +no_defs +type=crs",
+  "radio_m": 3396190.0,
+  "meridiano_central_deg": 77.5,
+  "celda_m": 20.0,
+  "margen_m": 500.0,
+  "x_min": -6060.0,
+  "x_max": -2180.0,
+  "y_min": 1092000.0,
+  "y_max": 1094820.0,
+  "ancho_px": 194,
+  "alto_px": 141,
+  "lon_min": 77.39224168,
+  "lon_max": 77.4612247,
+  "lat_min": 18.42267012,
+  "lat_max": 18.47027167,
+  "ancho_km": 3.88,
+  "alto_km": 2.82,
+  "area_km2": 10.942
+}
