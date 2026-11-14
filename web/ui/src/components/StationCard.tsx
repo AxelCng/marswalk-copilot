@@ -1,6 +1,7 @@
 import React from 'react';
 import type { EstacionDetalle, TipoEstacion } from '../types/mission';
-import { Mountain, Compass, Camera, Sparkles, Clock } from 'lucide-react';
+import { Mountain, Compass, Sparkles, Clock } from 'lucide-react';
+import { FotoEstacionView, UnidadGeo } from './StationParts';
 
 interface StationCardProps {
   station: EstacionDetalle;
@@ -34,30 +35,26 @@ export const StationCard: React.FC<StationCardProps> = ({ station, isSelected, o
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label={`Ficha de ${station.id}: ${station.nombre}`}
       onClick={() => onSelect?.(station)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect?.(station); } }}
       className={`group relative overflow-hidden rounded border transition-all duration-200 cursor-pointer ${
         isSelected
           ? 'bg-hud-glass border-hud-cyan shadow-glow-focus'
           : 'bg-hud-panel border-hud-border hover:border-hud-cyan/60 hover:bg-hud-glass'
       }`}
     >
-      {/* Top photo / radar header */}
+      {/* Foto de Perseverance */}
       <div className="relative h-28 w-full overflow-hidden bg-hud-deep">
-        {photo?.url ? (
-          <img
-            src={photo.url}
-            alt={station.nombre}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-            loading="lazy"
-          />
-        ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-b from-hud-panel to-hud-deep p-2 text-center text-ink-mute">
-            <Camera className="h-6 w-6 text-ink-mute mb-1" />
-            <span className="text-[10px] font-mono tracking-widest text-ink-dim">NAVCAM SOL {photo?.sol ?? 0}</span>
-            <span className="text-[9px] text-ink-mute">IMAGEN SIMULADA</span>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-hud-panel via-transparent to-black/50" />
+        <FotoEstacionView
+          foto={photo}
+          alt={station.nombre}
+          className="h-full w-full"
+          imgClassName="transition-transform duration-500 group-hover:scale-105 opacity-80 group-hover:opacity-100"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent" />
 
         {/* Badges on photo */}
         <div className="absolute top-2 left-2 flex items-center gap-1.5">
@@ -77,10 +74,6 @@ export const StationCard: React.FC<StationCardProps> = ({ station, isSelected, o
           </div>
         )}
 
-        {/* Geological Unit */}
-        <div className="absolute bottom-1.5 left-2 right-2 truncate text-[10px] text-ink-dim font-mono">
-          {station.unidad_geologica}
-        </div>
       </div>
 
       {/* Body details */}
@@ -88,6 +81,9 @@ export const StationCard: React.FC<StationCardProps> = ({ station, isSelected, o
         <h4 className="m-0 font-display font-medium text-ink text-[15px] leading-5 truncate group-hover:text-hud-cyan transition-colors">
           {station.nombre}
         </h4>
+        <div className="mt-1 flex min-w-0">
+          <UnidadGeo station={station} compacta />
+        </div>
         <p className="mt-1 text-xs text-ink-dim line-clamp-2 leading-relaxed">
           {station.tarea}
         </p>

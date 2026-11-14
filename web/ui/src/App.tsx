@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { EstacionDetalle, RespuestaMision } from './types/mission';
 import { api } from './services/api';
+import { unidadesPorEstacion } from './services/geologia';
 import { HudHeader } from './components/HudHeader';
 import { ChatPanel } from './components/ChatPanel';
 import { StationCard } from './components/StationCard';
@@ -24,19 +25,24 @@ export const App: React.FC = () => {
   const [filterTipo, setFilterTipo] = useState<string>('all');
 
   useEffect(() => {
-    // Attempt loading stations from API service
+    // Estaciones: la lista sale de GET /estaciones (las del graph.json real, no solo las de prueba)
+    // y cada ficha de GET /estaciones/{id}. Después se cruza con la capa geológica SIM 3464.
     const loadData = async () => {
       try {
+        const lista = await api.getEstaciones();
         const fullStations = await Promise.all(
-          MOCK_ESTACIONES.map(async (st) => {
+          lista.map(async (st) => {
             try {
               return await api.getEstacion(st.id);
             } catch {
-              return st;
+              return MOCK_ESTACIONES.find((m) => m.id === st.id) ?? null;
             }
           })
         );
-        setStations(fullStations);
+        const conFicha = fullStations.filter((s): s is EstacionDetalle => s !== null);
+        if (!conFicha.length) return;
+        const geo = await unidadesPorEstacion(conFicha);
+        setStations(geo ? conFicha.map((s) => (geo[s.id] ? { ...s, unidad_sim: geo[s.id] } : s)) : conFicha);
       } catch (e) {
         console.warn('Usando mock de estaciones:', e);
       }
