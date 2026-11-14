@@ -1,0 +1,60 @@
+{
+  "factible": true,
+  "ruta": [
+    "HAB",
+    "E1"
+  ],
+  "tramos": [
+    {
+      "origen": "HAB",
+      "destino": "E1",
+      "distancia_m": 2376,
+      "tiempo_min": 41.2,
+      "pendiente_max_deg": 14.0,
+      "cobertura_com_pct": 100,
+      "dosis_rel": 36.7,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.444326,
+          18.445443
+        ],
+        [
+          77.437854,
+          18.446201
+        ],
+        [
+          77.431386,
+          18.446985
+        ],
+        [
+          77.424921,
+          18.447801
+        ],
+        [
+          77.41846,
+          18.448643
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    }
+  ],
+  "omitidas": [],
+  "totales": {
+    "distancia_m": 2376,
+    "tiempo_min": 41.2,
+    "dosis_rel": 36.7,
+    "margen_min": null
+  }
+}

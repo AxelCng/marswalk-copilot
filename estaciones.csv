@@ -1,0 +1,9 @@
+id,nombre,tipo,lon,lat,valor_cientifico,tarea,permanencia_min,sol_referencia,foto_url,foto_camara,foto_sol,fuente,notas
+HAB,Hábitat Octavia,habitat,77.4508,18.4447,0,Base de la misión,0,,,,,FAKE,sitio de aterrizaje de Perseverance (aprox.)
+ROV,Rover de apoyo,rover,77.4430,18.4525,1,Recarga y relevo de muestras,10,,,,,FAKE,
+E1,Frente del delta,ciencia,77.4120,18.4495,9,Muestreo de capas,25,,,,,FAKE,reemplazar por waypoint real
+M1,Muestreo borde de Séítah,muestreo,77.4390,18.4385,7,Núcleo de roca ígnea,15,,,,,FAKE,reemplazar por waypoint real
+M2,Muestreo base del delta,muestreo,77.4185,18.4430,6,Sedimento fino,15,,,,,FAKE,reemplazar por waypoint real
+E2,Cima del delta,ciencia,77.4140,18.4580,8,Panorámica y estratigrafía,20,,,,,FAKE,reemplazar por waypoint real
+REF,Refugio de roca,refugio,77.4250,18.4560,2,Refugio ante tormenta,10,,,,,FAKE,
+COM,Repetidora de comunicaciones,comms,77.4340,18.4580,1,Revisión de antena,10,,,,,FAKE,

@@ -218,3 +218,23 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ---- MarsWalk Copilot ----
+# Descargas NASA/USGS e intermedios pesados (no van a git)
+data/raw/
+data/tmp/
+*.tif
+*.tiff
+*.zip
+# El graph.json real sí va a git (data/out/graph.json); los rasters intermedios no
+data/out/*.tif
+
+# Frontend
+node_modules/
+web/**/dist/
+.vite/
+# La regla "lib/" de Python de arriba no debe ocultar código del frontend
+!web/**/lib/
+
+# Ollama / modelos locales
+*.gguf

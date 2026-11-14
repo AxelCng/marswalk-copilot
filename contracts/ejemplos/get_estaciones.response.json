@@ -1,0 +1,66 @@
+[
+  {
+    "id": "HAB",
+    "nombre": "Hábitat Octavia",
+    "tipo": "habitat",
+    "valor_cientifico": 0,
+    "lon": 77.4508,
+    "lat": 18.4447
+  },
+  {
+    "id": "ROV",
+    "nombre": "Rover de apoyo",
+    "tipo": "rover",
+    "valor_cientifico": 1,
+    "lon": 77.443,
+    "lat": 18.4525
+  },
+  {
+    "id": "E1",
+    "nombre": "Frente del delta",
+    "tipo": "ciencia",
+    "valor_cientifico": 9,
+    "lon": 77.412,
+    "lat": 18.4495
+  },
+  {
+    "id": "M1",
+    "nombre": "Muestreo borde de Séítah",
+    "tipo": "muestreo",
+    "valor_cientifico": 7,
+    "lon": 77.439,
+    "lat": 18.4385
+  },
+  {
+    "id": "M2",
+    "nombre": "Muestreo base del delta",
+    "tipo": "muestreo",
+    "valor_cientifico": 6,
+    "lon": 77.4185,
+    "lat": 18.443
+  },
+  {
+    "id": "E2",
+    "nombre": "Cima del delta",
+    "tipo": "ciencia",
+    "valor_cientifico": 8,
+    "lon": 77.414,
+    "lat": 18.458
+  },
+  {
+    "id": "REF",
+    "nombre": "Refugio de roca",
+    "tipo": "refugio",
+    "valor_cientifico": 2,
+    "lon": 77.425,
+    "lat": 18.456
+  },
+  {
+    "id": "COM",
+    "nombre": "Repetidora de comunicaciones",
+    "tipo": "comms",
+    "valor_cientifico": 1,
+    "lon": 77.434,
+    "lat": 18.458
+  }
+]

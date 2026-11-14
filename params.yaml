@@ -1,0 +1,41 @@
+# MarsWalk Copilot — parámetros del modelo de costo y del motor.
+# Un solo archivo para todos. Lo lee data/ (Pedro) para construir graph.json
+# y engine/ (Said) para filtrar y optimizar.
+# Revisión: compañero de Estadística (domingo 15:00-19:00).
+#
+# Cada valor dice de dónde sale:
+#   [dato]     sale de datos NASA/USGS
+#   [formula]  fórmula publicada (Tobler)
+#   [supuesto] lo elegimos nosotros; se presenta como supuesto en la demo
+
+costo:
+  celda_m: 20                 # [dato] tamaño de celda DTM CTX (SIM 3464)
+  tobler:                     # [formula] v = a * exp(-b * |tan(theta) + c|)  en km/h
+    a: 6.0
+    b: 3.5
+    c: 0.05
+  factor_traje: 0.80          # [supuesto] fracción de la velocidad de caminata en la Tierra
+  theta_max_fisico_deg: 30    # [supuesto] por encima, la celda queda bloqueada
+  limites_pendiente_deg: [15, 20, 25]   # versiones precalculadas del grafo
+  f_terreno:                  # [supuesto] multiplicadores sobre el tiempo
+    roca_expuesta: 1.20       # THEMIS noche caliente
+    arena_fina: 1.30          # THEMIS noche fría
+    normal: 1.00
+  themis_noche_umbral_K:      # [supuesto] cortes para clasificar el suelo
+    roca: 220
+    arena: 200
+  k_energia: 0.05             # [supuesto] energia_rel = tiempo * (1 + k * pendiente_deg)
+
+radiacion:
+  dosis_base_rel: 1.0         # [supuesto] no hay RAD en Jezero; índice relativo por minuto
+  azimuts_blindaje: 8         # [supuesto] fracción de cielo tapada por el relieve
+
+comms:
+  radio_visibilidad_m: 1500   # [supuesto] alcance de la línea de visión
+  umbral_cobertura_com_pct: 60  # [supuesto] alerta "comms": se quitan aristas por debajo
+
+mision:
+  origen: HAB
+  tiempo_max_min_default: 180
+  pendiente_max_default_deg: 15
+  penalidad_por_valor: 1000   # [supuesto] K en AddDisjunction: penalidad = valor_cientifico * K
