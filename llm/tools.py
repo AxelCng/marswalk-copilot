@@ -267,6 +267,11 @@ def execute(name, args):
                                                    _as_list(_arg(args, "stations", "estaciones")))),
                     "max_time_min": _num(_arg(args, "max_time_min", "tiempo_max_min"), DEFAULT_TIME_MIN),
                     "max_slope_deg": _num(_arg(args, "max_slope_deg", "pendiente_max"), DEFAULT_SLOPE_DEG)}
+            if not [s for s in used["stations"] if s != "HAB"]:
+                # "How many minutes does the walk take?" with no mission: the model tended to plan HAB -> HAB
+                # and answer "0 minutes". Without stations to visit there is nothing to optimize: ask.
+                return used, {"error": "No stations to visit. Do not plan anything: ask the astronaut which "
+                                       "stations to visit, the time limit and the maximum slope."}
             r = requests.post(f"{API_URL}/mision", timeout=TIMEOUT,
                               json={"estaciones": used["stations"], "tiempo_max_min": used["max_time_min"],
                                     "pendiente_max": used["max_slope_deg"], "modo": "orientacion"})
