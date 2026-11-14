@@ -43,6 +43,43 @@ class AlertRequest(BaseModel):
     tipo: Literal["polvo", "comms"]
 
 
+class Tramo(BaseModel):
+    origen: str
+    destino: str
+    distancia_m: float
+    tiempo_min: float
+    pendiente_max_deg: float
+    cobertura_com_pct: float
+    dosis_rel: float
+    zonas: list[str]
+    geometria: list[list[float]]
+
+
+class EstacionOmitida(BaseModel):
+    id: str
+    motivo: Literal["pendiente", "tiempo", "alerta", "comms", "no_existe"]
+    detalle: dict
+
+
+class Totales(BaseModel):
+    distancia_m: float
+    tiempo_min: float
+    dosis_rel: float
+    margen_min: float | None
+
+
+class RespuestaMision(BaseModel):
+    factible: bool
+    ruta: list[str]
+    tramos: list[Tramo]
+    omitidas: list[EstacionOmitida]
+    totales: Totales
+
+
+class RespuestaAlerta(RespuestaMision):
+    aristas_afectadas: list[str]
+
+
 def create_app(graph_path=None):
     @asynccontextmanager
     async def lifespan(app):
@@ -73,14 +110,14 @@ def create_app(graph_path=None):
     def graph(request: Request, pendiente_max: Annotated[float, Query(ge=0, le=90, allow_inf_nan=False)] = 15):
         return request.app.state.missions.graph(pendiente_max)
 
-    @app.post("/ruta")
+    @app.post("/ruta", response_model=RespuestaMision)
     def route(body: RouteRequest, request: Request):
         store = request.app.state.graph
         require_station(store, body.origen)
         require_station(store, body.destino)
         return request.app.state.missions.route(body.origen, body.destino, body.pendiente_max)
 
-    @app.post("/mision")
+    @app.post("/mision", response_model=RespuestaMision)
     def mission(body: MissionRequest, request: Request):
         require_station(request.app.state.graph, body.origen)
         try:
@@ -88,7 +125,7 @@ def create_app(graph_path=None):
         except MissionSolverUnavailable as exc:
             raise HTTPException(503, detail=str(exc)) from exc
 
-    @app.post("/alerta")
+    @app.post("/alerta", response_model=RespuestaAlerta)
     def alert(body: AlertRequest, request: Request):
         try:
             return request.app.state.missions.alert(body.zona, body.tipo)
