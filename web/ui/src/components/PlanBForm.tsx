@@ -8,9 +8,10 @@ interface PlanBFormProps {
   stations: EstacionDetalle[];
   /** Zonas de alerta del grafo (GET /grafo). */
   zonas?: { id: string; nombre: string }[];
-  onMissionCalculated: (res: RespuestaMision) => void;
+  /** `ejemplo`: la misión salió de contracts/ porque no hubo conexión con el motor. */
+  onMissionCalculated: (res: RespuestaMision, ejemplo?: boolean) => void;
   /** Si viene, la alerta se muestra como alerta (zona roja + tramos evitados) en el mapa. */
-  onAlertaCalculada?: (res: RespuestaMision, zona: string) => void;
+  onAlertaCalculada?: (res: RespuestaMision, zona: string, ejemplo?: boolean) => void;
   /** Tras /reset: el resto de la pantalla limpia la misión y la alerta. */
   onReset?: () => void;
 }
@@ -61,7 +62,7 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
       const ejemplo = EJEMPLO_POR_PENDIENTE[params.pendiente_max];
       if (sinConexion(err) && ejemplo) {
         // Igual que la consola de Añe: sin motor, se muestra el ejemplo oficial de contracts/ y se dice.
-        onMissionCalculated(ejemplo);
+        onMissionCalculated(ejemplo, true);
         setEstado({
           texto: `Sin conexión con el motor. Se muestra el ejemplo de contracts/ para ≤ ${params.pendiente_max}° (E1, M1, M2, E2 · 240 min), no tu selección.`,
           tono: 'warning',
@@ -107,7 +108,8 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
       if (err instanceof ApiError && err.status === 409) {
         setEstado({ texto: 'Primero calcula una misión: la alerta recalcula la última.', tono: 'warning' });
       } else if (sinConexion(err) && z === 'Z2') {
-        onAlertaCalculada?.(MOCK_ALERTA_Z2, 'Z2');
+        if (onAlertaCalculada) onAlertaCalculada(MOCK_ALERTA_Z2, 'Z2', true);
+        else onMissionCalculated(MOCK_ALERTA_Z2, true);
         setEstado({ texto: 'Sin conexión con el motor. Se muestra el ejemplo de alerta en Z2 de contracts/ (sobre la misión a 15°).', tono: 'warning' });
       } else {
         setEstado({ texto: `No se pudo recalcular: ${mensaje(err)}`, tono: 'critical' });

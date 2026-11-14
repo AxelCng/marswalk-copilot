@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Battery, Activity, Database, MessageSquare, ShieldCheck, MapPin } from 'lucide-react';
+import { Battery, Activity, Database, MessageSquare, ShieldCheck, MapPin, ScanEye } from 'lucide-react';
 import { api } from '../services/api';
 
 type Tab = 'chat' | 'planb' | 'stations';
@@ -8,9 +8,11 @@ interface HudHeaderProps {
   activeTab: Tab;
   onTabChange: (tab: Tab) => void;
   stationsCount: number;
+  /** Abre el modo visor en primera persona (HUD de casco). */
+  onAbrirVisor?: () => void;
 }
 
-export const HudHeader: React.FC<HudHeaderProps> = ({ activeTab, onTabChange, stationsCount }) => {
+export const HudHeader: React.FC<HudHeaderProps> = ({ activeTab, onTabChange, stationsCount, onAbrirVisor }) => {
   const [useMock, setUseMock] = useState(api.useMock);
   const [time, setTime] = useState(() => new Date().toISOString().slice(11, 19));
 
@@ -49,20 +51,27 @@ export const HudHeader: React.FC<HudHeaderProps> = ({ activeTab, onTabChange, st
           </div>
         </div>
 
-        {/* Vistas */}
-        <nav className="segmentado w-full sm:w-auto sm:min-w-[320px] bg-hud-deep order-last sm:order-none" aria-label="Vistas">
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => onTabChange(t.id)}
-              className={`inline-flex items-center justify-center gap-1.5 ${activeTab === t.id ? 'activo' : ''}`}
-              aria-pressed={activeTab === t.id}
-            >
-              {t.icon} {t.label}
+        {/* Vistas de la consola + modo visor */}
+        <div className="flex w-full sm:w-auto items-center gap-2 order-last sm:order-none">
+          <nav className="segmentado flex-1 sm:min-w-[320px] bg-hud-deep" aria-label="Vistas">
+            {tabs.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => onTabChange(t.id)}
+                className={`inline-flex items-center justify-center gap-1.5 ${activeTab === t.id ? 'activo' : ''}`}
+                aria-pressed={activeTab === t.id}
+              >
+                {t.icon} {t.label}
+              </button>
+            ))}
+          </nav>
+          {onAbrirVisor && (
+            <button type="button" onClick={onAbrirVisor} className="btn primario !min-h-[30px] !px-3" title="Modo visor en primera persona (HUD de casco)">
+              <ScanEye className="h-3.5 w-3.5" /> Visor
             </button>
-          ))}
-        </nav>
+          )}
+        </div>
 
         {/* Telemetría y fuente de datos */}
         <div className="flex items-center gap-2 text-xs dato-num">
