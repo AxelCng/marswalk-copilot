@@ -50,21 +50,68 @@ DEMO = [
     ("demo-2 cambio", "¿Y si acepto hasta 20°?", chequeo_demo2),
     ("demo-3 alerta", "Alerta de polvo en la zona Z2. Recalcula.", chequeo_demo3),
 ]
+def chequeo_mision_ingles(r):
+    a = args_de(r, "optimizar_mision")
+    return bool(a) and {"E1", "M2"} <= set(a["estaciones"]) and a["tiempo_max_min"] == 120
+
+
+def chequeo_alerta_nombre(r):
+    a = args_de(r, "recalcular_por_alerta")
+    return bool(a) and a["zona"] == "Z2" and a["tipo"] == "polvo"
+
+
+def chequeo_comms(r):
+    a = args_de(r, "recalcular_por_alerta")
+    return bool(a) and a["tipo"] == "comms"
+
+
+def chequeo_ruta_refugio(r):
+    a = args_de(r, "ruta_punto_a_punto")
+    return bool(a) and a["origen"] == "HAB" and a["destino"] == "REF"
+
+
+def chequeo_alias(r):
+    a = args_de(r, "info_estacion")
+    return bool(a) and a["id"] == "E1"
+
+
+def chequeo_inexistente(r):
+    # Olympus Mons no está en el catálogo: no debe inventar datos ni ruta
+    return not r["numeros_sin_fuente"] and not any(
+        c["ok"] and c["herramienta"] == "ruta_punto_a_punto" and c["argumentos"].get("destino") in
+        {"HAB", "ROV", "E1", "M1", "M2", "E2", "REF", "COM"} for c in r["llamadas"])
+
+
+# Variantes en vivo: una misión corta y después alertas dichas de otra forma (necesitan misión previa)
+ALERTAS = [
+    ("en-mision", "Plan an EVA to the delta front and the Three Forks depot, back in 2 hours, max slope 15 degrees.",
+     chequeo_mision_ingles),
+    ("alerta-nombre", "Se viene una tormenta de polvo sobre el campo de dunas, ¿qué hacemos?", chequeo_alerta_nombre),
+    ("alerta-comms", "Perdimos comunicación con la repetidora, recalcula la ruta.", chequeo_comms),
+]
 # Preguntas sueltas (sin historial)
 SUELTAS = [
     ("info", "¿Qué tarea hay que hacer en Séítah sur y cuánto tiempo toma?", chequeo_info),
+    ("alias", "¿Qué hay en Amalik?", chequeo_alias),
+    ("ruta-refugio", "¿Cómo llego del hábitat al refugio de Hawksbill Gap sin pasar de 15 grados?", chequeo_ruta_refugio),
     ("ingles", "I want to go from the habitat to the delta front, max slope 15 degrees. How long?",
      lambda r: bool(args_de(r, "ruta_punto_a_punto") or args_de(r, "optimizar_mision"))),
+    ("inexistente", "¿Cuánto tardo en llegar al Olympus Mons?", chequeo_inexistente),
     ("trampa", "¿Cuántos minutos dura la caminata?", None),  # no hay misión: no debe inventar números
 ]
 
 
-def correr(modelo):
+def conversacion(modelo, casos):
     requests.post(f"{API_URL}/reset", timeout=10)
     filas, hist = [], []
-    for nombre, pregunta, chequeo in DEMO:
+    for nombre, pregunta, chequeo in casos:
         filas.append(probar(modelo, nombre, pregunta, chequeo, hist))
         hist = filas[-1]["historial"]
+    return filas
+
+
+def correr(modelo):
+    filas = conversacion(modelo, DEMO) + conversacion(modelo, ALERTAS)
     requests.post(f"{API_URL}/reset", timeout=10)
     for nombre, pregunta, chequeo in SUELTAS:
         filas.append(probar(modelo, nombre, pregunta, chequeo, []))
