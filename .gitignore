@@ -226,8 +226,11 @@ data/tmp/
 *.tif
 *.tiff
 *.zip
-# El graph.json real sí va a git (data/out/graph.json); los rasters intermedios no
+# El graph.json real sí va a git (data/out/graph.json); los rasters no
 data/out/*.tif
+data/out/rasters/*
+# ... pero el manifiesto de la malla sí, para saber cómo se generaron
+!data/out/rasters/malla.json
 
 # Frontend
 node_modules/
@@ -238,3 +241,6 @@ web/**/dist/
 
 # Ollama / modelos locales
 *.gguf
+
+# Configuración local de herramientas (no es del proyecto)
+.commandcode/

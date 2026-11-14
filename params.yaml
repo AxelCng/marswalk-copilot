@@ -16,7 +16,10 @@ costo:
     c: 0.05
   factor_traje: 0.80          # [supuesto] fracción de la velocidad de caminata en la Tierra
   theta_max_fisico_deg: 30    # [supuesto] por encima, la celda queda bloqueada
-  limites_pendiente_deg: [15, 20, 25]   # versiones precalculadas del grafo
+  # versiones precalculadas del grafo. Eran [15, 20, 25], pero con la DTM real a 15° ya se llega a
+  # todas las estaciones y la demo de pendiente no cambiaba nada (data/HALLAZGO_pendiente_demo.md).
+  # Con 8°: la cima del delta (E2) queda fuera; con 12°: entra. Decisión del equipo, sáb 14 (opción A).
+  limites_pendiente_deg: [8, 12, 15]
   f_terreno:                  # [supuesto] multiplicadores sobre el tiempo
     roca_expuesta: 1.20       # THEMIS noche caliente
     arena_fina: 1.30          # THEMIS noche fría

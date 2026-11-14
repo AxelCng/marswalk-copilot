@@ -1,16 +1,20 @@
 """API de estaciones, rutas, misiones y alertas acumulativas."""
 from contextlib import asynccontextmanager
+import logging
 import os
 from typing import Annotated, Literal
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 import yaml
 
 from engine.graph import GraphStore, SUMMARY_FIELDS, ROOT
 from engine.mission import MissionPlanner, MissionSolverUnavailable
 from engine.state import MissionState, NoPreviousMission, UnknownZone
+
+logger = logging.getLogger(__name__)
 
 Slope = Annotated[float, Field(ge=0, le=90, allow_inf_nan=False)]
 
@@ -80,10 +84,19 @@ class RespuestaAlerta(RespuestaMision):
     aristas_afectadas: list[str]
 
 
+GRAFO_REAL = "data/out/graph.json"
+GRAFO_FALSO = "contracts/graph_fake.json"
+
+
+def grafo_por_defecto():
+    """El graph.json real de data/ si existe; si no, el falso de contracts/ (misma forma)."""
+    return GRAFO_REAL if (ROOT / GRAFO_REAL).exists() else GRAFO_FALSO
+
+
 def create_app(graph_path=None):
     @asynccontextmanager
     async def lifespan(app):
-        app.state.graph = GraphStore(graph_path or os.getenv("GRAPH_PATH", "contracts/graph_fake.json"))
+        app.state.graph = GraphStore(graph_path or os.getenv("GRAPH_PATH") or grafo_por_defecto())
         params = yaml.safe_load((ROOT / "params.yaml").read_text(encoding="utf-8"))
         app.state.planner = MissionPlanner(app.state.graph, params["mision"]["penalidad_por_valor"])
         app.state.missions = MissionState(app.state.planner, params["comms"]["umbral_cobertura_com_pct"])
@@ -91,6 +104,12 @@ def create_app(graph_path=None):
 
     app = FastAPI(title="MarsWalk Copilot — Motor", lifespan=lifespan)
     app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+    @app.get("/geologia")
+    def geologia():
+        path = ROOT / "data" / "out" / "geologia.geojson"
+        if not path.is_file():
+            raise HTTPException(404, detail="capa geologica no disponible")
+        return FileResponse(path, media_type="application/geo+json")
 
     def require_station(store, station_id):
         if station_id not in store.nodes:
@@ -141,7 +160,23 @@ def create_app(graph_path=None):
     def reset(request: Request):
         return request.app.state.missions.reset()
 
+    montar_chat(app)
     return app
+
+
+def montar_chat(app):
+    """POST /chat del copiloto (llm/router.py, Manuel) en la misma API.
+
+    Es opcional: si falta el paquete `ollama` o se arranca con CHAT=0, el motor funciona igual
+    y la UI ofrece el Plan B. Las herramientas del copiloto llaman a esta misma API (API_URL)."""
+    if os.getenv("CHAT", "1") == "0":
+        return
+    try:
+        from llm.router import router as chat_router
+    except ImportError as exc:
+        logger.warning("Sin /chat: no se pudo importar llm.router (%s)", exc)
+        return
+    app.include_router(chat_router)
 
 
 app = create_app()

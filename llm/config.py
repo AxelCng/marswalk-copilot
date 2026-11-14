@@ -12,8 +12,14 @@ if _env.exists():
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 MODELO = os.getenv("MODELO", "qwen2.5:3b")
-API_URL = os.getenv("API_URL", "http://localhost:8001").rstrip("/")
+# Motor real (engine/, que también sirve /chat). 127.0.0.1 y no "localhost": en Windows "localhost"
+# prueba primero IPv6 y uvicorn escucha en IPv4, y cada llamada a una herramienta se demora.
+# Para el mock de pruebas: API_URL=http://127.0.0.1:8001
+API_URL = os.getenv("API_URL", "http://127.0.0.1:8000").rstrip("/")
 MAX_PASOS = int(os.getenv("MAX_PASOS", "6"))  # máximo de rondas de herramientas por pregunta
+# Cuánto tiempo deja Ollama el modelo cargado en la GPU sin uso. Por defecto Ollama usa 5 min y la
+# primera pregunta después de eso tarda lo que tarda cargar el modelo (~2.5 min la primera vez en la RTX 3050).
+KEEP_ALIVE = os.getenv("KEEP_ALIVE", "60m")
 
 # Defaults de params.yaml (mision.*): se usan si el astronauta no los dice
 PENDIENTE_DEFAULT = float(os.getenv("PENDIENTE_DEFAULT", "15"))

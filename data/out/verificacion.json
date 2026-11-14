@@ -1,0 +1,23 @@
+{
+  "aoi": "jezero_aoi_v1",
+  "estaciones": 8,
+  "capas_verificadas": [
+    "dtm",
+    "orto",
+    "orto_mosaico",
+    "themis_dia",
+    "themis_noche",
+    "hrsc",
+    "hrsc_sombra",
+    "pendiente"
+  ],
+  "dtm_validos_pct": 100.0,
+  "huecos_interiores": 0,
+  "elevacion_dif_media_m": 12.12,
+  "elevacion_dif_max_abs_m": 22.43,
+  "pendiente_media_deg": 3.58,
+  "pendiente_p99_deg": 21.79,
+  "pct_celdas_mayor_15_deg": 2.57,
+  "resultado": "OK",
+  "nota_elevacion": "El DTM queda por encima de elev_m del CSV de forma sistemática. Es una diferencia de datum vertical, no un error de alineación: las estaciones caen en la celda correcta (verificado por desplazamiento). Al escribir capas.elev_m del grafo hay que decidir si se usa el DTM o el CSV, y no mezclar ambos en el mismo cálculo de pendiente."
+}

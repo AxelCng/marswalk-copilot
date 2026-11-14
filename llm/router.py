@@ -10,7 +10,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # para que funcione importado desde la raíz del repo
-from agent import reiniciar, responder  # noqa: E402
+from agent import precalentar, reiniciar, responder  # noqa: E402
 from config import API_URL, MODELO  # noqa: E402
 
 router = APIRouter()
@@ -33,6 +33,12 @@ def chat_reset():
     """Olvida la misión anterior de la conversación (no toca las alertas: eso es POST /reset)."""
     reiniciar()
     return {"ok": True}
+
+
+@router.post("/chat/precalentar")
+def chat_precalentar():
+    """Carga el modelo en la GPU antes de la primera pregunta (la UI lo llama al abrir)."""
+    return precalentar()
 
 
 @router.get("/chat/estado")

@@ -28,6 +28,26 @@ python contracts/tools/validar_graph.py contracts/graph_fake.json
 
 Después leé el `README.md` de tu carpeta. **No esperes a nadie:** el grafo falso y los ejemplos de [`contracts/ejemplos/`](contracts/ejemplos/) tienen la forma exacta de lo que vas a recibir.
 
+## Correr todo con Docker
+
+Requiere Docker Desktop abierto ("Engine running").
+
+```powershell
+docker compose up --build -d     # la primera vez tarda unos minutos
+```
+
+- Pantalla: http://localhost:8080
+- API: http://localhost:8000/docs (la pantalla la usa por `/api/...`, a través de nginx)
+- Apagar: `docker compose down`
+
+| Para | Cómo |
+| --- | --- |
+| Usar el `graph.json` real de Pedro | Copiarlo a `data/out/graph.json` y correr `$env:GRAPH_PATH="data/out/graph.json"; docker compose up -d` (no hace falta reconstruir) |
+| Usar Ollama de otra máquina o de Colab | `$env:OLLAMA_URL="http://<ip-o-túnel>:11434"; docker compose up -d` |
+| Ver los logs del motor | `docker compose logs -f api` |
+
+Archivos: `Dockerfile` (API: motor + chat), `web/Dockerfile` (pantalla compilada + nginx), `web/docker/nginx.conf`, `docker-compose.yml`.
+
 ## Reglas del repo
 
 - Cada persona toca solo su carpeta y trabaja en su rama; se integra a `main` por PR.
