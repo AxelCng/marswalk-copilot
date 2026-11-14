@@ -29,17 +29,17 @@
     "supuesto_dn_arena": 85.0
   },
   "versiones": {
+    "8": {
+      "bloqueadas_pct": 7.65,
+      "maximo_min_por_celda": 0.6331
+    },
+    "12": {
+      "bloqueadas_pct": 3.79,
+      "maximo_min_por_celda": 0.8132
+    },
     "15": {
       "bloqueadas_pct": 2.57,
       "maximo_min_por_celda": 0.9887
-    },
-    "20": {
-      "bloqueadas_pct": 1.37,
-      "maximo_min_por_celda": 1.379
-    },
-    "25": {
-      "bloqueadas_pct": 0.59,
-      "maximo_min_por_celda": 1.9192
     }
   }
 }
