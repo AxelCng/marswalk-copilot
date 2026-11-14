@@ -28,21 +28,21 @@ Lo genera el pipeline (`data/`) y lo lee el motor al arrancar. El motor toma la 
   "meta": {"area": "jezero_aoi_v1", "crs": "MTM 77.5E", "modelo_costo": "v1",
            "fake": false, "limites_pendiente_deg": [15, 20, 25]},
   "zonas": [{"id": "Z2", "nombre": "Campo de dunas",
-             "poligono": [[77.42, 18.444], [77.431, 18.444], [77.431, 18.453], [77.42, 18.453], [77.42, 18.444]]}],
+             "poligono": [[77.422, 18.441], [77.434, 18.441], [77.434, 18.453], [77.422, 18.453], [77.422, 18.441]]}],
   "nodes": [{
     "id": "E1", "nombre": "Frente del delta", "tipo": "ciencia",
-    "lon": 77.412, "lat": 18.4495,
-    "valor_cientifico": 9, "tarea": "Muestreo de capas", "permanencia_min": 25,
+    "lon": 77.40144, "lat": 18.45073,
+    "valor_cientifico": 9, "tarea": "Muestreo de capas sedimentarias", "permanencia_min": 25,
     "unidad_geologica": "...", "zona": "Z1",
-    "capas": {"elev_m": -2530, "pendiente_deg": 12.0, "themis_noche": 222},
-    "fotos": [{"url": "https://...", "camara": "NAVCAM_LEFT", "sol": 0}]
+    "capas": {"elev_m": -2527, "pendiente_deg": 8.1, "themis_noche": 222},
+    "fotos": [{"url": "https://mars.nasa.gov/mars2020-raw-images/...jpg", "camara": "NAVCAM_LEFT", "sol": 565, "credito": "NASA/JPL-Caltech"}]
   }],
   "edges": [{
-    "origen": "HAB", "destino": "E1", "limite_deg": 15,
-    "distancia_m": 2376, "tiempo_min": 41.2, "energia_rel": 70.1,
-    "pendiente_max_deg": 14.0, "dosis_rel": 36.7,
-    "cobertura_com_pct": 100, "sombra_pct": 10,
-    "zonas": ["Z1", "Z2", "Z4"], "geometria": [[77.4508, 18.4447], [77.412, 18.4495]]
+    "origen": "HAB", "destino": "M2", "limite_deg": 15,
+    "distancia_m": 2639, "tiempo_min": 41.6, "energia_rel": 45.6,
+    "pendiente_max_deg": 1.9, "dosis_rel": 37.7,
+    "cobertura_com_pct": 100, "sombra_pct": 8,
+    "zonas": ["Z1", "Z2", "Z4"], "geometria": [[77.45089, 18.44463], [77.40844, 18.45342]]
   }]
 }
 ```
@@ -56,7 +56,7 @@ Lo genera el pipeline (`data/`) y lo lee el motor al arrancar. El motor toma la 
 - `pendiente_max_deg` ≤ `limite_deg` siempre.
 - `zonas` de una arista: ids de `zonas` que cruza el camino. La alerta de polvo trabaja sobre eso.
 - `energia_rel` y `dosis_rel` son índices relativos (modelos), no kcal ni mSv.
-- `fotos[].url` puede ser `null` hasta que estén las fotos reales (el frontend muestra un placeholder).
+- `fotos[].url` puede ser `null` si una estación no tiene foto (el frontend muestra un placeholder). `credito` es opcional.
 - `themis_noche`: temperatura de brillo nocturna en K.
 
 ### Agregados respecto al spec original
@@ -69,12 +69,17 @@ Son aditivos; no se renombró ni quitó nada.
 
 ## Qué trae el grafo falso
 
-8 nodos alrededor del sitio de aterrizaje de Perseverance, 4 zonas y 154 aristas (15°: 42, 20°: 56, 25°: 56). **Los números son inventados**, pero coherentes con el modelo de costo del spec (Tobler × factor_traje, ida ≠ vuelta). Está armado para que la demo del spec ya funcione:
+8 estaciones **reales**, 4 zonas y 154 aristas (15°: 42, 20°: 56, 25°: 56).
+
+- **Reales** (de [`estaciones.csv`](../estaciones.csv)): posición y elevación de waypoints de Perseverance, inclinación del rover cerca de cada estación y una foto Navcam de Raw Images por estación.
+- **Inventado** (lo reemplaza el `graph.json` de Pedro): THEMIS, unidad geológica, zonas y todos los atributos de las aristas. Igual son coherentes con el modelo de costo del spec (Tobler × factor_traje, ida ≠ vuelta).
+
+Con las distancias reales (el delta queda a unos 3 km del hábitat) la demo no entra en 3 h, así que el tope pasó a **4 h**. Está armado para que la demo funcione:
 
 | Caso | Ejemplo | Resultado con datos falsos |
 | --- | --- | --- |
-| 1. Delta + 2 muestreos, < 3 h, ≤ 15° | `post_mision.demo1_mision_15deg.*` | HAB→E1→M2→M1→HAB, 138.4 min; **E2 omitida por pendiente** (18.6° > 15°) |
-| 2. "¿Y si acepto 20°?" | `post_mision.demo2_mision_20deg.*` | entra E2: HAB→REF→E2→E1→M2→M1→HAB, 169.9 min (+31.5 min) |
-| 3. "Alerta de polvo en Z2" | `post_alerta.*` | evita el tramo HAB→E1: HAB→M2→E1→M2→M1→HAB, 140.1 min |
+| 1. Frente del delta + 2 muestreos (Séítah y Three Forks) + cima, < 4 h, ≤ 15° | `post_mision.demo1_mision_15deg.*` | HAB→M2→E1→M2→M1→HAB, 164.0 min; **E2 (cima) omitida por pendiente** (20.4° > 15°) |
+| 2. "¿Y si acepto 20°?" | `post_mision.demo2_mision_20deg.*` | entra la cima: HAB→REF→E2→E1→M2→M1→HAB, 201.6 min (+37.6 min) |
+| 3. "Alerta de polvo en Z2" (sobre la misión 1) | `post_alerta.*` | evita los tramos HAB→M2 y M2→M1 rodeando por la repetidora: HAB→COM→M2→E1→M2→COM→HAB→M1→HAB, 186.9 min |
 
 Los ejemplos los calcula una referencia de fuerza bruta dentro del generador. Said puede usarlos como resultado esperado en sus tests (el óptimo de OR-Tools debe dar el mismo tiempo total).

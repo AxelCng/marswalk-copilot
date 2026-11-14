@@ -2,23 +2,24 @@
   "id": "E1",
   "nombre": "Frente del delta",
   "tipo": "ciencia",
-  "lon": 77.412,
-  "lat": 18.4495,
+  "lon": 77.40144,
+  "lat": 18.45073,
   "valor_cientifico": 9,
-  "tarea": "Muestreo de capas",
+  "tarea": "Muestreo de capas sedimentarias",
   "permanencia_min": 25,
-  "unidad_geologica": "Delta, frente escarpado (FAKE)",
+  "unidad_geologica": "Delta, frente (FAKE)",
   "zona": "Z1",
   "capas": {
-    "elev_m": -2530,
-    "pendiente_deg": 12.0,
+    "elev_m": -2527,
+    "pendiente_deg": 8.1,
     "themis_noche": 222
   },
   "fotos": [
     {
-      "url": null,
+      "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/00565/ids/edr/browse/ncam/NLF_0565_0717111091_992ECM_N0290000NCAM02565_01_195J01_1200.jpg",
       "camara": "NAVCAM_LEFT",
-      "sol": 0
+      "sol": 565,
+      "credito": "NASA/JPL-Caltech"
     }
   ]
 }

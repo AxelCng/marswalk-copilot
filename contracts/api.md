@@ -23,7 +23,7 @@ Ejemplos reales de request/response, generados desde `graph_fake.json`, en [`eje
 
 ```json
 [{"id": "E1", "nombre": "Frente del delta", "tipo": "ciencia",
-  "valor_cientifico": 9, "lon": 77.412, "lat": 18.4495}]
+  "valor_cientifico": 9, "lon": 77.40144, "lat": 18.45073}]
 ```
 
 ### POST `/ruta`
@@ -37,7 +37,7 @@ Camino más corto en tiempo (Dijkstra). Devuelve `RespuestaMision` con `ruta` de
 ### POST `/mision`
 
 ```json
-{"estaciones": ["E1", "M1", "M2", "E2"], "tiempo_max_min": 180,
+{"estaciones": ["E1", "M1", "M2", "E2"], "tiempo_max_min": 240,
  "pendiente_max": 15, "modo": "orientacion", "origen": "HAB"}
 ```
 
@@ -61,7 +61,7 @@ Camino más corto en tiempo (Dijkstra). Devuelve `RespuestaMision` con `ruta` de
 - `comms`: se quitan las aristas con `cobertura_com_pct` < `umbral_cobertura_com_pct` de `params.yaml`.
 - Las alertas se acumulan hasta `/reset`. Si no hubo misión previa: `409`.
 
-Respuesta = `RespuestaMision` + `"aristas_afectadas": ["HAB->E1"]` (los tramos de la misión anterior que cruzaban la zona).
+Respuesta = `RespuestaMision` + `"aristas_afectadas": ["HAB->M2", "M2->M1"]` (los tramos de la misión anterior que cruzaban la zona).
 
 ### POST `/chat` (Manuel)
 
@@ -72,7 +72,7 @@ Respuesta = `RespuestaMision` + `"aristas_afectadas": ["HAB->E1"]` (los tramos d
 // salida
 {"respuesta": "Con 20° sumo la Cima del delta (E2)...",
  "llamadas": [{"herramienta": "optimizar_mision",
-               "argumentos": {"estaciones": ["E1","M1","M2","E2"], "tiempo_max_min": 180, "pendiente_max": 20},
+               "argumentos": {"estaciones": ["E1","M1","M2","E2"], "tiempo_max_min": 240, "pendiente_max": 20},
                "ok": true}],
  "ruta": { "...": "RespuestaMision o null si no hubo ruta" }}
 ```
@@ -82,14 +82,14 @@ Respuesta = `RespuestaMision` + `"aristas_afectadas": ["HAB->E1"]` (los tramos d
 ```json
 {
   "factible": true,
-  "ruta": ["HAB", "E1", "M2", "M1", "HAB"],
-  "tramos": [{"origen": "HAB", "destino": "E1", "distancia_m": 2376, "tiempo_min": 41.2,
-              "pendiente_max_deg": 14.0, "cobertura_com_pct": 100,
-              "dosis_rel": 36.7, "zonas": ["Z1", "Z2", "Z4"],
-              "geometria": [[77.4508, 18.4447], [77.412, 18.4495]]}],
+  "ruta": ["HAB", "M2", "E1", "M2", "M1", "HAB"],
+  "tramos": [{"origen": "HAB", "destino": "M2", "distancia_m": 2639, "tiempo_min": 41.6,
+              "pendiente_max_deg": 1.9, "cobertura_com_pct": 100,
+              "dosis_rel": 37.7, "zonas": ["Z1", "Z2", "Z4"],
+              "geometria": [[77.45089, 18.44463], [77.40844, 18.45342]]}],
   "omitidas": [{"id": "E2", "motivo": "pendiente",
-                "detalle": {"pendiente_max_deg": 18.6, "limite": 15}}],
-  "totales": {"distancia_m": 5047, "tiempo_min": 138.4, "dosis_rel": 72.6, "margen_min": 41.6}
+                "detalle": {"pendiente_max_deg": 20.4, "limite": 15}}],
+  "totales": {"distancia_m": 6833, "tiempo_min": 164.0, "dosis_rel": 95.6, "margen_min": 76.0}
 }
 ```
 
@@ -97,8 +97,8 @@ Respuesta = `RespuestaMision` + `"aristas_afectadas": ["HAB->E1"]` (los tramos d
 
 | `motivo` | `detalle` | El LLM dice… |
 | --- | --- | --- |
-| `pendiente` | `{pendiente_max_deg, limite}` — la mínima pendiente con que se llega vs. lo pedido | "omití E2: el camino más suave tiene 18.6° y pediste 15°" |
-| `tiempo` | `{tiempo_max_min}` | "no entra en 180 min" |
+| `pendiente` | `{pendiente_max_deg, limite}` — la mínima pendiente con que se llega vs. lo pedido | "omití la cima del delta: el camino más suave tiene 20.4° y pediste 15°" |
+| `tiempo` | `{tiempo_max_min}` | "no entra en 240 min" |
 | `alerta` | `{zonas}` | "queda aislada por la alerta en Z2" |
 | `comms` | `{cobertura_com_pct, umbral}` | "no hay camino con cobertura suficiente" |
 | `no_existe` | `{}` | "no conozco esa estación" |
