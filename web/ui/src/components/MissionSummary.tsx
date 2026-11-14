@@ -131,11 +131,11 @@ export const MissionSummary: React.FC<MissionSummaryProps> = ({ mission, onSelec
                   {om.motivo === 'tiempo' &&
                     `Exceeds the ${om.detalle.tiempo_max_min} min time limit`}
                   {om.motivo === 'alerta' &&
-                    `Queda aislada por alerta de polvo en zonas ${om.detalle.zonas?.join(', ')}`}
+                    `Cut off by the dust alert in ${om.detalle.zonas?.join(', ')}`}
                   {om.motivo === 'comms' &&
-                    `Cobertura insuficiente (${om.detalle.cobertura_com_pct}%)`}
+                    `Insufficient comms coverage (${om.detalle.cobertura_com_pct}%)`}
                   {om.motivo === 'no_existe' &&
-                    `Not in the geological catalog`}
+                    `Unknown station`}
                 </span>
               </div>
             ))}

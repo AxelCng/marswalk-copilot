@@ -143,7 +143,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
       {/* Guion de la demo */}
       <div className="flex items-center gap-1.5 px-3 py-2 bg-hud-deep/60 border-b border-hud-subtle overflow-x-auto text-[11px] font-mono">
         <span className="label-caps flex-shrink-0 flex items-center gap-1">
-          <Sparkles className="h-3 w-3 text-hud-cyan" /> Guion demo
+          <Sparkles className="h-3 w-3 text-hud-cyan" /> Demo script
         </span>
         {DEMO_PRESETS.map((preset, i) => (
           <button
@@ -201,7 +201,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            aria-label="Enviar"
+            aria-label="Send"
             className="flex items-center justify-center h-10 w-10 shrink-0 rounded bg-hud-cyan text-hud-deep hover:shadow-glow-cyan disabled:opacity-40 disabled:cursor-not-allowed transition-shadow"
           >
             <Send className="h-4 w-4" />

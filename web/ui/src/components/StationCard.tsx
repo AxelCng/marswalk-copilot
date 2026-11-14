@@ -92,7 +92,7 @@ export const StationCard: React.FC<StationCardProps> = ({ station, isSelected, o
         <div className="mt-3 grid grid-cols-3 gap-1.5 pt-2 border-t border-hud-subtle font-mono text-[11px]">
           <div className="flex flex-col bg-hud-deep/60 rounded px-1.5 py-1">
             <span className="label-caps !text-[9px] flex items-center gap-0.5">
-              <Mountain className="h-2.5 w-2.5" /> PEND.
+              <Mountain className="h-2.5 w-2.5" /> SLOPE
             </span>
             <span className={`font-semibold ${station.capas.pendiente_deg > 15 ? 'text-warning' : 'text-ink'}`}>
               {station.capas.pendiente_deg}°
@@ -110,7 +110,7 @@ export const StationCard: React.FC<StationCardProps> = ({ station, isSelected, o
 
           <div className="flex flex-col bg-hud-deep/60 rounded px-1.5 py-1">
             <span className="label-caps !text-[9px] flex items-center gap-0.5">
-              <Clock className="h-2.5 w-2.5" /> TIEMPO
+              <Clock className="h-2.5 w-2.5" /> TIME
             </span>
             <span className="text-hud-cyan font-semibold">
               {station.permanencia_min}m
