@@ -93,6 +93,13 @@ def check_not_found(r):
     return (asks_e9 or bool(says_no)) and not r["unsourced_numbers"]
 
 
+def check_trap(r):
+    # No mission and no stations: it must ask, not invent numbers or plan an empty walk (only HAB -> "0 minutes")
+    empty_plan = any(c["ok"] and c["tool"] == "optimize_mission"
+                     and not set(c["arguments"].get("stations") or []) - {"HAB"} for c in r["calls"])
+    return not r["unsourced_numbers"] and not empty_plan
+
+
 def check_outside_area(r):
     # Olympus Mons is not in the catalog: no invented data and no route to a real station instead
     return not r["unsourced_numbers"] and not any(
@@ -125,7 +132,7 @@ SINGLE = [
     ("route time", "I want to go from the habitat to the delta front, max slope 15 degrees. How long?",
      lambda r: bool(args_of(r, "point_to_point_route") or args_of(r, "optimize_mission"))),
     ("outside area", "How long does it take to get to Olympus Mons?", check_outside_area),
-    ("trap", "How many minutes does the walk take?", None),  # no mission: it must not invent numbers
+    ("trap", "How many minutes does the walk take?", check_trap),  # no mission: it must ask, not invent
     ("three hours", "I want to visit the delta front and the upper delta, back in under 3 hours, "
                     "with no slopes over 12°.", check_three_hours),
     ("route slope", "How do I get from the habitat to Séítah with a maximum slope of 8 degrees?", check_route_m1),
@@ -150,6 +157,19 @@ def run_all(model):
     return rows
 
 
+_ERROR_ANSWER = re.compile(r"^\s*(the copilot is not available|i could not)", re.I)
+
+
+def failure_reason(r):
+    """Why the answer is an error (agent.py: 'error' field when Ollama fails, or an 'I could not...' answer
+    when the engine rejects a forced call), or None."""
+    if r.get("error"):
+        return f"error: {str(r['error'])[:80]}"
+    if _ERROR_ANSWER.search(r["answer"]):
+        return "error answer"
+    return None
+
+
 def run_case(model, name, question, check, hist):
     print(f"\n=== [{model}] {name}: {question}")
     try:
@@ -160,9 +180,13 @@ def run_case(model, name, question, check, hist):
     for c in r["calls"]:
         print(f"   -> {c['tool']}({json.dumps(c['arguments'], ensure_ascii=False)})" + ("" if c["ok"] else "  ERROR"))
     print("   Answer:", r["answer"].strip().replace("\n", "\n           "))
-    ok = check(r) if check else not r["unsourced_numbers"]
+    # An error answer never passes, even if the tool call before it was right (e.g. Ollama timed out
+    # while writing the answer: the tool args were fine but the astronaut got no route)
+    failed = failure_reason(r)
+    ok = not failed and (check(r) if check else not r["unsourced_numbers"])
     print(f"   Time: {r['seconds']} s | check: {'OK' if ok else 'FAIL'}"
-          f" | unsourced numbers: {r['unsourced_numbers'] or 'none'}")
+          + (f" ({failed})" if failed else "")
+          + f" | unsourced numbers: {r['unsourced_numbers'] or 'none'}")
     return {"name": name, "ok": ok, "seconds": r["seconds"],
             "unsourced": r["unsourced_numbers"], "history": r["history"]}
 
