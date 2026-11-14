@@ -4,6 +4,7 @@ import { getGrafo, ejemplos, postMision, postAlerta, postReset } from './api.js'
 import { getGeologia } from './geologia.js';
 import FichaEstacion from './FichaEstacion.jsx';
 import PanelCapas, { CAPAS_INICIALES } from './PanelCapas.jsx';
+import Caminata from './Caminata.jsx';
 
 // Consola "Geospatial Map" (AeroHUD Jezero): mapa a pantalla completa con
 // barra superior, riel de planificación a la izquierda, tiles de telemetría
@@ -50,6 +51,8 @@ export default function App() {
   const [elegidas, setElegidas] = useState(MISION_DEMO.estaciones);
   const [tiempoMax, setTiempoMax] = useState(MISION_DEMO.tiempo_max_min);
   const [zonaAlerta, setZonaAlerta] = useState('Z2');
+  const [mapa, setMapa] = useState(null);
+  const [caminando, setCaminando] = useState(false);
 
   useEffect(() => { getGrafo(pendiente).then(setGrafo); }, [pendiente]);
   useEffect(() => { getGeologia().then(setGeologia); }, []);
@@ -57,6 +60,8 @@ export default function App() {
   const usarApi = grafo?.fuente === 'api';
   const nodos = useMemo(() => Object.fromEntries((grafo?.nodes ?? []).map((n) => [n.id, n])), [grafo]);
   const visitables = (grafo?.nodes ?? []).filter((n) => n.tipo !== 'habitat');
+
+  useEffect(() => { if (!mision) setCaminando(false); }, [mision]);
 
   async function calcular(pend = pendiente, ests = elegidas, tmax = tiempoMax) {
     setAlerta(null);
@@ -200,8 +205,15 @@ export default function App() {
           onSelectEstacion={setSeleccion}
           onCursor={setCursor}
           onPaso={setPaso}
+          onMapa={setMapa}
+          terreno3d={caminando}
         />
 
+        {caminando && mision && (
+          <Caminata map={mapa} mision={mision} nodos={nodos} onSalir={() => setCaminando(false)} />
+        )}
+
+        {!caminando && (<>
         <div className="franja">
           <span className="dato"><span className="label-caps">Cursor</span>{cursor ? `${coord(cursor.lat, 'N', 'S')} ${coord(cursor.lng, 'E', 'W')}` : '—'}</span>
           <span className="dato"><span className="label-caps">Aristas</span>{grafo ? `${grafo.edges.length} ≤ ${pendiente}°` : '—'}</span>
@@ -246,6 +258,7 @@ export default function App() {
             <button id="btn-reset" onClick={reset}>Reset</button>
           </div>
         </div>
+        </>)}
       </main>
 
       {/* ---------------- Riel derecho: ruta ---------------- */}
@@ -258,6 +271,14 @@ export default function App() {
           {mision ? (
             <>
               <p className="ruta">{mision.ruta.join(' → ')}</p>
+              <button
+                id="btn-caminata"
+                className={caminando ? 'ancho activo-3d' : 'ancho'}
+                onClick={() => setCaminando((v) => !v)}
+                disabled={!mapa || !mision.tramos?.length}
+              >
+                {caminando ? 'Salir de la caminata 3D' : 'Caminata 3D en primera persona'}
+              </button>
               {alerta && (
                 <p className="nota critical">Evita {alerta.aristas_afectadas?.join(', ')} por polvo en {alerta.zona}.</p>
               )}
