@@ -67,10 +67,10 @@ Respuesta = `RespuestaMision` + `"aristas_afectadas": ["HAB->M2", "M2->M1"]` (lo
 
 ```json
 // entrada
-{"mensaje": "¿Y si acepto hasta 20°?",
+{"mensaje": "¿Y si acepto hasta 12°?",
  "historial": [{"rol": "usuario", "contenido": "..."}, {"rol": "asistente", "contenido": "..."}]}
 // salida
-{"respuesta": "Con 20° sumo la Cima del delta (E2)...",
+{"respuesta": "Con 12° sumo la Cima del delta (E2)...",
  "llamadas": [{"herramienta": "optimizar_mision",
                "argumentos": {"estaciones": ["E1","M1","M2","E2"], "tiempo_max_min": 240, "pendiente_max": 20},
                "ok": true}],
@@ -88,7 +88,7 @@ Respuesta = `RespuestaMision` + `"aristas_afectadas": ["HAB->M2", "M2->M1"]` (lo
               "dosis_rel": 37.7, "zonas": ["Z1", "Z2", "Z4"],
               "geometria": [[77.45089, 18.44463], [77.40844, 18.45342]]}],
   "omitidas": [{"id": "E2", "motivo": "pendiente",
-                "detalle": {"pendiente_max_deg": 20.4, "limite": 15}}],
+                "detalle": {"pendiente_max_deg": 18.5, "limite": 15}}],
   "totales": {"distancia_m": 6833, "tiempo_min": 164.0, "dosis_rel": 95.6, "margen_min": 76.0}
 }
 ```
@@ -97,7 +97,7 @@ Respuesta = `RespuestaMision` + `"aristas_afectadas": ["HAB->M2", "M2->M1"]` (lo
 
 | `motivo` | `detalle` | El LLM dice… |
 | --- | --- | --- |
-| `pendiente` | `{pendiente_max_deg, limite}` — la mínima pendiente con que se llega vs. lo pedido | "omití la cima del delta: el camino más suave tiene 20.4° y pediste 15°" |
+| `pendiente` | `{pendiente_max_deg, limite}` — la mínima pendiente con que se llega vs. lo pedido | "omití la cima del delta: el camino más suave tiene 18.5° y pediste 15°" |
 | `tiempo` | `{tiempo_max_min}` | "no entra en 240 min" |
 | `alerta` | `{zonas}` | "queda aislada por la alerta en Z2" |
 | `comms` | `{cobertura_com_pct, umbral}` | "no hay camino con cobertura suficiente" |
@@ -107,9 +107,9 @@ Respuesta = `RespuestaMision` + `"aristas_afectadas": ["HAB->M2", "M2->M1"]` (lo
 
 ## Cómo se elige la versión del grafo según `pendiente_max`
 
-`graph.json` trae 3 versiones de cada arista (`limite_deg` 15, 20 y 25). Para una `pendiente_max` pedida:
+`graph.json` trae una versión de cada arista por límite de `meta.limites_pendiente_deg` (grafo real: **8, 12 y 15**; grafo falso: 15, 20 y 25). Para una `pendiente_max` pedida:
 
-1. Se usa la versión más grande que **no supere** lo pedido (17° → versión 15; 22° → versión 20; menos de 15° → versión 15).
+1. Se usa la versión más grande que **no supere** lo pedido. Con el grafo real: 10° → versión 8; 13° → versión 12; menos de 8° → versión 8.
 2. Además se descartan las aristas con `pendiente_max_deg` > `pendiente_max`.
 
 Así nunca se devuelve un tramo más empinado de lo pedido.
