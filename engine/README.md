@@ -34,15 +34,17 @@ En `/docs`, abrir `POST /mision` → **Try it out** → **Execute**:
 ```json
 {
   "estaciones": ["E1", "M1", "M2", "E2"],
-  "tiempo_max_min": 180,
+  "tiempo_max_min": 240,
   "pendiente_max": 15,
   "modo": "orientacion",
   "origen": "HAB"
 }
 ```
 
-Resultado: HAB→E1→M2→M1→HAB, 138.4 minutos y 41.6 de margen; E2
-omitida por pendiente. Cambiar a 20° incluye E2: 169.9 minutos y 10.1 de margen.
+Resultado: HAB→M2→E1→M2→M1→HAB, 164.0 minutos y 76.0 de margen; E2
+omitida por pendiente. Cambiar a 20° incluye E2: 201.6 minutos y 38.4 de margen.
+Hay caminos empatados en tiempo a 20°: el motor puede pasar por M2 en lugar
+de REF, con diferente distancia y dosis, manteniendo el mismo tiempo óptimo.
 
 - `tsp` visita todas las estaciones solicitadas y vuelve al origen. El tiempo
   máximo es opcional; si una visita es imposible, `factible` es `false`.
@@ -80,19 +82,19 @@ Actualizar `/docs` después de la recarga de Uvicorn. Para repetir una demo
 sin depender de pruebas anteriores:
 
 1. Ejecutar `POST /reset` sin cuerpo: devuelve `{"ok": true}`.
-2. Ejecutar la misión anterior con **15°**, 180 minutos y modo `orientacion`:
-   debe durar **138.4 minutos**.
+2. Ejecutar la misión anterior con **15°**, 240 minutos y modo `orientacion`:
+   debe durar **164.0 minutos**.
 3. Ejecutar `POST /alerta` con:
 
    ```json
    {"zona": "Z2", "tipo": "polvo"}
    ```
 
-   Devuelve HAB→M2→E1→M2→M1→HAB, **140.1 minutos**, **39.9 de margen**
-   y `aristas_afectadas: ["HAB->E1"]`. Ningún tramo cruza Z2.
+   Devuelve HAB→COM→M2→E1→M2→COM→HAB→M1→HAB, **186.9 minutos**,
+   **53.1 de margen** y `aristas_afectadas: ["HAB->M2", "M2->M1"]`. Ningún tramo cruza Z2.
 4. Repetir la misma alerta: mantiene la ruta y devuelve `aristas_afectadas: []`
    porque la ruta anterior ya evitaba Z2.
-5. Ejecutar `/reset` y volver a pedir `/mision`: regresa a **138.4 minutos**.
+5. Ejecutar `/reset` y volver a pedir `/mision`: regresa a **164.0 minutos**.
 
 Para comunicaciones, enviar `{"zona": "Z2", "tipo": "comms"}` después de
 una misión. El contrato exige zona, pero el filtro de comunicaciones es global:
@@ -155,13 +157,14 @@ Las pruebas comparan respuestas completas con los ejemplos compartidos y
 verifican límites de pendiente, E2 inaccesible a 15°, errores 404/422, CORS,
 origen igual a destino y sustitución del grafo mediante `GRAPH_PATH`.
 
-Nota sobre los datos de prueba: el ejemplo de misión indica 18.6° como mínima
+Nota sobre los datos de prueba: el ejemplo de misión indica 20.4° como mínima
 pendiente para E2; el grafo incluye REF→E2 a 18.5° en la versión de 20°.
 `/ruta` calcula el mínimo máximo de pendiente sobre los caminos disponibles
 y devuelve 18.5°. Esto describe la pendiente física del camino; la selección
 de versiones sigue requiriendo pedir 20°. `/mision` comprueba además el regreso
 y usa el máximo de los mínimos de ida y vuelta. Los contratos compartidos quedan
-intactos; las pruebas de las demos comparan ruta, tramos, totales y motivos,
+intactos; las pruebas de las demos comparan el tiempo óptimo, margen y motivos, y validan
+los tramos y sus sumas contra el grafo (admitiendo empates de tiempo),
 sin exigir el detalle de pendiente incorrecto del ejemplo. Queda pendiente
 coordinar esta discrepancia con el dueño de los datos.
 

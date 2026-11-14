@@ -185,7 +185,7 @@ def test_solver_failure_keeps_previous_state(client, mission, monkeypatch):
     assert client.get("/grafo").json() == graph
     assert client.app.state.missions.last_result == previous
     result = client.post("/alerta", json={"zona": "Z2", "tipo": "polvo"}).json()
-    assert result["totales"]["tiempo_min"] == 140.1
+    assert result["totales"]["tiempo_min"] == example("post_alerta.response.json")["totales"]["tiempo_min"]
 
 
 def test_application_instances_do_not_share_state(mission):
@@ -223,7 +223,7 @@ def test_reset_cannot_interleave_with_recalculation(client, mission, monkeypatch
             assert not reset_done.is_set()
         finally:
             release.set()
-        assert alert_future.result(timeout=10)["totales"]["tiempo_min"] == 140.1
+        assert alert_future.result(timeout=10)["totales"]["tiempo_min"] == example("post_alerta.response.json")["totales"]["tiempo_min"]
         assert reset_future.result(timeout=10) == {"ok": True}
     assert state.last_request is None and state.last_result is None
     assert state.restrictions == Restrictions()
