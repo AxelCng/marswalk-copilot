@@ -1,11 +1,11 @@
 {
   "id": "E1",
-  "nombre": "Frente del delta",
+  "nombre": "Frente del delta, afloramiento Amalik",
   "tipo": "ciencia",
   "lon": 77.40144,
   "lat": 18.45073,
   "valor_cientifico": 9,
-  "tarea": "Muestreo de capas sedimentarias",
+  "tarea": "Estratigrafía de capas sedimentarias",
   "permanencia_min": 25,
   "unidad_geologica": "Delta, frente (FAKE)",
   "zona": "Z1",

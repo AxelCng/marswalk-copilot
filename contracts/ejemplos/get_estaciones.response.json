@@ -17,7 +17,7 @@
   },
   {
     "id": "E1",
-    "nombre": "Frente del delta",
+    "nombre": "Frente del delta, afloramiento Amalik",
     "tipo": "ciencia",
     "valor_cientifico": 9,
     "lon": 77.40144,
@@ -25,7 +25,7 @@
   },
   {
     "id": "M1",
-    "nombre": "Séítah",
+    "nombre": "Séítah sur, afloramiento Brac",
     "tipo": "muestreo",
     "valor_cientifico": 8,
     "lon": 77.44302,
@@ -41,15 +41,15 @@
   },
   {
     "id": "E2",
-    "nombre": "Cima del delta",
+    "nombre": "Cima del delta (Upper Fan)",
     "tipo": "ciencia",
-    "valor_cientifico": 9,
+    "valor_cientifico": 8,
     "lon": 77.40293,
     "lat": 18.46167
   },
   {
     "id": "REF",
-    "nombre": "Refugio al pie del escarpe",
+    "nombre": "Refugio en la base de Hawksbill Gap",
     "tipo": "refugio",
     "valor_cientifico": 2,
     "lon": 77.40875,
