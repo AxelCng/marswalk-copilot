@@ -113,7 +113,8 @@ def ejecutar() -> dict:
     with rasterio.open(rutas.OUT_RASTERS / NOMBRE_FACTOR, "w", **perfil) as dst:
         dst.write(salida_factor, 1)
 
-    # Una versión del costo por cada límite precalculado del grafo.
+    # Resumen por límite precalculado. No se escriben GeoTIFF por límite: el
+    # paso 60 recalcula el costo con su propio tope sobre la malla base.
     versiones = {}
     for limite in p.limites_pendiente_deg:
         costo = costo_para_limite(base, pendiente, p, limite)
@@ -123,10 +124,6 @@ def ejecutar() -> dict:
             "maximo_min_por_celda": round(float(costo[np.isfinite(costo)].max()), 4)
             if np.isfinite(costo).any() else None,
         }
-        destino = rutas.OUT_RASTERS / f"costo_{int(limite)}deg.tif"
-        datos = np.where(np.isfinite(costo), costo, valor_nodata).astype("float32")
-        with rasterio.open(destino, "w", **perfil) as dst:
-            dst.write(datos, 1)
         print(f"  costo {int(limite):2d}°: {bloqueadas:6d} celdas bloqueadas "
               f"({versiones[str(int(limite))]['bloqueadas_pct']:5.2f}%)")
 
