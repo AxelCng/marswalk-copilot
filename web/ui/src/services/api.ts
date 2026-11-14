@@ -4,6 +4,24 @@ import type { Grafo } from '../types/mission';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 
+/** Error de la API con el código HTTP y el `detail` de FastAPI (p. ej. 409 "no hay mision para recalcular"). */
+export class ApiError extends Error {
+  status: number;
+  constructor(status: number, mensaje: string) {
+    super(mensaje);
+    this.status = status;
+  }
+}
+
+async function errorDe(res: Response): Promise<ApiError> {
+  let detalle = '';
+  try {
+    const body = await res.json();
+    detalle = typeof body?.detail === 'string' ? body.detail : JSON.stringify(body?.detail ?? body);
+  } catch { /* cuerpo vacío o no JSON */ }
+  return new ApiError(res.status, detalle ? `HTTP ${res.status}: ${detalle}` : `HTTP ${res.status}`);
+}
+
 class ApiService {
   public useMock: boolean = false;
 
@@ -23,7 +41,7 @@ class ApiService {
   async getGrafo(): Promise<Grafo> {
     if (this.useMock) return MOCK_GRAFO;
     const res = await fetch(`${API_BASE}/grafo`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw await errorDe(res);
     return await res.json();
   }
 
@@ -36,7 +54,7 @@ class ApiService {
 
     try {
       const res = await fetch(`${API_BASE}/estaciones`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw await errorDe(res);
       return await res.json();
     } catch (err) {
       console.warn('Backend unavailable, falling back to mock:', err);
@@ -53,7 +71,7 @@ class ApiService {
 
     try {
       const res = await fetch(`${API_BASE}/estaciones/${id}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw await errorDe(res);
       return await res.json();
     } catch (err) {
       console.warn('Backend unavailable, falling back to mock:', err);
@@ -77,7 +95,7 @@ class ApiService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params)
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw await errorDe(res);
     return await res.json();
   }
 
@@ -93,7 +111,7 @@ class ApiService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ zona, tipo })
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw await errorDe(res);
     return await res.json();
   }
 
@@ -101,7 +119,7 @@ class ApiService {
     if (this.useMock) return { ok: true };
 
     const res = await fetch(`${API_BASE}/reset`, { method: 'POST' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw await errorDe(res);
     return await res.json();
   }
 
@@ -124,7 +142,7 @@ class ApiService {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mensaje, historial })
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw await errorDe(res);
       return await res.json();
     } catch (err) {
       // Nunca responder con datos de prueba si el copiloto real falla: el panel avisa y ofrece el plan B.
