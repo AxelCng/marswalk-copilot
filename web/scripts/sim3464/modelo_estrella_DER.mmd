@@ -1,0 +1,64 @@
+erDiagram
+    dim_map ||--o{ fact_map_feature : "map_key"
+    dim_geologic_unit ||--o{ fact_map_feature : "unit_key"
+    dim_feature_type ||--o{ fact_map_feature : "feature_type_key"
+    dim_spatial_context ||--o{ fact_map_feature : "spatial_context_key"
+
+    fact_map_feature {
+        INTEGER feature_key PK
+        INTEGER map_key FK
+        INTEGER unit_key FK
+        INTEGER feature_type_key FK
+        INTEGER spatial_context_key FK
+        TEXT source_layer UK "dim. degenerada"
+        INTEGER source_objectid UK "dim. degenerada"
+        INTEGER feature_count "medida, default 1"
+        REAL length_m "medida"
+        REAL area_m2 "medida"
+        REAL centroid_x
+        REAL centroid_y
+        TEXT geom_wkt
+    }
+
+    dim_geologic_unit {
+        INTEGER unit_key PK "0 = No aplica"
+        INTEGER unit_code UK
+        TEXT unit_name
+        TEXT unit_symbol UK
+        TEXT symbol_base
+        TEXT subscript
+        INTEGER color_id
+        TEXT age_prefix "derivado del simbolo"
+    }
+
+    dim_feature_type {
+        INTEGER feature_type_key PK
+        TEXT source_layer UK
+        TEXT feature_group
+        TEXT feature_type UK
+        TEXT certainty
+        TEXT geometry_type
+    }
+
+    dim_spatial_context {
+        INTEGER spatial_context_key PK
+        INTEGER in_landing_ellipse UK
+        INTEGER in_figure_area UK
+        INTEGER on_cross_section UK
+    }
+
+    dim_map {
+        INTEGER map_key PK
+        TEXT series
+        TEXT title
+        TEXT authors
+        INTEGER pub_year
+        TEXT publisher
+        INTEGER map_scale
+        TEXT crs_name
+        TEXT datum
+        REAL lon_min
+        REAL lon_max
+        REAL lat_min
+        REAL lat_max
+    }

@@ -1,0 +1,50 @@
+/* Estilos propios de MarsMap: los importa MarsMap.jsx, así funcionan en cualquier
+   pantalla que use el mapa (web/map y web/ui). Colores fijos de la paleta técnica,
+   sin depender de variables de la página. --c es el color del tipo de estación. */
+
+/* Waypoints cartográficos (marcadores HTML de MapLibre) */
+.wp {
+  position: relative; width: 22px; height: 22px; padding: 0; min-height: 0;
+  background: transparent; border: 0; border-radius: 0; cursor: pointer; box-shadow: none;
+}
+.wp:hover, .wp:focus-visible { border: 0; outline: none; background: transparent; }
+.wp::before, .wp::after { content: ''; position: absolute; background: var(--c, #E6EDF3); }
+.wp::before { left: 50%; top: -3px; bottom: -3px; width: 1px; margin-left: -0.5px; }
+.wp::after { top: 50%; left: -3px; right: -3px; height: 1px; margin-top: -0.5px; }
+.wp-ret {
+  position: absolute; z-index: 1; inset: 3px; border: 2px solid #000; border-radius: 50%;
+  background: #0D1117; outline: 1px solid var(--c, #E6EDF3); outline-offset: 0;
+}
+.wp-ret::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px;
+  border-radius: 50%; background: var(--c, #E6EDF3);
+}
+.wp-guia {
+  position: absolute; left: 17px; bottom: 17px; width: 16px; height: 1px; background: #C9D1D9;
+  transform-origin: left center; transform: rotate(-45deg);
+}
+.wp-tag {
+  position: absolute; left: 29px; bottom: 26px; display: flex; align-items: baseline; gap: 6px;
+  padding: 2px 5px; white-space: nowrap; border-radius: 2px;
+  background: #0E1117; border: 1px solid #2D333B; border-left: 2px solid var(--c, #E6EDF3);
+  font: 600 11px/13px 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums; color: #E6EDF3; text-align: left;
+}
+.wp-tag i { font-style: normal; font-weight: 500; font-size: 10px; color: #8B949E; }
+.wp.en-ruta .wp-ret { outline: 2px solid #FFB000; }
+.wp.en-ruta .wp-tag { border-color: #FFB000; border-left-color: #FFB000; }
+.wp.omitida .wp-ret { outline: 1px dashed #D29922; background: transparent; }
+.wp.omitida .wp-tag { color: #D29922; text-decoration: line-through; }
+.wp:focus-visible .wp-tag, .wp:hover .wp-tag { border-color: #E6EDF3; }
+.wp:focus-visible .wp-ret { outline: 2px solid #E6EDF3; }
+
+/* Aviso de alerta sobre la zona: sólido, rojo solo acá */
+.aviso-mapa {
+  display: flex; flex-direction: column; gap: 2px; padding: 6px 10px; margin-bottom: 6px;
+  background: #0E1117; border: 1px solid #DA3633; border-left-width: 3px; border-radius: 2px;
+  box-shadow: none; pointer-events: none;
+  font: 500 11px/14px 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.05em; color: #E6EDF3;
+  font-variant-numeric: tabular-nums;
+}
+.aviso-titulo { font-weight: 700; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #DA3633; }
+.aviso-dato { color: #C9D1D9; }

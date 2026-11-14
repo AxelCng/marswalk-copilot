@@ -1,0 +1,82 @@
+[
+  {
+    "feature_type_key": 1,
+    "source_layer": "GeoUnits_v1",
+    "feature_group": "unidad geológica",
+    "feature_type": "NHjf2",
+    "certainty": null,
+    "geometry_type": "polygon"
+  },
+  {
+    "feature_type_key": 2,
+    "source_layer": "GeoUnits_v1",
+    "feature_group": "unidad geológica",
+    "feature_type": "Nue",
+    "certainty": null,
+    "geometry_type": "polygon"
+  },
+  {
+    "feature_type_key": 3,
+    "source_layer": "GeoUnits_v1",
+    "feature_group": "unidad geológica",
+    "feature_type": "Aeb",
+    "certainty": null,
+    "geometry_type": "polygon"
+  },
+  {
+    "feature_type_key": 4,
+    "source_layer": "GeoUnits_v1",
+    "feature_group": "unidad geológica",
+    "feature_type": "Nle",
+    "certainty": null,
+    "geometry_type": "polygon"
+  },
+  {
+    "feature_type_key": 5,
+    "source_layer": "GeoUnits_v1",
+    "feature_group": "unidad geológica",
+    "feature_type": "Njf",
+    "certainty": null,
+    "geometry_type": "polygon"
+  },
+  {
+    "feature_type_key": 6,
+    "source_layer": "GeoContacts",
+    "feature_group": "contacto geológico",
+    "feature_type": "contacto",
+    "certainty": "certain",
+    "geometry_type": "line"
+  },
+  {
+    "feature_type_key": 7,
+    "source_layer": "GeoContacts",
+    "feature_group": "contacto geológico",
+    "feature_type": "contacto",
+    "certainty": "approximate",
+    "geometry_type": "line"
+  },
+  {
+    "feature_type_key": 8,
+    "source_layer": "LinearFeatures",
+    "feature_group": "rasgo lineal",
+    "feature_type": "delta lobe front",
+    "certainty": null,
+    "geometry_type": "line"
+  },
+  {
+    "feature_type_key": 9,
+    "source_layer": "SurfaceFeatures",
+    "feature_group": "rasgo superficial",
+    "feature_type": "dark-colored mantling material",
+    "certainty": null,
+    "geometry_type": "polygon"
+  },
+  {
+    "feature_type_key": 10,
+    "source_layer": "LocationFeatures",
+    "feature_group": "rasgo puntual",
+    "feature_type": "small crater",
+    "certainty": null,
+    "geometry_type": "point"
+  }
+]

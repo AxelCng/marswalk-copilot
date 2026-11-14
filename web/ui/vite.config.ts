@@ -8,6 +8,7 @@ import { join, resolve } from 'node:path'
 // El mapa (web/map/src/MarsMap.jsx, de Axl) pide su mapa base en /base/*.
 // Esas teselas viven en web/map/public/base: este plugin las sirve en desarrollo y las copia al build.
 const DIR_BASE = resolve(__dirname, '../map/public/base')
+const GEOLOGIA = resolve(__dirname, '../map/public/geologia.geojson')
 
 function teselasDelMapa(): Plugin {
   return {
@@ -19,8 +20,17 @@ function teselasDelMapa(): Plugin {
         res.setHeader('Content-Type', archivo.endsWith('.json') ? 'application/json' : 'image/png')
         res.end(readFileSync(archivo))
       })
+      // Capa geológica SIM 3464 (la entrega data/ en web/map/public): la usan el mapa y las fichas
+      server.middlewares.use('/geologia.geojson', (_req, res, next) => {
+        if (!existsSync(GEOLOGIA)) return next()
+        res.setHeader('Content-Type', 'application/geo+json')
+        res.end(readFileSync(GEOLOGIA))
+      })
     },
     generateBundle() {
+      if (existsSync(GEOLOGIA)) {
+        this.emitFile({ type: 'asset', fileName: 'geologia.geojson', source: readFileSync(GEOLOGIA) })
+      }
       if (!existsSync(DIR_BASE)) return
       for (const f of readdirSync(DIR_BASE)) {
         this.emitFile({ type: 'asset', fileName: `base/${f}`, source: readFileSync(join(DIR_BASE, f)) })
@@ -39,6 +49,8 @@ export default defineConfig({
   resolve: {
     // MarsMap está fuera de web/ui: sin esto usaría otra copia de React o MapLibre y se rompe.
     dedupe: ['react', 'react-dom', 'maplibre-gl'],
+    // Datos del SIM 3464 que usan los componentes del visor (web/ui/hud/src/sim.js).
+    alias: { '@shared': resolve(__dirname, '../shared') },
   },
   // El mapa (web/map) y los datos de prueba (contracts/) están fuera de web/ui.
   // Las rutas relativas se resuelven desde web/ui.
