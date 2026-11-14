@@ -13,19 +13,10 @@ import Caminata from './Caminata.jsx';
 
 const MISION_DEMO = { estaciones: ['E1', 'M1', 'M2', 'E2'], tiempo_max_min: 240, modo: 'orientacion', origen: 'HAB' };
 const EJEMPLO_POR_PENDIENTE = { 15: ejemplos.demo1, 20: ejemplos.demo2 };
-const MARGEN_MAPA = { top: 150, right: 60, bottom: 110, left: 60 };
+const MARGEN_MAPA = { top: 60, right: 60, bottom: 110, left: 60 };
 
 const fmt = (n, d = 0) => (n == null || Number.isNaN(n) ? '—' : Number(n).toLocaleString('es', { minimumFractionDigits: d, maximumFractionDigits: d }));
-const coord = (v, pos, neg) => `${Math.abs(v).toFixed(4)}°${v >= 0 ? pos : neg}`;
 
-function useRelojUTC() {
-  const [t, setT] = useState(() => new Date());
-  useEffect(() => {
-    const id = setInterval(() => setT(new Date()), 1000);
-    return () => clearInterval(id);
-  }, []);
-  return t.toISOString().slice(11, 19);
-}
 
 const MOTIVO = {
   pendiente: (d) => `pendiente ${d.pendiente_max_deg}° > ${d.limite}°`,
@@ -37,7 +28,6 @@ const MOTIVO = {
 const textoMotivo = (o) => (MOTIVO[o.motivo]?.(o.detalle ?? {}) ?? o.motivo);
 
 export default function App() {
-  const reloj = useRelojUTC();
   const [pendiente, setPendiente] = useState(15);
   const [grafo, setGrafo] = useState(null);
   const [geologia, setGeologia] = useState(null);
@@ -45,7 +35,6 @@ export default function App() {
   const [alerta, setAlerta] = useState(null);
   const [estado, setEstado] = useState('Sin misión. Elige estaciones y calcula, o usa una pregunta de la demo.');
   const [seleccion, setSeleccion] = useState(null);
-  const [cursor, setCursor] = useState(null);
   const [paso, setPaso] = useState(-1);
   const [capas, setCapas] = useState(CAPAS_INICIALES);
   const [elegidas, setElegidas] = useState(MISION_DEMO.estaciones);
@@ -112,7 +101,6 @@ export default function App() {
 
   const t = mision?.totales;
   const tramos = mision?.tramos ?? [];
-  const ritmo = t && t.tiempo_min ? (t.distancia_m / 1000) / (t.tiempo_min / 60) : null;
   const pendMax = tramos.length ? Math.max(...tramos.map((x) => x.pendiente_max_deg ?? 0)) : null;
   const comMin = tramos.length ? Math.min(...tramos.map((x) => x.cobertura_com_pct ?? 100)) : null;
   const visitadas = [...new Set(mision?.ruta ?? [])].map((id) => nodos[id]).filter(Boolean);
@@ -132,8 +120,6 @@ export default function App() {
         </div>
         <div className="barra-datos">
           <span className={`chip ${usarApi ? 'nominal' : 'warning'}`}>{usarApi ? 'API en línea' : 'Datos de ejemplo'}</span>
-          <span className="dato"><span className="label-caps">Área</span>{grafo?.meta?.area ?? '—'}</span>
-          <span className="dato"><span className="label-caps">UTC</span>{reloj}</span>
           {alerta && <span className="chip critical">Polvo · {alerta.zona}</span>}
         </div>
       </header>
@@ -188,6 +174,7 @@ export default function App() {
           <button id="btn-demo1" onClick={() => calcular(15, MISION_DEMO.estaciones, 240)}>1 · Delta + 2 muestreos, ≤ 15°</button>
           <button id="btn-demo2" onClick={() => calcular(20, MISION_DEMO.estaciones, 240)}>2 · ¿Y si acepto 20°?</button>
           <button id="btn-demo3" className="alerta" onClick={simularPolvo}>3 · Alerta de polvo en {zonaAlerta}</button>
+          <button id="btn-reset" onClick={reset}>Reset</button>
         </section>
 
         <p className="estado">{estado}</p>
@@ -203,7 +190,6 @@ export default function App() {
           capas={{ ...capas, geologia: { ...capas.geologia, on: capas.geologia.on && !!geologia } }}
           margen={MARGEN_MAPA}
           onSelectEstacion={setSeleccion}
-          onCursor={setCursor}
           onPaso={setPaso}
           onMapa={setMapa}
           terreno3d={caminando}
@@ -214,49 +200,8 @@ export default function App() {
         )}
 
         {!caminando && (<>
-        <div className="franja">
-          <span className="dato"><span className="label-caps">Cursor</span>{cursor ? `${coord(cursor.lat, 'N', 'S')} ${coord(cursor.lng, 'E', 'W')}` : '—'}</span>
-          <span className="dato"><span className="label-caps">Aristas</span>{grafo ? `${grafo.edges.length} ≤ ${pendiente}°` : '—'}</span>
-          <span className="dato"><span className="label-caps">CRS</span>{grafo?.meta?.crs ?? '—'}</span>
-        </div>
-
-        <div className="tiles">
-          <div className="tile">
-            <span className="label-caps">Distancia total</span>
-            <b>{fmt(t?.distancia_m)}<small>m</small></b>
-            <span className="sub">{tramos.length ? `${tramos.length} tramos` : 'sin ruta'}</span>
-          </div>
-          <div className="tile">
-            <span className="label-caps">Tiempo estimado</span>
-            <b>{fmt(t?.tiempo_min, 1)}<small>min</small></b>
-            <span className="sub">{ritmo ? `ritmo ${fmt(ritmo, 2)} km/h` : 'marcha + permanencia'}</span>
-          </div>
-          <div className="tile">
-            <span className="label-caps">Dosis relativa</span>
-            <b>{fmt(t?.dosis_rel, 1)}</b>
-            <span className="sub">índice, no mSv</span>
-          </div>
-          <div className={`tile${t?.margen_min != null ? (t.margen_min >= 0 ? ' ok' : ' mal') : ''}`}>
-            <span className="label-caps">Margen</span>
-            <b>{t?.margen_min != null ? `${t.margen_min >= 0 ? '+' : ''}${fmt(t.margen_min, 1)}` : '—'}<small>min</small></b>
-            <span className="sub">{t?.margen_min != null ? 'sobre el tope de tiempo' : 'sin tope'}</span>
-          </div>
-          <div className={`tile${comMin != null && comMin < 50 ? ' aviso' : ''}`}>
-            <span className="label-caps">Comms mínima</span>
-            <b>{fmt(comMin)}<small>%</small></b>
-            <span className="sub">{pendMax != null ? `pendiente máx ${fmt(pendMax, 1)}°` : 'por tramo'}</span>
-          </div>
-        </div>
-
         <div className="dock-capas">
           <PanelCapas capas={capas} setCapas={setCapas} hayGeologia={!!geologia} grafoFake={!!grafo?.meta?.fake} />
-          <div className="capas-acciones">
-            <select id="zona-alerta" aria-label="Zona de la alerta" value={zonaAlerta} onChange={(e) => setZonaAlerta(e.target.value)}>
-              {(grafo?.zonas ?? []).map((z) => <option key={z.id} value={z.id}>{z.id} · {z.nombre}</option>)}
-            </select>
-            <button id="btn-polvo" className="alerta" onClick={simularPolvo}>Simular polvo</button>
-            <button id="btn-reset" onClick={reset}>Reset</button>
-          </div>
         </div>
         </>)}
       </main>
@@ -271,6 +216,13 @@ export default function App() {
           {mision ? (
             <>
               <p className="ruta">{mision.ruta.join(' → ')}</p>
+              <dl className="resumen-ruta">
+                <div><dt>Tiempo</dt><dd>{fmt(t.tiempo_min, 1)} min</dd></div>
+                <div className={t.margen_min != null && t.margen_min < 0 ? 'mal' : ''}>
+                  <dt>Margen</dt><dd>{t.margen_min != null ? `${t.margen_min >= 0 ? '+' : ''}${fmt(t.margen_min, 1)} min` : 'sin tope'}</dd>
+                </div>
+                <div><dt>Dosis rel.</dt><dd>{fmt(t.dosis_rel, 1)}</dd></div>
+              </dl>
               <button
                 id="btn-caminata"
                 className={caminando ? 'ancho activo-3d' : 'ancho'}

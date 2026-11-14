@@ -129,3 +129,16 @@
 button, button.primario:hover:not(:disabled) { box-shadow: none; }
 button { transition: border-color 120ms; }
 .dato, .tile b, .tile .sub, .tabla-tramos, .ficha dd, .wp-tag, .capa-pct, .capa-nombre small, .franja, .leyenda-pend span, .maplibregl-ctrl-scale, .aviso-mapa, .ruta, .estado, input[type="number"] { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* Resumen de la ruta y ficha compacta */
+.resumen-ruta { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--hud-border-subtle); }
+.resumen-ruta div { display: flex; flex-direction: column; align-items: flex-end; padding: 4px 8px; }
+.resumen-ruta div + div { border-left: 1px solid var(--hud-border-subtle); }
+.resumen-ruta dt { align-self: stretch; font: 700 9px/12px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--outline); }
+.resumen-ruta dd { margin: 0; font: 600 13px/18px var(--font-mono); font-variant-numeric: tabular-nums; color: var(--on-surface); white-space: nowrap; }
+.resumen-ruta .mal dd { color: var(--status-critical); }
+.ficha-fuentes { border-top: 1px solid var(--hud-border); padding-top: var(--space-sm); display: flex; flex-direction: column; gap: var(--space-sm); }
+.ficha-fuentes summary { cursor: pointer; color: var(--outline); list-style-position: inside; }
+.ficha-fuentes summary:hover { color: var(--on-surface); }
+.ficha-fuentes[open] summary { margin-bottom: var(--space-sm); }
+.ficha-fuentes > * + * { margin-top: var(--space-sm); }
