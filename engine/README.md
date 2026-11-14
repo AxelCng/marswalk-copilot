@@ -12,7 +12,15 @@ indicada en el contrato y descarta tramos que exceden la pendiente solicitada.
 CORS está abierto para desarrollo.
 
 Las misiones usan OR-Tools y tienen pruebas contra fuerza bruta.
-Las alertas se acumulan y recalculan la última misión. `/chat` corresponde a Manuel.
+Las alertas se acumulan y recalculan la última misión.
+
+El motor carga `data/out/graph.json` (grafo real de Pedro) si existe; si no,
+`contracts/graph_fake.json`. `GRAPH_PATH` fuerza otro archivo.
+
+`/chat` (copiloto de Manuel, `llm/router.py`) se monta en esta misma API, junto con
+`/chat/reset` y `/chat/estado`. Necesita `pip install -r llm/requirements.txt` y Ollama
+corriendo; sin el paquete `ollama`, o con `CHAT=0`, el motor arranca igual sin `/chat`.
+Las herramientas del copiloto llaman a esta API en `API_URL` (por defecto `http://127.0.0.1:8000`).
 
 ### Ejecutar en Windows (Git Bash / Antigravity)
 
