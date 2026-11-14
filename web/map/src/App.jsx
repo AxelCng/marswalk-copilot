@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import MarsMap, { COLOR_TIPO } from './MarsMap.jsx';
 import { getGrafo, ejemplos, postMision, postAlerta, postReset } from './api.js';
 import { getGeologia } from './geologia.js';
+import FichaEstacion from './FichaEstacion.jsx';
+import PanelCapas, { CAPAS_INICIALES } from './PanelCapas.jsx';
 
 // Consola "Geospatial Map" (AeroHUD Jezero): mapa a pantalla completa con
 // barra superior, riel de planificación a la izquierda, tiles de telemetría
@@ -44,7 +46,7 @@ export default function App() {
   const [seleccion, setSeleccion] = useState(null);
   const [cursor, setCursor] = useState(null);
   const [paso, setPaso] = useState(-1);
-  const [capas, setCapas] = useState({ base: true, geologia: true, aristas: true, zonas: true });
+  const [capas, setCapas] = useState(CAPAS_INICIALES);
   const [elegidas, setElegidas] = useState(MISION_DEMO.estaciones);
   const [tiempoMax, setTiempoMax] = useState(MISION_DEMO.tiempo_max_min);
   const [zonaAlerta, setZonaAlerta] = useState('Z2');
@@ -193,7 +195,7 @@ export default function App() {
           mision={mision}
           alerta={alerta}
           geologia={geologia}
-          capas={{ ...capas, geologia: capas.geologia && !!geologia }}
+          capas={{ ...capas, geologia: { ...capas.geologia, on: capas.geologia.on && !!geologia } }}
           margen={MARGEN_MAPA}
           onSelectEstacion={setSeleccion}
           onCursor={setCursor}
@@ -234,28 +236,8 @@ export default function App() {
           </div>
         </div>
 
-        <div className="capas">
-          <span className="label-caps">Capas Jezero</span>
-          <div className="segmentado">
-            {[
-              ['base', 'CTX 5 m'],
-              ['geologia', 'Geología'],
-              ['aristas', 'Grafo'],
-              ['zonas', 'Zonas'],
-            ].map(([k, txt]) => (
-              <button
-                key={k}
-                id={`capa-${k}`}
-                aria-pressed={capas[k]}
-                className={capas[k] ? 'activo' : ''}
-                disabled={k === 'geologia' && !geologia}
-                title={k === 'geologia' && !geologia ? 'Falta geologia.geojson de data/' : undefined}
-                onClick={() => setCapas((c) => ({ ...c, [k]: !c[k] }))}
-              >
-                {txt}
-              </button>
-            ))}
-          </div>
+        <div className="dock-capas">
+          <PanelCapas capas={capas} setCapas={setCapas} hayGeologia={!!geologia} grafoFake={!!grafo?.meta?.fake} />
           <div className="capas-acciones">
             <select id="zona-alerta" aria-label="Zona de la alerta" value={zonaAlerta} onChange={(e) => setZonaAlerta(e.target.value)}>
               {(grafo?.zonas ?? []).map((z) => <option key={z.id} value={z.id}>{z.id} · {z.nombre}</option>)}
@@ -291,37 +273,56 @@ export default function App() {
         <section className="bloque">
           <div className="fila-titulo">
             <h2 className="label-caps">Secuencia de tramos</h2>
-            <span className="label-caps">{tramos.length} vectores</span>
+            <span className="label-caps">{tramos.length} segmentos</span>
           </div>
-          <ol className="secuencia">
-            {tramos.map((x, i) => (
-              <li key={i} className={i === paso ? 'activo' : ''}>
-                <span className="wp">WP-{String(i + 1).padStart(2, '0')}</span>
-                <span className="par">{x.origen} → {x.destino}</span>
-                <span className="val">{fmt(x.distancia_m / 1000, 2)} km</span>
-                <span className="val">{fmt(x.tiempo_min, 1)} min</span>
-                <span className={`val${x.pendiente_max_deg > pendiente ? ' warning' : ''}`}>{fmt(x.pendiente_max_deg, 1)}°</span>
-              </li>
-            ))}
-          </ol>
+          {tramos.length ? (
+            <table className="tabla-tramos">
+              <thead>
+                <tr>
+                  <th scope="col">WP</th>
+                  <th scope="col">Tramo</th>
+                  <th scope="col" className="num">km</th>
+                  <th scope="col" className="num">min</th>
+                  <th scope="col" className="num">Pend</th>
+                  <th scope="col" className="num">Com</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tramos.map((x, i) => (
+                  <tr key={i} className={i === paso ? 'activo' : ''}>
+                    <td className="wp-n">{String(i + 1).padStart(2, '0')}</td>
+                    <td className="par">{x.origen} → {x.destino}</td>
+                    <td className="num">{fmt(x.distancia_m / 1000, 2)}</td>
+                    <td className="num">{fmt(x.tiempo_min, 1)}</td>
+                    <td className={`num${x.pendiente_max_deg > pendiente ? ' warning' : ''}`}>{fmt(x.pendiente_max_deg, 1)}°</td>
+                    <td className="num">{fmt(x.cobertura_com_pct)}%</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan="2">Total</td>
+                  <td className="num">{fmt(t.distancia_m / 1000, 2)}</td>
+                  <td className="num">{fmt(t.tiempo_min, 1)}</td>
+                  <td className="num">{pendMax != null ? `${fmt(pendMax, 1)}°` : '—'}</td>
+                  <td className="num">{comMin != null ? `${fmt(comMin)}%` : '—'}</td>
+                </tr>
+              </tfoot>
+            </table>
+          ) : (
+            <p className="vacio">Sin tramos.</p>
+          )}
         </section>
 
         {(sel || objetivo) && (
-          <section className="bloque ficha" style={{ '--franja': COLOR_TIPO[(sel ?? objetivo).tipo] }}>
-            <div className="fila-titulo">
-              <h2 className="label-caps">{sel ? 'Estación seleccionada' : 'Objetivo primario'}</h2>
-              <span className="chip">Valor {(sel ?? objetivo).valor_cientifico}</span>
-            </div>
-            <h3>{(sel ?? objetivo).id} · {(sel ?? objetivo).nombre}</h3>
-            <p>{(sel ?? objetivo).tarea} · {(sel ?? objetivo).permanencia_min} min</p>
-            <dl>
-              <dt className="label-caps">Elevación</dt><dd>{fmt((sel ?? objetivo).capas?.elev_m)} m</dd>
-              <dt className="label-caps">Pendiente</dt><dd>{fmt((sel ?? objetivo).capas?.pendiente_deg, 1)}°</dd>
-              <dt className="label-caps">Posición</dt><dd>{coord((sel ?? objetivo).lat, 'N', 'S')} {coord((sel ?? objetivo).lon, 'E', 'W')}</dd>
-              {(sel ?? objetivo).unidad_geologica && (<><dt className="label-caps">Unidad</dt><dd>{(sel ?? objetivo).unidad_geologica}</dd></>)}
-            </dl>
-            {sel && <button className="ancho" onClick={() => setSeleccion(null)}>Volver al objetivo</button>}
-          </section>
+          <FichaEstacion
+            key={(sel ?? objetivo).id}
+            nodo={sel ?? objetivo}
+            titulo={sel ? 'Estación seleccionada' : 'Objetivo primario'}
+            colorFranja={COLOR_TIPO[(sel ?? objetivo).tipo]}
+            grafoFake={!!grafo?.meta?.fake}
+            onVolver={sel ? () => setSeleccion(null) : null}
+          />
         )}
       </aside>
     </div>

@@ -1,20 +1,149 @@
 # data/ — pipeline de datos (Pedro, L1)
 
-**Entrega:** `data/out/graph.json` real, sábado 22:00. Misma forma que [`contracts/graph_fake.json`](../contracts/graph_fake.json); reglas en [`contracts/README.md`](../contracts/README.md).
+Pipeline geoespacial completo: descargas USGS SIM 3464 → rasters alineados en
+MTM 77.5°E → mapa de costo → `graph.json` real.
 
-## Descargas (no se suben a git: van en `data/raw/`)
+## Estructura
 
-1. Zip del mapa geológico USGS SIM 3464: DTM CTX 20 m, THEMIS día/noche y shapefile de unidades (~350 MB)
-2. Mapa de pendientes de Jezero de USGS (42 MB): atajo si la DTM da problemas
-3. `M20_waypoints.json` de Perseverance
+```
+data/
+├── README.md
+├── HALLAZGO_pendiente_demo.md   # por qué la demo de pendiente no se sostiene
+├── requirements.txt
+├── pipeline/                    # un módulo por paso
+│   ├── crs.py                   # MTM 77.5°E sobre la esfera de Marte
+│   ├── rutas.py                 # rutas y capas de entrada
+│   ├── parametros.py            # lectura de params.yaml
+│   ├── aoi.py                   # 00: ventana de recorte
+│   ├── dim_map.py               # 00: metadatos del mapa
+│   ├── rasters.py               # 10: recorte + reproyección
+│   ├── waypoints.py             # 20: estaciones a MTM
+│   ├── geologia.py              # 30: modelo estrella
+│   ├── verificar.py             # 40: controles de la malla
+│   ├── costo.py                 # 50: mapa de costo
+│   ├── aristas.py               # 60: caminos y atributos
+│   ├── _relieve.py              # blindaje, sombra, cobertura, zonas
+│   ├── graph.py                 # 70: graph.json real
+│   └── correr.py                # CLI
+├── tests/                       # 37 pruebas
+├── raw/sim3464/                 # descargas (gitignored)
+└── out/                         # productos
+```
 
-## Pasos
+## Cómo correrlo
 
-1. Recorte del área (fondo del cráter cerca del aterrizaje + frente del delta) y reproyección. Rasters en MTM 77.5°E, esfera de 3 396 190 m; waypoints lon/lat → `pyproj`.
-2. Mapa de costo por celda con los parámetros de [`params.yaml`](../params.yaml): `c = Δx / v(θ) · f_terreno`, bloqueada si θ > límite.
-3. Aristas con `skimage.graph.route_through_array(costo, inicio, fin, fully_connected=True, geometric=True)`, **3 veces** (límites 15°, 20° y 25°) y en los 2 sentidos.
-4. Atributos de cada arista: ver la sección "Atributos de cada arista" del spec.
-5. **Geometría y nodos en lon/lat grados** al escribir `graph.json`.
-6. Antes de entregar: `python contracts/tools/validar_graph.py data/out/graph.json`
+```bash
+pip install -r data/requirements.txt
+python -m data.pipeline.correr --paso 00   # AOI y dim_map
+python -m data.pipeline.correr --paso 10   # rasters
+python -m data.pipeline.correr --paso 20   # waypoints
+python -m data.pipeline.correr --paso 30   # geología
+python -m data.pipeline.correr --paso 40   # verificación
+python -m data.pipeline.correr --paso 50   # mapa de costo
+python -m data.pipeline.correr --paso 60   # aristas
+python -m data.pipeline.correr --paso 70   # graph.json
+python -m data.pipeline.correr --paso todo
 
-**Corte 14:00:** si los rasters no se alinean, el costo usa solo el mapa de pendientes USGS.
+python -m pytest data/tests -q
+python contracts/tools/validar_graph.py data/out/graph.json
+python -m engine.check_graph data/out/graph.json
+```
+
+## Productos
+
+| Archivo | Contenido |
+| --- | --- |
+| `out/aoi.json` | Ventana de recorte: bbox MTM y lon/lat, malla, CRS |
+| `out/dim_map.json` | Metadatos del mapa: CRS, datum, escala, extensión |
+| `out/estaciones_mtm.csv` | Las 8 estaciones en MTM, lon/lat y píxel |
+| `out/rasters/*.tif` | 10 capas en la misma malla (gitignored) |
+| `out/rasters/malla.json` | Manifiesto de la malla compartida |
+| `out/costo.json` | Parámetros y resultado del mapa de costo |
+| `out/geologia.geojson` | Capa geológica aplanada en lon/lat (la consume `web/map`) |
+| `out/geologia/*.json` | 4 dimensiones + `fact_map_feature` |
+| `out/aristas.json` | 168 aristas con todos sus atributos |
+| `out/zonas.json` | Zonas de alerta de la demo |
+| `out/verificacion.json` | Resultado de los controles |
+| **`out/graph.json`** | **El grafo real: 8 nodos, 168 aristas** |
+
+## Resultado actual
+
+**Área y malla**
+
+- AOI de 194 × 141 px a 20 m = **10.94 km²**, anclado a la malla
+- Las 10 capas comparten malla exacta, al 100 % de celdas válidas, sin huecos
+- Pendiente: media 3.58°, p99 21.8°, **2.57 % de celdas > 15°**
+- Desplazamiento por anclaje: máximo 12.98 m (tope teórico 14.14 m)
+- Ida y vuelta MTM ↔ lon/lat: peor desvío 6.79e-09°
+
+**Costo y grafo**
+
+- Costo por celda: mediana 0.417 min (min 0.299, max 6.807)
+- THEMIS: 28.4 % roca, 39.5 % arena, 32.1 % normal
+- 168 aristas: 56 por cada límite (15°, 20°, 25°)
+- Ida y vuelta difieren: subir a E2 cuesta 56.19 min, bajar 50.02 min
+- `graph.json` valida con **0 avisos** y el motor lo acepta
+- Misión de prueba: 229.8 min, alerta Z1 verificada
+
+## Capas de entrada
+
+| Capa | Fuente | CRS de origen | Uso |
+| --- | --- | --- | --- |
+| `dtm` | CTX estéreo J03 20 m | Equirectangular | Elevación y pendiente |
+| `orto` | CTX J03 6 m | Equirectangular | Mapa base |
+| `orto_mosaico` | Mosaico CTX Caltech 5 m | MTM | Alternativa en MTM |
+| `themis_dia` | THEMIS día 100 m | MTM | Complemento térmico |
+| `themis_noche` | THEMIS noche 100 m | MTM | Proxy roca vs arena |
+| `hrsc` | HRSC 75 m | MTM | Contraste de elevación |
+| `hrsc_sombra` | Hillshade HRSC | MTM | Relieve |
+| `pendiente` | Derivada del DTM | — | Consumo del motor |
+| `costo` | Derivada (Tobler × traje × terreno) | — | Camino mínimo |
+| `f_terreno` | Derivada de THEMIS | — | Factor de suelo |
+
+## Decisiones que hay que conocer
+
+**1. El DTM crítico no está en MTM.** El spec dice que los rasters del SIM 3464
+vienen en MTM, pero el DTM CTX estéreo de 20 m está en Equirectangular, con píxel
+anisótropo (19.16 × 20.20 m). Reproyectarlo es el paso central.
+
+**2. pyproj aborta entre cuerpos celestes.** Con un CRS terrestre falla con
+*"ellipsoid do not belong to the same celestial body"*. Los CRS de Marte se
+construyen explícitos con `+R=3396190`.
+
+**3. THEMIS viene en DN, no en Kelvin.** El mosaico se distribuye en 8 bits sin
+tabla de calibración, pero `params.yaml` fija los umbrales en K. La calibración
+DN→K (150–300 K) está declarada en `costo.py` y reproduce los 205–230 K del
+grafo falso.
+
+**4. `route_through_array` no distingue subir de bajar.** El costo de una celda
+depende solo de su pendiente, sin signo, así que A→B y B→A daban el mismo
+tiempo. El trazado se decide con el costo simétrico y el tiempo se evalúa
+después con el desnivel **con signo** de cada paso.
+
+**5. `unit_code` no es clave única.** Los enteros `unit` 5 y 11 se repiten con
+símbolos distintos. La UK real es `unit_symbol` (14 unidades).
+
+**6. `dim_map` no sale de `MapBoundary`.** Sus `LON_MIN/LON_MAX/LAT_MIN/LAT_MAX`
+están en `NULL`. Los valores salen del XML FGDC; el CRS y el datum del `.prj`.
+
+**7. En `GeoContacts` el `TYPE` es la certeza**, no el tipo de rasgo.
+
+## Dos pendientes que necesitan decisión
+
+**Sesgo vertical.** El DTM queda de +7 a +22 m por encima de `elev_m` en
+`estaciones.csv`. Es diferencia de datum, no de alineación. `graph.json` usa el
+**DTM** (constante `ELEV_CORREGIDA` en `graph.py`), para que la elevación y la
+pendiente vengan del mismo raster.
+
+**La demo de pendiente no se sostiene.** A 15° se llega a E2, así que
+"¿y si acepto 20°?" no cambia nada. Ver
+[`HALLAZGO_pendiente_demo.md`](HALLAZGO_pendiente_demo.md): incluye los límites
+mínimos medidos y cuatro opciones, con recomendación.
+
+## Descargas
+
+No van a git (`data/raw/` está ignorado):
+
+1. Zip del mapa geológico USGS SIM 3464 (~350 MB): DTM CTX, THEMIS día/noche,
+   geodatabase, metadatos y sistemas de coordenadas
+2. `M20_waypoints.json` de Perseverance (ya resumido en `estaciones.csv`)

@@ -7,9 +7,11 @@ Uso:
     python test_preguntas.py qwen2.5:3b qwen2.5:7b
 
 Cada caso revisa: la herramienta esperada, los argumentos clave y que no haya números sin fuente.
-Los valores esperados salen de contracts/ejemplos/ (grafo falso). Con el graph.json real se ajustan.
+Demo con el graph.json real (data/out/): a 8° la cima del delta (E2) queda fuera por pendiente y a 12° entra
+(ver data/HALLAZGO_pendiente_demo.md). Con 3 horas E2 no entra por tiempo: la demo usa 4 horas.
 """
 import json
+import re
 import sys
 
 import requests
@@ -22,15 +24,21 @@ def args_de(r, herramienta):
     return next((c["argumentos"] for c in reversed(r["llamadas"]) if c["herramienta"] == herramienta and c["ok"]), None)
 
 
+PENDIENTE_DEMO_1 = 8   # E2 omitida por pendiente
+PENDIENTE_DEMO_2 = 12  # E2 entra
+
+
 def chequeo_demo1(r):
     a = args_de(r, "optimizar_mision")
-    return bool(a) and set(a["estaciones"]) == {"E1", "M1", "M2", "E2"} and a["pendiente_max"] == 15 \
-        and a["tiempo_max_min"] == 240
+    return bool(a) and set(a["estaciones"]) == {"E1", "M1", "M2", "E2"} and a["pendiente_max"] == PENDIENTE_DEMO_1 \
+        and a["tiempo_max_min"] == 240 and bool(r["ruta"]) \
+        and any(o["id"] == "E2" and o["motivo"] == "pendiente" for o in r["ruta"]["omitidas"])
 
 
 def chequeo_demo2(r):
     a = args_de(r, "optimizar_mision")
-    return bool(a) and "E2" in a["estaciones"] and a["pendiente_max"] == 20 and bool(r["ruta"]) and "E2" in r["ruta"]["ruta"]
+    return bool(a) and "E2" in a["estaciones"] and a["pendiente_max"] == PENDIENTE_DEMO_2 \
+        and bool(r["ruta"]) and "E2" in r["ruta"]["ruta"]
 
 
 def chequeo_demo3(r):
@@ -43,12 +51,38 @@ def chequeo_info(r):
     return bool(a) and a["id"] == "M1"
 
 
+def chequeo_comms(r):
+    a = args_de(r, "recalcular_por_alerta")
+    return bool(a) and a["tipo"] == "comms"
+
+
+def chequeo_tres_horas(r):
+    # Con 3 horas la cima del delta no entra por tiempo (data/HALLAZGO_pendiente_demo.md): debe decir el motivo
+    a = args_de(r, "optimizar_mision")
+    return bool(a) and set(a["estaciones"]) == {"E1", "E2"} and a["tiempo_max_min"] == 180 \
+        and a["pendiente_max"] == 12 and bool(r["ruta"])
+
+
+def chequeo_ingles_ruta(r):
+    a = args_de(r, "ruta_punto_a_punto")
+    return bool(a) and a["origen"] == "HAB" and a["destino"] == "M1" and a["pendiente_max"] == 8
+
+
+def chequeo_no_existe(r):
+    # Basta con que diga que no existe (con o sin llamar a la herramienta) y que no invente datos de E9
+    pide_e9 = any("E9" in json.dumps(c["argumentos"]) for c in r["llamadas"])
+    dice_que_no = re.search(r"no (existe|conozco|est[aá])|not (exist|found|in the catalog)", r["respuesta"], re.I)
+    return (pide_e9 or bool(dice_que_no)) and not r["numeros_sin_fuente"]
+
+
 # Conversación de la demo: cada pregunta ve el historial de la anterior
 DEMO = [
     ("demo-1 mision", "Quiero visitar el frente del delta, los dos puntos de muestreo (Séítah y Three Forks) y la "
-                      "cima del delta, volver en menos de 4 horas y sin pendientes de más de 15 grados.", chequeo_demo1),
-    ("demo-2 cambio", "¿Y si acepto hasta 20°?", chequeo_demo2),
+                      "cima del delta, volver en menos de 4 horas y sin pendientes de más de 8 grados.", chequeo_demo1),
+    ("demo-2 cambio", "¿Y si acepto hasta 12°?", chequeo_demo2),
     ("demo-3 alerta", "Alerta de polvo en la zona Z2. Recalcula.", chequeo_demo3),
+    # Fuera del guion, pero puede pasar en vivo: una segunda alerta sobre la misma misión
+    ("comms", "Perdimos la comunicación con el hábitat, recalcula la ruta.", chequeo_comms),
 ]
 def chequeo_mision_ingles(r):
     a = args_de(r, "optimizar_mision")
@@ -98,6 +132,10 @@ SUELTAS = [
      lambda r: bool(args_de(r, "ruta_punto_a_punto") or args_de(r, "optimizar_mision"))),
     ("inexistente", "¿Cuánto tardo en llegar al Olympus Mons?", chequeo_inexistente),
     ("trampa", "¿Cuántos minutos dura la caminata?", None),  # no hay misión: no debe inventar números
+    ("tres horas", "Quiero visitar el frente del delta y la cima del delta, volver en menos de 3 horas, "
+                   "sin pendientes de más de 12°.", chequeo_tres_horas),
+    ("ingles ruta", "How do I get from the habitat to Séítah with a maximum slope of 8 degrees?", chequeo_ingles_ruta),
+    ("no existe", "¿Qué hay que hacer en la estación E9?", chequeo_no_existe),
 ]
 
 

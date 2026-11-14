@@ -358,7 +358,7 @@
       "id": "E2",
       "motivo": "pendiente",
       "detalle": {
-        "pendiente_max_deg": 20.4,
+        "pendiente_max_deg": 18.5,
         "limite": 15
       }
     }
