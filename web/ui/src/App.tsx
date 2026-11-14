@@ -194,11 +194,10 @@ export const App: React.FC = () => {
                   <button
                     key={f.id}
                     onClick={() => setFilterTipo(f.id)}
-                    className={`px-3 py-1 rounded-lg border transition-colors ${
-                      filterTipo === f.id
+                    className={`px-3 py-1 rounded-lg border transition-colors ${filterTipo === f.id
                         ? 'bg-cyan-950 border-cyan-400 text-cyan-300 font-bold'
                         : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
-                    }`}
+                      }`}
                   >
                     {f.label}
                   </button>

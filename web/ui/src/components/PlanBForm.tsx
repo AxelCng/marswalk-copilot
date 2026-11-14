@@ -104,11 +104,10 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, onMissionCalcula
                 key={station.id}
                 type="button"
                 onClick={() => toggleStation(station.id)}
-                className={`flex flex-col text-left p-2.5 rounded-xl border transition-all text-xs font-mono ${
-                  isChecked
+                className={`flex flex-col text-left p-2.5 rounded-xl border transition-all text-xs font-mono ${isChecked
                     ? 'bg-cyan-950/40 border-cyan-400/80 text-white shadow-sm ring-1 ring-cyan-500/30'
                     : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between w-full mb-1">
                   <span className="font-bold text-sm text-cyan-300">{station.id}</span>
@@ -196,22 +195,20 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, onMissionCalcula
           <button
             type="button"
             onClick={() => setModo('orientacion')}
-            className={`px-3 py-1 rounded-lg border transition-colors ${
-              modo === 'orientacion'
+            className={`px-3 py-1 rounded-lg border transition-colors ${modo === 'orientacion'
                 ? 'bg-cyan-950 border-cyan-400 text-cyan-300 font-bold'
                 : 'bg-slate-900 border-slate-800 text-slate-400'
-            }`}
+              }`}
           >
             Orientación (Maximizar Ciencia)
           </button>
           <button
             type="button"
             onClick={() => setModo('tsp')}
-            className={`px-3 py-1 rounded-lg border transition-colors ${
-              modo === 'tsp'
+            className={`px-3 py-1 rounded-lg border transition-colors ${modo === 'tsp'
                 ? 'bg-cyan-950 border-cyan-400 text-cyan-300 font-bold'
                 : 'bg-slate-900 border-slate-800 text-slate-400'
-            }`}
+              }`}
           >
             TSP Estricto
           </button>
