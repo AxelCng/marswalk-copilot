@@ -88,7 +88,7 @@ Respuesta = `RespuestaMision` + `"aristas_afectadas": ["HAB->M2", "M2->M1"]` (lo
               "dosis_rel": 37.7, "zonas": ["Z1", "Z2", "Z4"],
               "geometria": [[77.45089, 18.44463], [77.40844, 18.45342]]}],
   "omitidas": [{"id": "E2", "motivo": "pendiente",
-                "detalle": {"pendiente_max_deg": 20.4, "limite": 15}}],
+                "detalle": {"pendiente_max_deg": 18.5, "limite": 15}}],
   "totales": {"distancia_m": 6833, "tiempo_min": 164.0, "dosis_rel": 95.6, "margen_min": 76.0}
 }
 ```
@@ -97,7 +97,7 @@ Respuesta = `RespuestaMision` + `"aristas_afectadas": ["HAB->M2", "M2->M1"]` (lo
 
 | `motivo` | `detalle` | El LLM dice… |
 | --- | --- | --- |
-| `pendiente` | `{pendiente_max_deg, limite}` — la mínima pendiente con que se llega vs. lo pedido | "omití la cima del delta: el camino más suave tiene 20.4° y pediste 15°" |
+| `pendiente` | `{pendiente_max_deg, limite}` — la mínima pendiente con que se llega vs. lo pedido | "omití la cima del delta: el camino más suave tiene 18.5° y pediste 15°" |
 | `tiempo` | `{tiempo_max_min}` | "no entra en 240 min" |
 | `alerta` | `{zonas}` | "queda aislada por la alerta en Z2" |
 | `comms` | `{cobertura_com_pct, umbral}` | "no hay camino con cobertura suficiente" |

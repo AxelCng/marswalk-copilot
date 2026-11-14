@@ -1,0 +1,33 @@
+# MarsWalk Copilot — todo junto:  docker compose up --build
+#   pantalla:  http://localhost:8080
+#   API:       http://localhost:8000/docs
+services:
+  api:
+    build: .
+    image: marswalk-api
+    ports:
+      - "8000:8000"
+    environment:
+      # Para el graph.json real de Pedro:  GRAPH_PATH=data/out/graph.json docker compose up
+      GRAPH_PATH: ${GRAPH_PATH:-contracts/graph_fake.json}
+      # Dónde corre Ollama (laptop, laptop con GPU o túnel de Colab)
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      MODELO: ${MODELO:-qwen2.5:3b}
+    volumes:
+      # el graph.json real se cambia sin reconstruir la imagen
+      - ./data/out:/app/data/out:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    image: marswalk-web
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped

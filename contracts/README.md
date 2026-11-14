@@ -78,7 +78,7 @@ Con las distancias reales (el delta queda a unos 3 km del hábitat) la demo no e
 
 | Caso | Ejemplo | Resultado con datos falsos |
 | --- | --- | --- |
-| 1. Frente del delta + 2 muestreos (Séítah y Three Forks) + cima, < 4 h, ≤ 15° | `post_mision.demo1_mision_15deg.*` | HAB→M2→E1→M2→M1→HAB, 164.0 min; **E2 (cima) omitida por pendiente** (20.4° > 15°) |
+| 1. Frente del delta + 2 muestreos (Séítah y Three Forks) + cima, < 4 h, ≤ 15° | `post_mision.demo1_mision_15deg.*` | HAB→M2→E1→M2→M1→HAB, 164.0 min; **E2 (cima) omitida por pendiente** (18.5° > 15°: el camino más suave es un desvío) |
 | 2. "¿Y si acepto 20°?" | `post_mision.demo2_mision_20deg.*` | entra la cima: HAB→REF→E2→E1→M2→M1→HAB, 201.6 min (+37.6 min) |
 | 3. "Alerta de polvo en Z2" (sobre la misión 1) | `post_alerta.*` | evita los tramos HAB→M2 y M2→M1 rodeando por la repetidora: HAB→COM→M2→E1→M2→COM→HAB→M1→HAB, 186.9 min |
 
