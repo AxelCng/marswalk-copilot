@@ -26,6 +26,9 @@ import { HUD, COLOR_TIPO } from './tokens.js';
 // al mover el mapa no aparece fondo vacío. Sus límites también fijan maxBounds.
 const BASE_INDICE = '/base/teselas.json';
 const BASE_AMPLIA = '/base/ctx_sim3464.json';
+// Capas ráster del SIM 3464 (web/scripts/sim3464/capas_raster.py), de abajo hacia arriba.
+export const CAPAS_INDICE = '/capas/capas.json';
+const ORDEN_RASTER = ['themis_noche', 'relieve_dtm', 'pendiente_dtm'];
 
 async function agregarMapaBase(map, antesDe) {
   try {
@@ -52,6 +55,22 @@ async function agregarMapaBase(map, antesDe) {
   } catch {
     // Sin mapa base: queda el fondo hud-bg-deep y el resto del mapa funciona igual.
   }
+  try {
+    const capas = await (await fetch(CAPAS_INDICE)).json();
+    for (const clave of ORDEN_RASTER) {
+      const c = capas[clave];
+      if (!c) continue;
+      map.addSource(`r-${clave}`, { type: 'image', url: c.url, coordinates: c.coordinates });
+      map.addLayer({
+        id: `r-${clave}`, type: 'raster', source: `r-${clave}`,
+        layout: { visibility: 'none' },
+        paint: { 'raster-opacity': 0.8, 'raster-fade-duration': 0, 'raster-resampling': 'linear' },
+      }, antesDe);
+    }
+  } catch {
+    // Sin capas ráster: el panel las muestra como no disponibles.
+  }
+  map.fire('marswalk:capas');
 }
 
 export { COLOR_TIPO };
@@ -140,10 +159,43 @@ function encuadrar(map, nodes, margen) {
 
 // Grupos de capas que se prenden y apagan juntos.
 const GRUPOS = {
+  relieve: ['r-relieve_dtm'],
+  pendiente: ['r-pendiente_dtm'],
+  themis: ['r-themis_noche'],
   geologia: ['geo-fill', 'geo-superficies', 'geo-contactos', 'geo-contactos-inciertos', 'geo-rasgos', 'geo-crateres', 'geo-label'],
   aristas: ['aristas'],
   zonas: ['zonas-line', 'zonas-label'],
 };
+
+// [propiedad de opacidad, valor con el slider al 100 %]
+const OPACIDAD = {
+  raster: ['raster-opacity', 1],
+  'geo-fill': ['fill-opacity', 0.35],
+  'geo-superficies': ['fill-opacity', 0.3],
+  'geo-contactos': ['line-opacity', 0.6],
+  'geo-contactos-inciertos': ['line-opacity', 0.6],
+  'geo-rasgos': ['line-opacity', 0.9],
+  'geo-crateres': ['circle-stroke-opacity', 0.7],
+  'geo-label': ['text-opacity', 0.8],
+  aristas: ['line-opacity', 0.55],
+  'zonas-line': ['line-opacity', 0.7],
+  'zonas-label': ['text-opacity', 0.9],
+};
+
+/** Waypoint cartográfico: retícula + línea guía + etiqueta con código y elevación. */
+function crearWaypoint(n, onClick) {
+  const el = document.createElement('button');
+  el.type = 'button';
+  el.className = 'wp';
+  el.style.setProperty('--c', COLOR_TIPO[n.tipo] ?? HUD.onSurface);
+  el.setAttribute('aria-label', `${n.id}, ${n.nombre}`);
+  el.title = `${n.id} · ${n.nombre}`;
+  const elev = n.capas?.elev_m;
+  el.innerHTML = '<span class="wp-ret" aria-hidden="true"></span><span class="wp-guia" aria-hidden="true"></span>'
+    + `<span class="wp-tag"><b>${n.id}</b>${elev != null ? `<i>${elev} m</i>` : ''}</span>`;
+  el.addEventListener('click', (e) => { e.stopPropagation(); onClick(n.id); });
+  return el;
+}
 
 function centroide(poligono) {
   const pts = poligono.slice(0, -1);
@@ -163,6 +215,7 @@ export default function MarsMap({
   const margenRef = useRef(margen);
   margenRef.current = margen;
   const nodosRef = useRef(null);
+  const waypoints = useRef({});
   const movido = useRef(false);
 
   // --- Crear el mapa una sola vez -----------------------------------------
@@ -184,7 +237,7 @@ export default function MarsMap({
     });
     map.addControl(new maplibregl.AttributionControl({
       compact: true,
-      customAttribution: 'CTX: NASA/JPL-Caltech/MSSS · Murray Lab/Caltech · Esri · USGS SIM 3464 · Geología: USGS SIM 3464 (Sun y Stack, 2020)',
+      customAttribution: 'CTX: NASA/JPL-Caltech/MSSS · Murray Lab/Caltech · Esri · DTM, THEMIS y geología: USGS SIM 3464 (Sun y Stack, 2020)',
     }));
     // El contenedor puede medir 0 al montar (estilos aún sin aplicar): seguir su tamaño
     // y volver a encuadrar mientras el usuario no haya movido el mapa.
@@ -287,7 +340,7 @@ export default function MarsMap({
       map.addLayer({
         id: 'aristas', type: 'line', source: 'aristas',
         layout: { 'line-cap': 'round' },
-        paint: { 'line-color': HUD.cyanDim, 'line-opacity': 0.55, 'line-width': 1.2 },
+        paint: { 'line-color': HUD.outline, 'line-opacity': 0.55, 'line-width': 1, 'line-dasharray': [3, 2] },
       });
 
       // Aristas cortadas por la alerta
@@ -300,73 +353,29 @@ export default function MarsMap({
       map.addLayer({
         id: 'ruta-halo', type: 'line', source: 'ruta',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': HUD.cyan, 'line-opacity': 0.25, 'line-width': 10, 'line-blur': 4 },
+        paint: { 'line-color': HUD.casing, 'line-width': 7.5 },
       });
       map.addLayer({
         id: 'ruta', type: 'line', source: 'ruta',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': HUD.cyan, 'line-width': 3.5 },
+        paint: { 'line-color': HUD.ruta, 'line-width': 3.5 },
       });
 
       // Nodo actual de la animación
       map.addLayer({
         id: 'actual', type: 'circle', source: 'actual',
         paint: {
-          'circle-radius': 16, 'circle-color': HUD.cyan, 'circle-opacity': 0.15,
-          'circle-stroke-color': HUD.cyan, 'circle-stroke-width': 1.5,
+          'circle-radius': 17, 'circle-opacity': 0,
+          'circle-stroke-color': HUD.ruta, 'circle-stroke-width': 2,
         },
       });
 
-      // Nodos
-      map.addLayer({
-        id: 'nodos', type: 'circle', source: 'nodos',
-        paint: {
-          'circle-radius': ['case', ['boolean', ['feature-state', 'en_ruta'], false], 9, 7],
-          'circle-color': ['get', 'color'],
-          'circle-stroke-color': [
-            'case',
-            ['boolean', ['feature-state', 'omitida'], false], HUD.warning,
-            ['boolean', ['feature-state', 'en_ruta'], false], HUD.cyan,
-            HUD.bgDeep,
-          ],
-          'circle-stroke-width': ['case', ['boolean', ['feature-state', 'omitida'], false], 3, 2],
-          'circle-opacity': ['case', ['boolean', ['feature-state', 'omitida'], false], 0.5, 1],
-        },
-      });
-      map.addLayer({
-        id: 'nodos-label', type: 'symbol', source: 'nodos',
-        layout: {
-          'text-field': [
-            'format',
-            ['get', 'id'], { 'font-scale': 1 },
-            ['case', ['!=', ['get', 'elev'], null], ['concat', '\n', ['to-string', ['get', 'elev']], ' m'], ''], { 'font-scale': 0.8 },
-          ],
-          'text-font': ['Open Sans Semibold'],
-          'text-size': 12,
-          'text-offset': [0, 1.2],
-          'text-anchor': 'top',
-          'text-line-height': 1.1,
-        },
-        paint: { 'text-color': HUD.onSurface, 'text-halo-color': HUD.bgDeep, 'text-halo-width': 1.5 },
-      });
-
-      const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 12 });
-      map.on('mouseenter', 'nodos', (e) => {
-        map.getCanvas().style.cursor = 'pointer';
-        const p = e.features[0].properties;
-        popup.setLngLat(e.lngLat).setHTML(`<b>${p.id}</b> · ${p.nombre}<br/>${p.tipo} · valor ${p.valor}`).addTo(map);
-      });
-      map.on('mouseleave', 'nodos', () => {
-        map.getCanvas().style.cursor = '';
-        popup.remove();
-      });
-      map.on('click', 'nodos', (e) => cb.current.onSelectEstacion?.(e.features[0].properties.id));
       map.on('mousemove', (e) => cb.current.onCursor?.(e.lngLat));
 
       // Unidad geológica bajo el cursor (solo si no hay un nodo encima)
       const popupGeo = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 8 });
       map.on('mousemove', 'geo-fill', (e) => {
-        if (map.queryRenderedFeatures(e.point, { layers: ['nodos'] }).length) return popupGeo.remove();
+        if (e.originalEvent?.target?.closest?.('.wp')) return popupGeo.remove();
         const p = e.features[0].properties;
         const titulo = [p.unit_symbol, p.unit_name].filter(Boolean).join(' · ');
         const sub = [p.age_prefix, p.feature_type].filter(Boolean).join(' · ');
@@ -419,6 +428,12 @@ export default function MarsMap({
   useEffect(() => cuandoListo((map) => {
     if (!grafo) return;
     map.getSource('nodos').setData(nodosGeoJSON(grafo.nodes));
+    Object.values(waypoints.current).forEach((m) => m.remove());
+    waypoints.current = Object.fromEntries(grafo.nodes.map((n) => [
+      n.id,
+      new maplibregl.Marker({ element: crearWaypoint(n, (id) => cb.current.onSelectEstacion?.(id)), anchor: 'center' })
+        .setLngLat([n.lon, n.lat]).addTo(map),
+    ]));
     map.getSource('aristas').setData(aristasGeoJSON(grafo.edges));
     map.getSource('zonas').setData(zonasGeoJSON(grafo.zonas));
     nodosRef.current = grafo.nodes;
@@ -437,28 +452,49 @@ export default function MarsMap({
   // --- Capas visibles ------------------------------------------------------
   const claveCapas = JSON.stringify(capas ?? {});
   useEffect(() => cuandoListo((map) => {
-    const c = { base: true, geologia: true, aristas: true, zonas: true, ...capas };
-    const poner = (id, on) => map.getLayer(id) && map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none');
-    Object.entries(GRUPOS).forEach(([g, ids]) => ids.forEach((id) => poner(id, c[g])));
-    const aplicarBase = () => map.getStyle().layers.filter((l) => l.id.startsWith('base-')).forEach((l) => poner(l.id, c.base));
-    aplicarBase();
-    // Las teselas base llegan después de 'load': reaplicar cuando aparezcan.
-    map.on('sourcedata', aplicarBase);
-    return () => map.off('sourcedata', aplicarBase);
+    const estado = (g) => {
+      const v = capas?.[g];
+      if (v == null) return { on: g === 'base' || g === 'geologia' || g === 'aristas' || g === 'zonas', op: 1 };
+      return typeof v === 'boolean' ? { on: v, op: 1 } : { on: !!v.on, op: v.op ?? 1 };
+    };
+    const poner = (id, { on, op }) => {
+      const l = map.getLayer(id);
+      if (!l) return;
+      map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none');
+      const [prop, base] = OPACIDAD[l.type === 'raster' ? 'raster' : id] ?? [];
+      if (prop) map.setPaintProperty(id, prop, base * op);
+    };
+    const aplicar = () => {
+      Object.entries(GRUPOS).forEach(([g, ids]) => ids.forEach((id) => poner(id, estado(g))));
+      map.getStyle().layers.filter((l) => l.id.startsWith('base-')).forEach((l) => poner(l.id, estado('base')));
+    };
+    aplicar();
+    // Las imágenes base y las capas ráster llegan después de 'load': reaplicar cuando aparezcan.
+    map.on('sourcedata', aplicar);
+    map.on('marswalk:capas', aplicar);
+    return () => { map.off('sourcedata', aplicar); map.off('marswalk:capas', aplicar); };
   }), [claveCapas]);
 
   // --- Ruta: se dibuja tramo por tramo -------------------------------------
   useEffect(() => cuandoListo((map) => {
     if (!grafo) return;
     const nodos = grafo.nodes;
-    nodos.forEach((n) => map.setFeatureState({ source: 'nodos', id: n.id }, { en_ruta: false, omitida: false }));
+    const clase = (id, c, on) => waypoints.current[id]?.getElement().classList.toggle(c, on);
+    nodos.forEach((n) => {
+      map.setFeatureState({ source: 'nodos', id: n.id }, { en_ruta: false, omitida: false });
+      clase(n.id, 'en-ruta', false);
+      clase(n.id, 'omitida', false);
+    });
     map.getSource('ruta').setData(vacia());
     map.getSource('actual').setData(vacia());
     cb.current.onPaso?.(-1);
     if (!mision) return;
 
     (mision.omitidas ?? []).forEach((o) => {
-      if (nodos.some((n) => n.id === o.id)) map.setFeatureState({ source: 'nodos', id: o.id }, { omitida: true });
+      if (nodos.some((n) => n.id === o.id)) {
+        map.setFeatureState({ source: 'nodos', id: o.id }, { omitida: true });
+        clase(o.id, 'omitida', true);
+      }
     });
 
     const tramos = mision.tramos ?? [];
@@ -468,6 +504,7 @@ export default function MarsMap({
       const n = porId[id];
       if (!n) return;
       map.setFeatureState({ source: 'nodos', id }, { en_ruta: true });
+      clase(id, 'en-ruta', true);
       map.getSource('actual').setData({
         type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [n.lon, n.lat] },
       });

@@ -5,6 +5,7 @@ Salidas:
   web/scripts/sim3464/out/sim3464_estrella.sqlite   modelo estrella completo (no se sube a git)
   web/map/public/geologia.geojson                   fact_map_feature aplanado, en todo el marco del mapa
   web/map/public/base/ctx_sim3464.jpg + .json       mosaico CTX del SIM 3464 en Mercator de Marte (fondo del mapa)
+  web/map/public/capas/*.png + capas.json           relieve y pendiente DTM CTX 20 m, THEMIS IR noche (capas_raster.py)
   web/shared/sim3464/geologia_ruta.geojson          solo unidades, recorte chico (minimapa del HUD)
   web/shared/sim3464/estaciones_capas.json          valores reales muestreados en cada estación
 
@@ -160,6 +161,8 @@ def main():
     print('Marco del mapa (lon/lat):', [round(v, 5) for v in AOI_MAPA])
     aoi_mapa, aoi_ruta = caja_mtm(AOI_MAPA), caja_mtm(AOI_RUTA)
     exportar_base(ctx_tif, AOI_MAPA, crs_mtm)
+    from capas_raster import exportar_capas  # mismo directorio
+    exportar_capas(rasters, AOI_MAPA, crs_mtm, REPO)
     a_ll = lambda geom: sh_transform(lambda x, y, z=None: a_lonlat.transform(x, y), geom)
 
     def redondear(o):

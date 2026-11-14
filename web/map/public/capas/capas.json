@@ -1,0 +1,165 @@
+{
+  "relieve_dtm": {
+    "nombre": "Relieve DTM",
+    "producto": "USGS CTX DTM 20 m: B18_016575_1978_B17_016219_1978_20m_DTM, J03_045994_1986_J03_046060_1986_20m_DTM",
+    "metros_por_pixel": 23.4,
+    "elev_min_m": -3076,
+    "elev_max_m": -1372,
+    "nota": "Sombreado az 315°, alt 45°",
+    "url": "/capas/relieve_dtm.png",
+    "limites": [
+      76.93937,
+      17.702028,
+      77.780162,
+      18.697985
+    ],
+    "coordinates": [
+      [
+        76.939370033682,
+        18.697985008967446
+      ],
+      [
+        77.78016196093846,
+        18.697985008967446
+      ],
+      [
+        77.78016196093846,
+        17.70202825349745
+      ],
+      [
+        76.939370033682,
+        17.70202825349745
+      ]
+    ]
+  },
+  "pendiente_dtm": {
+    "nombre": "Pendiente DTM",
+    "producto": "Calculada de la DTM CTX 20 m",
+    "metros_por_pixel": 23.4,
+    "clases": [
+      {
+        "desde": 0,
+        "hasta": 5,
+        "rgba": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pct": 59.2
+      },
+      {
+        "desde": 5,
+        "hasta": 10,
+        "rgba": [
+          242,
+          201,
+          160,
+          150
+        ],
+        "pct": 25.0
+      },
+      {
+        "desde": 10,
+        "hasta": 15,
+        "rgba": [
+          232,
+          154,
+          99,
+          185
+        ],
+        "pct": 8.5
+      },
+      {
+        "desde": 15,
+        "hasta": 20,
+        "rgba": [
+          217,
+          83,
+          47,
+          210
+        ],
+        "pct": 3.8
+      },
+      {
+        "desde": 20,
+        "hasta": 25,
+        "rgba": [
+          163,
+          58,
+          30,
+          225
+        ],
+        "pct": 2.0
+      },
+      {
+        "desde": 25,
+        "hasta": 90,
+        "rgba": [
+          94,
+          31,
+          16,
+          235
+        ],
+        "pct": 1.3
+      }
+    ],
+    "nota": "Pendiente por celda; la de cada tramo sale del grafo",
+    "url": "/capas/pendiente_dtm.png",
+    "limites": [
+      76.93937,
+      17.702028,
+      77.780162,
+      18.697985
+    ],
+    "coordinates": [
+      [
+        76.939370033682,
+        18.697985008967446
+      ],
+      [
+        77.78016196093846,
+        18.697985008967446
+      ],
+      [
+        77.78016196093846,
+        17.70202825349745
+      ],
+      [
+        76.939370033682,
+        17.70202825349745
+      ]
+    ]
+  },
+  "themis_noche": {
+    "nombre": "THEMIS IR noche",
+    "producto": "USGS nili_THEMIS_NightIR_Controlled_oct2018",
+    "metros_por_pixel": 87.6,
+    "nota": "Brillo IR nocturno, DN 0–255 relativo: claro = más inercia térmica (roca), oscuro = material suelto",
+    "url": "/capas/themis_noche.png",
+    "limites": [
+      76.802005,
+      17.702028,
+      77.798007,
+      18.697985
+    ],
+    "coordinates": [
+      [
+        76.80200471881433,
+        18.697985008967446
+      ],
+      [
+        77.79800700184272,
+        18.697985008967446
+      ],
+      [
+        77.79800700184272,
+        17.70202825349745
+      ],
+      [
+        76.80200471881433,
+        17.70202825349745
+      ]
+    ]
+  }
+}
