@@ -4,14 +4,42 @@
     {
       "name": "web-map",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "web/map", "run", "dev"],
+      "runtimeArgs": [
+        "--prefix",
+        "web/map",
+        "run",
+        "dev"
+      ],
       "port": 5173
+    },
+    {
+      "name": "web-ui",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "web/ui",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5174",
+        "--strictPort"
+      ],
+      "port": 5174
     },
     {
       "name": "web-hud",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "web/ui/hud", "run", "dev"],
-      "port": 5174
+      "runtimeArgs": [
+        "--prefix",
+        "web/ui/hud",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5175"
+      ],
+      "port": 5175
     }
   ]
 }
