@@ -1,17 +1,20 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import MarsMap, { COLOR_TIPO } from './MarsMap.jsx';
 import { getGrafo, ejemplos, postMision, postAlerta, postReset } from './api.js';
 import { getGeologia } from './geologia.js';
 import FichaEstacion from './FichaEstacion.jsx';
 import PanelCapas, { CAPAS_INICIALES } from './PanelCapas.jsx';
-import Caminata from './Caminata.jsx';
+import Visor3D from './Visor3D.jsx';
+
+// Marco del mapa (mosaico CTX del SIM 3464): el astronauta no sale de acá.
+const MARCO = [76.802, 17.702, 77.798, 18.698];
 
 // Consola "Geospatial Map" (AeroHUD Jezero): mapa a pantalla completa con
 // barra superior, riel de planificación a la izquierda, tiles de telemetría
 // sobre el mapa, riel de ruta a la derecha y control de capas abajo.
 // Cada número sale de /mision, /alerta o del grafo: nada se inventa aquí.
 
-const MISION_DEMO = { estaciones: ['E1', 'M1', 'M2', 'E2'], tiempo_max_min: 240, modo: 'orientacion', origen: 'HAB' };
+const MISION_BASE = { estaciones: ['E1', 'M1', 'M2', 'E2'], tiempo_max_min: 240, modo: 'orientacion', origen: 'HAB' };
 const EJEMPLO_POR_PENDIENTE = { 15: ejemplos.demo1, 20: ejemplos.demo2 };
 const MARGEN_MAPA = { top: 60, right: 60, bottom: 110, left: 60 };
 
@@ -33,15 +36,17 @@ export default function App() {
   const [geologia, setGeologia] = useState(null);
   const [mision, setMision] = useState(null);
   const [alerta, setAlerta] = useState(null);
-  const [estado, setEstado] = useState('Sin misión. Elige estaciones y calcula, o usa una pregunta de la demo.');
+  const [estado, setEstado] = useState('Sin misión. Elegí estaciones y calculá la ruta, o abrí el visor 3D para explorar el terreno.');
   const [seleccion, setSeleccion] = useState(null);
   const [paso, setPaso] = useState(-1);
   const [capas, setCapas] = useState(CAPAS_INICIALES);
-  const [elegidas, setElegidas] = useState(MISION_DEMO.estaciones);
-  const [tiempoMax, setTiempoMax] = useState(MISION_DEMO.tiempo_max_min);
+  const [elegidas, setElegidas] = useState(MISION_BASE.estaciones);
+  const [tiempoMax, setTiempoMax] = useState(MISION_BASE.tiempo_max_min);
   const [zonaAlerta, setZonaAlerta] = useState('Z2');
   const [mapa, setMapa] = useState(null);
-  const [caminando, setCaminando] = useState(false);
+  const [visor, setVisor] = useState(false);
+  const [astronauta, setAstronauta] = useState(null);
+  const controlVisor = useRef(null);
 
   useEffect(() => { getGrafo(pendiente).then(setGrafo); }, [pendiente]);
   useEffect(() => { getGeologia().then(setGeologia); }, []);
@@ -50,14 +55,12 @@ export default function App() {
   const nodos = useMemo(() => Object.fromEntries((grafo?.nodes ?? []).map((n) => [n.id, n])), [grafo]);
   const visitables = (grafo?.nodes ?? []).filter((n) => n.tipo !== 'habitat');
 
-  useEffect(() => { if (!mision) setCaminando(false); }, [mision]);
-
   async function calcular(pend = pendiente, ests = elegidas, tmax = tiempoMax) {
     setAlerta(null);
     setPendiente(pend);
     if (usarApi) {
       try {
-        setMision(await postMision({ ...MISION_DEMO, estaciones: ests, tiempo_max_min: tmax, pendiente_max: pend }));
+        setMision(await postMision({ ...MISION_BASE, estaciones: ests, tiempo_max_min: tmax, pendiente_max: pend }));
         setEstado(`Misión calculada por la API · ≤ ${pend}° · ${tmax} min`);
         return;
       } catch (e) {
@@ -170,10 +173,13 @@ export default function App() {
         </section>
 
         <section className="bloque">
-          <h2 className="label-caps">Preguntas de la demo</h2>
-          <button id="btn-demo1" onClick={() => calcular(15, MISION_DEMO.estaciones, 240)}>1 · Delta + 2 muestreos, ≤ 15°</button>
-          <button id="btn-demo2" onClick={() => calcular(20, MISION_DEMO.estaciones, 240)}>2 · ¿Y si acepto 20°?</button>
-          <button id="btn-demo3" className="alerta" onClick={simularPolvo}>3 · Alerta de polvo en {zonaAlerta}</button>
+          <h2 className="label-caps">Alerta de polvo</h2>
+          <div className="alerta-herr">
+            <select id="zona-alerta" aria-label="Zona de la alerta" value={zonaAlerta} onChange={(e) => setZonaAlerta(e.target.value)}>
+              {(grafo?.zonas ?? []).map((z) => <option key={z.id} value={z.id}>{z.id} · {z.nombre}</option>)}
+            </select>
+            <button id="btn-polvo" className="alerta" onClick={simularPolvo} disabled={!mision}>Simular</button>
+          </div>
           <button id="btn-reset" onClick={reset}>Reset</button>
         </section>
 
@@ -181,7 +187,7 @@ export default function App() {
       </aside>
 
       {/* ---------------- Mapa ---------------- */}
-      <main className="lienzo">
+      <main className={visor ? "lienzo con-visor" : "lienzo"}>
         <MarsMap
           grafo={grafo}
           mision={mision}
@@ -192,14 +198,23 @@ export default function App() {
           onSelectEstacion={setSeleccion}
           onPaso={setPaso}
           onMapa={setMapa}
-          terreno3d={caminando}
+          astronauta={visor ? astronauta : null}
+          onClickMapa={(q) => controlVisor.current?.teletransportar(q)}
         />
 
-        {caminando && mision && (
-          <Caminata map={mapa} mision={mision} nodos={nodos} onSalir={() => setCaminando(false)} />
+        {visor && (
+          <Visor3D
+            mision={mision} nodos={nodos} pendienteMax={pendiente} limites={MARCO}
+            onEstado={setAstronauta}
+            onControl={(c) => { controlVisor.current = c; }}
+            onSalir={() => setVisor(false)}
+          />
         )}
 
-        {!caminando && (<>
+        {!visor && (<>
+        <button id="btn-visor" className="btn-visor primario" onClick={() => setVisor(true)} disabled={!mapa}>
+          Visor 3D del astronauta
+        </button>
         <div className="dock-capas">
           <PanelCapas capas={capas} setCapas={setCapas} hayGeologia={!!geologia} grafoFake={!!grafo?.meta?.fake} />
         </div>
@@ -225,11 +240,11 @@ export default function App() {
               </dl>
               <button
                 id="btn-caminata"
-                className={caminando ? 'ancho activo-3d' : 'ancho'}
-                onClick={() => setCaminando((v) => !v)}
+                className={visor ? 'ancho activo-3d' : 'ancho'}
+                onClick={() => setVisor((v) => !v)}
                 disabled={!mapa || !mision.tramos?.length}
               >
-                {caminando ? 'Salir de la caminata 3D' : 'Caminata 3D en primera persona'}
+                {visor ? 'Salir del visor 3D' : 'Recorrer en el visor 3D'}
               </button>
               {alerta && (
                 <p className="nota critical">Evita {alerta.aristas_afectadas?.join(', ')} por polvo en {alerta.zona}.</p>
