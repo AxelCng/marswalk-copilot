@@ -345,7 +345,7 @@ button.alerta { background: rgba(239, 68, 68, 0.15); border-color: var(--status-
   .mision-tramo b { font-size: 22px; line-height: 24px; }
   .mision-datos dd { font-size: 13px; line-height: 16px; }
   .mision-omitidas { display: none; }
-  .reticula { width: 200px; height: 250px; top: 65%; }
+  .reticula { width: 200px; height: 250px; top: 68%; }
   .lock { top: 31%; }
   .lock-ficha, .lock-ficha.izq {
     left: 50%; right: auto; top: 52px; transform: translateX(-50%);
@@ -368,4 +368,14 @@ button.alerta { background: rgba(239, 68, 68, 0.15); border-color: var(--status-
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Terreno real (USGS SIM 3464) ---------- */
+.lock-geo { margin: 2px 0 0; font-size: 12px; line-height: 15px; color: var(--on-surface-variant); }
+.lock-geo b { font-family: var(--font-mono); color: var(--hud-cyan); margin-right: 4px; }
+.lock-geo.sub { font: 600 10px/13px var(--font-mono); letter-spacing: 0.04em; color: var(--outline); margin: 0; }
+.lock-fuente { font: 600 9px/11px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--outline); }
+.mm-geo path { fill-opacity: 0.28; stroke: rgba(225, 226, 235, 0.18); stroke-width: 0.5; fill-rule: evenodd; }
+@media (max-width: 640px) {
+  .lock-geo.sub, .lock-fuente { display: none; }
 }

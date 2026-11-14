@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import MarsMap, { COLOR_TIPO } from './MarsMap.jsx';
 import { getGrafo, ejemplos, postMision, postAlerta, postReset } from './api.js';
 import { getGeologia } from './geologia.js';
+import FichaEstacion from './FichaEstacion.jsx';
 
 // Consola "Geospatial Map" (AeroHUD Jezero): mapa a pantalla completa con
 // barra superior, riel de planificación a la izquierda, tiles de telemetría
@@ -307,21 +308,14 @@ export default function App() {
         </section>
 
         {(sel || objetivo) && (
-          <section className="bloque ficha" style={{ '--franja': COLOR_TIPO[(sel ?? objetivo).tipo] }}>
-            <div className="fila-titulo">
-              <h2 className="label-caps">{sel ? 'Estación seleccionada' : 'Objetivo primario'}</h2>
-              <span className="chip">Valor {(sel ?? objetivo).valor_cientifico}</span>
-            </div>
-            <h3>{(sel ?? objetivo).id} · {(sel ?? objetivo).nombre}</h3>
-            <p>{(sel ?? objetivo).tarea} · {(sel ?? objetivo).permanencia_min} min</p>
-            <dl>
-              <dt className="label-caps">Elevación</dt><dd>{fmt((sel ?? objetivo).capas?.elev_m)} m</dd>
-              <dt className="label-caps">Pendiente</dt><dd>{fmt((sel ?? objetivo).capas?.pendiente_deg, 1)}°</dd>
-              <dt className="label-caps">Posición</dt><dd>{coord((sel ?? objetivo).lat, 'N', 'S')} {coord((sel ?? objetivo).lon, 'E', 'W')}</dd>
-              {(sel ?? objetivo).unidad_geologica && (<><dt className="label-caps">Unidad</dt><dd>{(sel ?? objetivo).unidad_geologica}</dd></>)}
-            </dl>
-            {sel && <button className="ancho" onClick={() => setSeleccion(null)}>Volver al objetivo</button>}
-          </section>
+          <FichaEstacion
+            key={(sel ?? objetivo).id}
+            nodo={sel ?? objetivo}
+            titulo={sel ? 'Estación seleccionada' : 'Objetivo primario'}
+            colorFranja={COLOR_TIPO[(sel ?? objetivo).tipo]}
+            grafoFake={!!grafo?.meta?.fake}
+            onVolver={sel ? () => setSeleccion(null) : null}
+          />
         )}
       </aside>
     </div>

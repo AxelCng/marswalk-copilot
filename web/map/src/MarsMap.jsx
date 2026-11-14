@@ -124,7 +124,7 @@ function encuadrar(map, nodes, margen) {
 
 // Grupos de capas que se prenden y apagan juntos.
 const GRUPOS = {
-  geologia: ['geo-fill', 'geo-contactos', 'geo-contactos-inciertos', 'geo-label'],
+  geologia: ['geo-fill', 'geo-superficies', 'geo-contactos', 'geo-contactos-inciertos', 'geo-rasgos', 'geo-crateres', 'geo-label'],
   aristas: ['aristas'],
   zonas: ['zonas-line', 'zonas-label'],
 };
@@ -167,7 +167,7 @@ export default function MarsMap({
     });
     map.addControl(new maplibregl.AttributionControl({
       compact: true,
-      customAttribution: 'CTX: NASA/JPL-Caltech/MSSS · Murray Lab/Caltech · Esri',
+      customAttribution: 'CTX: NASA/JPL-Caltech/MSSS · Murray Lab/Caltech · Esri · Geología: USGS SIM 3464 (Sun y Stack, 2020)',
     }));
     // El contenedor puede medir 0 al montar (estilos aún sin aplicar): seguir su tamaño
     // y volver a encuadrar mientras el usuario no haya movido el mapa.
@@ -183,7 +183,7 @@ export default function MarsMap({
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
 
     map.on('load', () => {
-      for (const id of ['geo-poligonos', 'geo-lineas', 'zonas', 'aristas', 'afectadas', 'ruta', 'actual']) {
+      for (const id of ['geo-poligonos', 'geo-lineas', 'geo-rasgos', 'geo-superficies', 'geo-puntos', 'zonas', 'aristas', 'afectadas', 'ruta', 'actual']) {
         map.addSource(id, { type: 'geojson', data: vacia() });
       }
       // Los ids de estación son texto ("HAB", "E1"): promoteId los vuelve ids de feature
@@ -194,6 +194,15 @@ export default function MarsMap({
       map.addLayer({
         id: 'geo-fill', type: 'fill', source: 'geo-poligonos',
         paint: { 'fill-color': ['get', '_color'], 'fill-opacity': 0.35 },
+      });
+      // Manto oscuro y terreno con crestas (SurfaceFeatures): tinte encima de la unidad
+      map.addLayer({
+        id: 'geo-superficies', type: 'fill', source: 'geo-superficies',
+        paint: {
+          'fill-color': ['match', ['get', 'feature_type'], 'dark-colored mantling material', '#000000', HUD.onSurfaceVariant],
+          'fill-opacity': ['match', ['get', 'feature_type'], 'dark-colored mantling material', 0.28, 0.12],
+          'fill-outline-color': HUD.outline,
+        },
       });
       // Contactos: certero = continuo; aproximado o inferido = punteado
       const esIncierto = ['any',
@@ -209,6 +218,28 @@ export default function MarsMap({
       map.addLayer({
         id: 'geo-contactos-inciertos', type: 'line', source: 'geo-lineas',
         filter: esIncierto, paint: { ...contacto, 'line-dasharray': [2, 2] },
+      });
+      // Rasgos lineales: frentes de lóbulo del delta, canales, bordes de cráter
+      map.addLayer({
+        id: 'geo-rasgos', type: 'line', source: 'geo-rasgos',
+        layout: { 'line-cap': 'round' },
+        paint: {
+          'line-color': ['match', ['get', 'feature_type'],
+            'delta lobe front', HUD.secondary,
+            'channel (fluvial)', HUD.tertiary,
+            'crest of crater rim', HUD.marsRust,
+            HUD.onSurfaceVariant],
+          'line-width': ['match', ['get', 'feature_type'], 'delta lobe front', 1.6, 'channel (fluvial)', 2, 1.2],
+          'line-opacity': 0.85,
+        },
+      });
+      // Cráteres chicos y megabrecha (puntos)
+      map.addLayer({
+        id: 'geo-crateres', type: 'circle', source: 'geo-puntos', minzoom: 12,
+        paint: {
+          'circle-radius': 3, 'circle-color': 'rgba(0,0,0,0)',
+          'circle-stroke-color': HUD.onSurfaceVariant, 'circle-stroke-width': 1, 'circle-stroke-opacity': 0.7,
+        },
       });
       map.addLayer({
         id: 'geo-label', type: 'symbol', source: 'geo-poligonos', minzoom: 12,
@@ -325,6 +356,19 @@ export default function MarsMap({
         popupGeo.setLngLat(e.lngLat).setHTML(`<b>${titulo || 'Unidad'}</b>${sub ? `<br/>${sub}` : ''}`).addTo(map);
       });
       map.on('mouseleave', 'geo-fill', () => popupGeo.remove());
+      const RASGO_ES = {
+        'delta lobe front': 'Frente de lóbulo del delta',
+        'channel (fluvial)': 'Canal fluvial',
+        'crest of crater rim': 'Cresta de borde de cráter',
+        'crest of buried crater': 'Cresta de cráter enterrado',
+        'ridge crest (type 1), certain': 'Cresta de loma',
+        lineament: 'Lineamiento',
+      };
+      map.on('mousemove', 'geo-rasgos', (e) => {
+        const p = e.features[0].properties;
+        popupGeo.setLngLat(e.lngLat).setHTML(`<b>${RASGO_ES[p.feature_type] ?? p.feature_type}</b><br/>SIM 3464 · ${p.source_layer}`).addTo(map);
+      });
+      map.on('mouseleave', 'geo-rasgos', () => popupGeo.remove());
 
       agregarMapaBase(map, 'geo-fill');
 
@@ -368,6 +412,9 @@ export default function MarsMap({
   useEffect(() => cuandoListo((map) => {
     map.getSource('geo-poligonos').setData(geologia?.poligonos ?? vacia());
     map.getSource('geo-lineas').setData(geologia?.lineas ?? vacia());
+    map.getSource('geo-rasgos').setData(geologia?.rasgos ?? vacia());
+    map.getSource('geo-superficies').setData(geologia?.superficies ?? vacia());
+    map.getSource('geo-puntos').setData(geologia?.puntos ?? vacia());
   }), [geologia]);
 
   // --- Capas visibles ------------------------------------------------------

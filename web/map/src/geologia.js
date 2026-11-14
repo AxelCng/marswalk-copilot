@@ -54,12 +54,18 @@ function colorDeUnidad(p) {
 }
 
 /**
- * Separa por geometry_type: polígonos = unidades geológicas, líneas = contactos
- * y rasgos lineales. Agrega `_color` a cada feature y arma la leyenda por unidad.
+ * Separa por feature_group del modelo estrella:
+ *   Unidad → poligonos · Contacto → lineas · Rasgo lineal → rasgos
+ *   Rasgo superficial → superficies · Rasgo puntual / Megabrecha → puntos
+ * Si no viene feature_group, decide por geometría (polígono = unidad, línea = contacto).
+ * Agrega `_color` a cada feature y arma la leyenda por unidad.
  */
 function separar(fc) {
   const poligonos = [];
   const lineas = [];
+  const rasgos = [];
+  const superficies = [];
+  const puntos = [];
   const unidades = new Map();
 
   for (const f of fc.features) {
@@ -69,7 +75,14 @@ function separar(fc) {
     const feat = { type: 'Feature', properties: p, geometry: f.geometry };
     const tipo = f.geometry.type;
 
-    if (tipo === 'Polygon' || tipo === 'MultiPolygon') {
+    const grupo = p.feature_group;
+    if (grupo === 'Rasgo superficial') {
+      superficies.push(feat);
+    } else if (grupo === 'Rasgo lineal') {
+      rasgos.push(feat);
+    } else if (tipo === 'Point' || tipo === 'MultiPoint') {
+      puntos.push(feat);
+    } else if (tipo === 'Polygon' || tipo === 'MultiPolygon') {
       poligonos.push(feat);
       const clave = p.unit_key ?? p.unit_symbol;
       if (clave != null && !unidades.has(clave)) {
@@ -91,6 +104,10 @@ function separar(fc) {
   return {
     poligonos: { type: 'FeatureCollection', features: poligonos },
     lineas: { type: 'FeatureCollection', features: lineas },
+    rasgos: { type: 'FeatureCollection', features: rasgos },
+    superficies: { type: 'FeatureCollection', features: superficies },
+    puntos: { type: 'FeatureCollection', features: puntos },
+    meta: fc.meta ?? null,
     // Leyenda ordenada por área cubierta: las unidades que más se ven, primero.
     leyenda: [...unidades.values()].sort((a, b) => b.area_m2 - a.area_m2),
   };
