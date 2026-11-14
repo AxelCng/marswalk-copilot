@@ -14,6 +14,9 @@ PASOS = {
     "20": [("waypoints", "waypoints")],
     "30": [("geología", "geologia")],
     "40": [("verificación", "verificar")],
+    "50": [("mapa de costo", "costo")],
+    "60": [("aristas", "aristas")],
+    "70": [("graph.json", "graph")],
 }
 
 
