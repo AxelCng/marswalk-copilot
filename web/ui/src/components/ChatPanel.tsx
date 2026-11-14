@@ -13,9 +13,9 @@ interface ChatPanelProps {
 }
 
 const DEMO_PRESETS = [
-  { label: `Paso 1: Misión ${DEMO.pendiente_1}° (<4h)`, text: FRASES.paso1 },
-  { label: `Paso 2: ¿Y si acepto ${DEMO.pendiente_2}°?`, text: FRASES.paso2 },
-  { label: `Paso 3: Alerta Polvo ${DEMO.zona}`, text: FRASES.paso3 },
+  { label: `Step 1: Mission ${DEMO.pendiente_1}° (<4h)`, text: FRASES.paso1 },
+  { label: `Step 2: What if I accept ${DEMO.pendiente_2}°?`, text: FRASES.paso2 },
+  { label: `Step 3: Dust alert ${DEMO.zona}`, text: FRASES.paso3 },
 ];
 
 const hora = () => `SOL 415 ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
