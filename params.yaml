@@ -36,6 +36,6 @@ comms:
 
 mision:
   origen: HAB
-  tiempo_max_min_default: 180
+  tiempo_max_min_default: 240
   pendiente_max_default_deg: 15
   penalidad_por_valor: 1000   # [supuesto] K en AddDisjunction: penalidad = valor_cientifico * K

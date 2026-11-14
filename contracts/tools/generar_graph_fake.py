@@ -33,35 +33,52 @@ K_ENERGIA = 0.05               # energia_rel = tiempo * (1 + k * pendiente)
 TORTUOSIDAD = 1.08             # el camino real no es la polilínea perfecta
 
 # ---------------------------------------------------------------- nodos
+# REALES: lon, lat y elev_m salen de waypoints de Perseverance (M20_waypoints.json),
+# y pendiente_local_deg es la inclinación máxima medida por el rover en ese lugar.
+# FAKE: themis_noche_K, unidad_geologica, f_terreno (los reemplaza el pipeline de data/).
+# Ver estaciones.csv para el sol de cada waypoint.
 # id, nombre, tipo, lon, lat, elev_m, pendiente_local_deg, themis_noche_K,
 # valor_cientifico, tarea, permanencia_min, unidad_geologica, f_terreno
 NODOS = [
-    ("HAB", "Hábitat Octavia", "habitat", 77.4508, 18.4447, -2569, 3.0, 205, 0,
-     "Base de la misión", 0, "Fondo del cráter (FAKE)", 1.00),
-    ("ROV", "Rover de apoyo", "rover", 77.4430, 18.4525, -2566, 4.5, 207, 1,
-     "Recarga y relevo de muestras", 10, "Fondo del cráter (FAKE)", 1.00),
-    ("E1", "Frente del delta", "ciencia", 77.4120, 18.4495, -2530, 12.0, 222, 9,
-     "Muestreo de capas", 25, "Delta, frente escarpado (FAKE)", 1.20),
-    ("M1", "Muestreo borde de Séítah", "muestreo", 77.4390, 18.4385, -2574, 8.0, 230, 7,
-     "Núcleo de roca ígnea", 15, "Séítah, roca expuesta (FAKE)", 1.15),
-    ("M2", "Muestreo base del delta", "muestreo", 77.4185, 18.4430, -2552, 9.5, 214, 6,
-     "Sedimento fino", 15, "Delta, depósitos distales (FAKE)", 1.10),
-    ("E2", "Cima del delta", "ciencia", 77.4140, 18.4580, -2495, 18.5, 225, 8,
-     "Panorámica y estratigrafía", 20, "Delta, capa superior (FAKE)", 1.25),
-    ("REF", "Refugio de roca", "refugio", 77.4250, 18.4560, -2558, 6.0, 218, 2,
-     "Refugio ante tormenta", 10, "Llanura norte (FAKE)", 1.05),
-    ("COM", "Repetidora de comunicaciones", "comms", 77.4340, 18.4580, -2545, 9.0, 216, 1,
+    ("HAB", "Hábitat Octavia E. Butler", "habitat", 77.45089, 18.44463, -2570, 1.2, 205, 0,
+     "Base de la misión", 0, "Fondo del cráter, Máaz (FAKE)", 1.00),
+    ("ROV", "Rover de apoyo, fondo sur", "rover", 77.45215, 18.43114, -2580, 7.3, 208, 2,
+     "Relevo de baterías y muestras", 10, "Fondo del cráter, Máaz (FAKE)", 1.00),
+    ("E1", "Frente del delta", "ciencia", 77.40144, 18.45073, -2527, 8.1, 222, 9,
+     "Muestreo de capas sedimentarias", 25, "Delta, frente (FAKE)", 1.20),
+    ("M1", "Séítah", "muestreo", 77.44302, 18.43396, -2569, 12.3, 230, 8,
+     "Núcleo de roca ígnea rica en olivino", 15, "Séítah (FAKE)", 1.15),
+    ("M2", "Depósito de muestras Three Forks", "muestreo", 77.40844, 18.45342, -2545, 1.6, 214, 7,
+     "Verificar tubos del depósito", 15, "Fondo del cráter, base del delta (FAKE)", 1.05),
+    ("E2", "Cima del delta", "ciencia", 77.40293, 18.46167, -2497, 20.3, 225, 9,
+     "Estratigrafía y panorámica del abanico", 20, "Delta, capa superior (FAKE)", 1.25),
+    ("REF", "Refugio al pie del escarpe", "refugio", 77.40875, 18.45710, -2540, 5.5, 218, 2,
+     "Refugio ante tormenta de polvo", 10, "Base del escarpe del delta (FAKE)", 1.05),
+    ("COM", "Repetidora, llanura norte", "comms", 77.42576, 18.45932, -2548, 3.9, 216, 1,
      "Revisión de antena", 10, "Llanura norte (FAKE)", 1.05),
 ]
+
+# Fotos reales de Perseverance Raw Images (NASA/JPL-Caltech), elegidas a mano.
+_RAW = "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/"
+FOTOS = {
+    "HAB": (13, "NAVCAM_LEFT", "00013/ids/edr/browse/ncam/NLF_0013_0668101832_912ECM_N0030028NCAM00104_01_295J01_1200.jpg"),
+    "ROV": (135, "NAVCAM_LEFT", "00135/ids/edr/browse/ncam/NLF_0135_0678933829_682ECM_N0051388NCAM03135_01_195J02_1200.jpg"),
+    "E1": (565, "NAVCAM_LEFT", "00565/ids/edr/browse/ncam/NLF_0565_0717111091_992ECM_N0290000NCAM02565_01_195J01_1200.jpg"),
+    "M1": (248, "NAVCAM_LEFT", "00248/ids/edr/browse/ncam/NLF_0248_0688961170_442ECM_N0080000NCAM02248_01_195J01_1200.jpg"),
+    "M2": (693, "NAVCAM_LEFT", "00693/ids/edr/browse/ncam/NLF_0693_0728474333_901ECM_N0321394NCAM12693_04_195J01_1200.jpg"),
+    "E2": (709, "NAVCAM_LEFT", "00709/ids/edr/browse/ncam/NLF_0709_0729893167_568ECM_N0332864NCAM12709_01_195J01_1200.jpg"),
+    "REF": (437, "NAVCAM_LEFT", "00437/ids/edr/browse/ncam/NLF_0437_0705727428_789ECM_N0243900NCAM12436_01_195J01_1200.jpg"),
+    "COM": (405, "NAVCAM_LEFT", "00405/ids/edr/browse/ncam/NLF_0405_0702884916_409ECM_N0201422NCAM12404_04_195J01_1200.jpg"),
+}
 
 # ---------------------------------------------------------------- zonas de alerta
 # Rectángulos (lon_min, lat_min, lon_max, lat_max). Se evalúan en este orden:
 # la primera que contiene el punto gana (Z2 es una franja encima de las demás).
 ZONAS = [
-    ("Z2", "Campo de dunas", (77.4200, 18.4440, 77.4310, 18.4530), 0.05, 5),
-    ("Z1", "Delta", (77.3950, 18.4300, 77.4200, 18.4700), 0.25, 30),
-    ("Z3", "Séítah", (77.4200, 18.4300, 77.4650, 18.4410), 0.15, 10),
-    ("Z4", "Llanura norte", (77.4200, 18.4410, 77.4650, 18.4700), 0.08, 5),
+    ("Z2", "Campo de dunas", (77.4220, 18.4410, 77.4340, 18.4530), 0.05, 5),
+    ("Z1", "Delta", (77.3850, 18.4250, 77.4140, 18.4750), 0.25, 30),
+    ("Z3", "Séítah", (77.4140, 18.4250, 77.4650, 18.4370), 0.15, 10),
+    ("Z4", "Llanura norte", (77.4140, 18.4370, 77.4650, 18.4750), 0.08, 5),
 ]
 # zona -> (blindaje, sombra_pct)
 PROPS_ZONA = {z[0]: (z[3], z[4]) for z in ZONAS}
@@ -138,7 +155,8 @@ def construir() -> dict:
             "unidad_geologica": unidad,
             "zona": zona_de(lon, lat),
             "capas": {"elev_m": elev, "pendiente_deg": pend, "themis_noche": themis},
-            "fotos": [{"url": None, "camara": "NAVCAM_LEFT", "sol": 0}],
+            "fotos": [{"url": _RAW + FOTOS[nid][2], "camara": FOTOS[nid][1], "sol": FOTOS[nid][0],
+                       "credito": "NASA/JPL-Caltech"}],
         })
 
     edges = []
@@ -338,9 +356,9 @@ def main() -> None:
             "margen_min": None}})
 
     casos = {
-        "demo1_mision_15deg": {"estaciones": ["E1", "M1", "M2", "E2"], "tiempo_max_min": 180,
+        "demo1_mision_15deg": {"estaciones": ["E1", "M1", "M2", "E2"], "tiempo_max_min": 240,
                                "pendiente_max": 15, "modo": "orientacion"},
-        "demo2_mision_20deg": {"estaciones": ["E1", "M1", "M2", "E2"], "tiempo_max_min": 180,
+        "demo2_mision_20deg": {"estaciones": ["E1", "M1", "M2", "E2"], "tiempo_max_min": 240,
                                "pendiente_max": 20, "modo": "orientacion"},
     }
     resultados = {}

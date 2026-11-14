@@ -1,66 +1,66 @@
 [
   {
     "id": "HAB",
-    "nombre": "Hábitat Octavia",
+    "nombre": "Hábitat Octavia E. Butler",
     "tipo": "habitat",
     "valor_cientifico": 0,
-    "lon": 77.4508,
-    "lat": 18.4447
+    "lon": 77.45089,
+    "lat": 18.44463
   },
   {
     "id": "ROV",
-    "nombre": "Rover de apoyo",
+    "nombre": "Rover de apoyo, fondo sur",
     "tipo": "rover",
-    "valor_cientifico": 1,
-    "lon": 77.443,
-    "lat": 18.4525
+    "valor_cientifico": 2,
+    "lon": 77.45215,
+    "lat": 18.43114
   },
   {
     "id": "E1",
     "nombre": "Frente del delta",
     "tipo": "ciencia",
     "valor_cientifico": 9,
-    "lon": 77.412,
-    "lat": 18.4495
+    "lon": 77.40144,
+    "lat": 18.45073
   },
   {
     "id": "M1",
-    "nombre": "Muestreo borde de Séítah",
+    "nombre": "Séítah",
     "tipo": "muestreo",
-    "valor_cientifico": 7,
-    "lon": 77.439,
-    "lat": 18.4385
+    "valor_cientifico": 8,
+    "lon": 77.44302,
+    "lat": 18.43396
   },
   {
     "id": "M2",
-    "nombre": "Muestreo base del delta",
+    "nombre": "Depósito de muestras Three Forks",
     "tipo": "muestreo",
-    "valor_cientifico": 6,
-    "lon": 77.4185,
-    "lat": 18.443
+    "valor_cientifico": 7,
+    "lon": 77.40844,
+    "lat": 18.45342
   },
   {
     "id": "E2",
     "nombre": "Cima del delta",
     "tipo": "ciencia",
-    "valor_cientifico": 8,
-    "lon": 77.414,
-    "lat": 18.458
+    "valor_cientifico": 9,
+    "lon": 77.40293,
+    "lat": 18.46167
   },
   {
     "id": "REF",
-    "nombre": "Refugio de roca",
+    "nombre": "Refugio al pie del escarpe",
     "tipo": "refugio",
     "valor_cientifico": 2,
-    "lon": 77.425,
-    "lat": 18.456
+    "lon": 77.40875,
+    "lat": 18.4571
   },
   {
     "id": "COM",
-    "nombre": "Repetidora de comunicaciones",
+    "nombre": "Repetidora, llanura norte",
     "tipo": "comms",
     "valor_cientifico": 1,
-    "lon": 77.434,
-    "lat": 18.458
+    "lon": 77.42576,
+    "lat": 18.45932
   }
 ]

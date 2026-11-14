@@ -20,6 +20,6 @@
 
 ## Las 3 preguntas de la demo (con los datos falsos)
 
-1. "Quiero visitar el frente del delta y dos puntos de muestreo, volver en menos de 3 horas, sin pendientes de más de 15°" → E2 omitida por pendiente
-2. "¿Y si acepto hasta 20°?" → entra E2, suma 31.5 min
-3. "Alerta de polvo en la zona Z2" → evita el tramo HAB→E1
+1. "Quiero visitar el frente del delta, Séítah, el depósito Three Forks y la cima del delta, volver en menos de 4 horas, sin pendientes de más de 15°" → la cima (E2) queda omitida por pendiente (20.4°)
+2. "¿Y si acepto hasta 20°?" → entra la cima, suma 37.6 min
+3. "Alerta de polvo en la zona Z2" → evita los tramos HAB→M2 y M2→M1
