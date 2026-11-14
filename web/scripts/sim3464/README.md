@@ -4,7 +4,7 @@ Convierte la base del mapa geológico **USGS SIM 3464** (Sun y Stack, 2020, [doi
 al modelo estrella de [`modelo_estrella.sql`](modelo_estrella.sql) ([DER](modelo_estrella_DER.mmd)) y a los archivos que leen las dos interfaces.
 
 ```bash
-pip install pyogrio rasterio pyproj shapely numpy
+pip install pyogrio rasterio pyproj shapely numpy pillow
 python web/scripts/sim3464/importar_sim3464.py "C:/ruta/a/sim3464_database"
 ```
 
@@ -15,7 +15,8 @@ python web/scripts/sim3464/importar_sim3464.py "C:/ruta/a/sim3464_database"
 | Archivo | Qué es | Lo usa |
 | --- | --- | --- |
 | `out/sim3464_estrella.sqlite` | Modelo estrella completo: 5 169 filas en `fact_map_feature` (geometría WKT en MTM 77.5°E). ~90 MB, fuera de git | consultas, `engine/` si lo necesita |
-| `web/map/public/geologia.geojson` | `fact_map_feature` aplanado (dimensiones unidas), recortado a 77.33–77.53°E, 18.38–18.51°N, simplificado a 4 m, en lon/lat | capa Geología del mapa |
+| `web/map/public/geologia.geojson` | `fact_map_feature` aplanado (dimensiones unidas) en todo el marco del mapa (76.80–77.80°E, 17.70–18.70°N), simplificado a 8 m, en lon/lat. ~6,5 MB | capa Geología del mapa |
+| `web/map/public/base/ctx_sim3464.jpg` + `.json` | Mosaico CTX del SIM 3464 reproyectado a Mercator de Marte, 4096 px (~14 m/px). Sus límites fijan `maxBounds` del mapa: al mover o alejar nunca aparece fondo vacío | fondo del mapa (debajo de las teselas CTX de 5 m) |
 | `web/shared/sim3464/geologia_ruta.geojson` | Solo unidades, recorte de la ruta, simplificado a 12 m | minimapa del HUD |
 | `web/shared/sim3464/estaciones_capas.json` | Por estación de `estaciones.csv`: unidad, rasgos de superficie, elevación DTM CTX 20 m, pendiente (Horn 3×3), elevación HRSC 75 m, THEMIS IR día/noche | ficha del mapa y objetivo del HUD |
 

@@ -21,9 +21,25 @@ import { HUD, COLOR_TIPO } from './tokens.js';
 // geográfica que MapLibre no lee como teselas, así que scripts/descargar_base.mjs
 // baja el recorte de Jezero a public/base/ y cada tesela va como image source.
 // En un área de ~5 km la diferencia entre equirectangular y Mercator es despreciable.
+// Debajo va el mosaico CTX completo del USGS SIM 3464 (~60 × 60 km, ~14 m/px), que
+// genera web/scripts/sim3464/importar_sim3464.py: cubre todo el marco del mapa, así que
+// al mover el mapa no aparece fondo vacío. Sus límites también fijan maxBounds.
 const BASE_INDICE = '/base/teselas.json';
+const BASE_AMPLIA = '/base/ctx_sim3464.json';
 
 async function agregarMapaBase(map, antesDe) {
+  try {
+    const amplia = await (await fetch(BASE_AMPLIA)).json();
+    map.addSource('base-amplia', { type: 'image', url: amplia.url, coordinates: amplia.coordinates });
+    map.addLayer({
+      id: 'base-amplia', type: 'raster', source: 'base-amplia',
+      paint: { 'raster-saturation': -0.3, 'raster-brightness-max': 0.85, 'raster-fade-duration': 0 },
+    }, antesDe);
+    const [o, s, e, n] = amplia.limites;
+    map.setMaxBounds([[o, s], [e, n]]);
+  } catch {
+    // Sin mosaico amplio: quedan solo las teselas de la zona de trabajo.
+  }
   try {
     const { teselas } = await (await fetch(BASE_INDICE)).json();
     teselas.forEach((t, i) => {
@@ -163,11 +179,12 @@ export default function MarsMap({
       },
       center: [77.43, 18.445],
       zoom: 13.5,
+      renderWorldCopies: false,
       attributionControl: false,
     });
     map.addControl(new maplibregl.AttributionControl({
       compact: true,
-      customAttribution: 'CTX: NASA/JPL-Caltech/MSSS · Murray Lab/Caltech · Esri · Geología: USGS SIM 3464 (Sun y Stack, 2020)',
+      customAttribution: 'CTX: NASA/JPL-Caltech/MSSS · Murray Lab/Caltech · Esri · USGS SIM 3464 · Geología: USGS SIM 3464 (Sun y Stack, 2020)',
     }));
     // El contenedor puede medir 0 al montar (estilos aún sin aplicar): seguir su tamaño
     // y volver a encuadrar mientras el usuario no haya movido el mapa.

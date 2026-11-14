@@ -3,12 +3,13 @@
 Entrada: la carpeta `sim3464_database` (Nili.gdb + rásters + modelo_estrella.sql).
 Salidas:
   web/scripts/sim3464/out/sim3464_estrella.sqlite   modelo estrella completo (no se sube a git)
-  web/map/public/geologia.geojson                   fact_map_feature aplanado, recortado al área de trabajo
+  web/map/public/geologia.geojson                   fact_map_feature aplanado, en todo el marco del mapa
+  web/map/public/base/ctx_sim3464.jpg + .json       mosaico CTX del SIM 3464 en Mercator de Marte (fondo del mapa)
   web/shared/sim3464/geologia_ruta.geojson          solo unidades, recorte chico (minimapa del HUD)
   web/shared/sim3464/estaciones_capas.json          valores reales muestreados en cada estación
 
 Uso:
-  pip install pyogrio rasterio pyproj shapely numpy
+  pip install pyogrio rasterio pyproj shapely numpy pillow
   python web/scripts/sim3464/importar_sim3464.py "C:/ruta/a/sim3464_database"
 
 Nada se inventa: cada valor de salida trae el producto del que salió.
@@ -33,10 +34,12 @@ from shapely.ops import transform as sh_transform, unary_union
 REPO = Path(__file__).resolve().parents[3]
 AQUI = Path(__file__).resolve().parent
 
-# Área de trabajo del mapa (lon/lat): el recorte del spec (77.37–77.47°E, 18.41–18.48°N) con margen.
-AOI_MAPA = (77.33, 18.38, 77.53, 18.51)
+# El mapa cubre todo el SIM 3464: el rectángulo lon/lat que cae entero dentro del mosaico CTX
+# (se calcula en main). El HUD usa solo el recorte de la ruta.
 AOI_RUTA = (77.385, 18.420, 77.470, 18.475)
-SIMPLIFICAR_M = {'mapa': 4.0, 'ruta': 12.0}
+SIMPLIFICAR_M = {'mapa': 8.0, 'ruta': 12.0}
+BASE_ANCHO_PX = 4096  # ~14 m/px sobre ~60 km; las teselas CTX de 5 m siguen encima en la zona de trabajo
+R_MARTE = 3396190.0
 
 # capa del gdb → (feature_group, campo TYPE o None)
 CAPAS = {
@@ -76,6 +79,51 @@ def crear_sqlite(destino, sql_estrella):
     return con
 
 
+def rectangulo_interior(tif, a_lonlat):
+    """Rectángulo lon/lat más grande alineado a los ejes que cae dentro del ráster en MTM."""
+    with rasterio.open(tif) as d:
+        b = d.bounds
+    t = np.linspace(0, 1, 200)
+    izq = a_lonlat.transform(np.full_like(t, b.left), b.bottom + t * (b.top - b.bottom))
+    der = a_lonlat.transform(np.full_like(t, b.right), b.bottom + t * (b.top - b.bottom))
+    aba = a_lonlat.transform(b.left + t * (b.right - b.left), np.full_like(t, b.bottom))
+    arr = a_lonlat.transform(b.left + t * (b.right - b.left), np.full_like(t, b.top))
+    margen = 0.002  # ~120 m hacia adentro, para no tocar el borde del mosaico
+    return (max(izq[0]) + margen, max(aba[1]) + margen, min(der[0]) - margen, min(arr[1]) - margen)
+
+
+def exportar_base(tif, aoi, crs_mtm):
+    """Reproyecta el mosaico CTX a Mercator de Marte para usarlo como image source de MapLibre."""
+    from PIL import Image
+    from rasterio.warp import Resampling, reproject
+
+    merc = CRS.from_proj4(f'+proj=merc +R={R_MARTE} +units=m +no_defs')
+    a_merc = Transformer.from_crs(crs_mtm.geodetic_crs, merc, always_xy=True)
+    x0, y0 = a_merc.transform(aoi[0], aoi[1])
+    x1, y1 = a_merc.transform(aoi[2], aoi[3])
+    ancho = BASE_ANCHO_PX
+    alto = round(ancho * (y1 - y0) / (x1 - x0))
+    destino = np.zeros((alto, ancho), dtype='uint8')
+    with rasterio.open(tif) as d:
+        reproject(
+            source=rasterio.band(d, 1), destination=destino,
+            dst_transform=rasterio.transform.from_bounds(x0, y0, x1, y1, ancho, alto),
+            dst_crs=merc.to_wkt(), resampling=Resampling.average,
+        )
+    salida = REPO / 'web/map/public/base/ctx_sim3464.jpg'
+    salida.parent.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(destino, 'L').save(salida, quality=78, optimize=True, progressive=True)
+    indice = {
+        'fuente': 'Mosaico CTX Caltech (Murray Lab, feb 2018) incluido en USGS SIM 3464 · NASA/JPL-Caltech/MSSS',
+        'metros_por_pixel': round((x1 - x0) / ancho, 1),
+        'limites': [round(v, 6) for v in aoi],
+        'url': '/base/ctx_sim3464.jpg',
+        'coordinates': [[aoi[0], aoi[3]], [aoi[2], aoi[3]], [aoi[2], aoi[1]], [aoi[0], aoi[1]]],
+    }
+    (salida.parent / 'ctx_sim3464.json').write_text(json.dumps(indice, ensure_ascii=False, indent=2), encoding='utf-8')
+    print(f'  web/map/public/base/ctx_sim3464.jpg  {ancho}x{alto}  {salida.stat().st_size / 1e6:.2f} MB')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('db', help='carpeta sim3464_database')
@@ -107,13 +155,17 @@ def main():
     def caja_mtm(aoi):
         xs, ys = a_mtm.transform([aoi[0], aoi[2], aoi[0], aoi[2]], [aoi[1], aoi[1], aoi[3], aoi[3]])
         return box(min(xs), min(ys), max(xs), max(ys))
+    ctx_tif = rasters / 'Caltech_CTX_mosaic_feb2018' / 'Nili_CTX_Mosaic_Beta01_Feb2018_MTM.tif'
+    AOI_MAPA = rectangulo_interior(ctx_tif, a_lonlat)
+    print('Marco del mapa (lon/lat):', [round(v, 5) for v in AOI_MAPA])
     aoi_mapa, aoi_ruta = caja_mtm(AOI_MAPA), caja_mtm(AOI_RUTA)
+    exportar_base(ctx_tif, AOI_MAPA, crs_mtm)
     a_ll = lambda geom: sh_transform(lambda x, y, z=None: a_lonlat.transform(x, y), geom)
 
     def redondear(o):
         if isinstance(o, (list, tuple)):
             if o and isinstance(o[0], float):
-                return [round(o[0], 6), round(o[1], 6)]
+                return [round(o[0], 5), round(o[1], 5)]
             return [redondear(x) for x in o]
         return o
 
