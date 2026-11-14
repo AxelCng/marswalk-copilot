@@ -81,15 +81,35 @@ Para que el frontend (Axl) use el mock con chat: `VITE_API_BASE=http://localhost
 4. Si la respuesta trae números sin fuente, se le pide al modelo que corrija una vez; si insiste, se responde
    con el resumen hecho por código (o se pide el dato que falta). Lo mismo si el modelo no llega a responder.
 5. Las alertas ("alerta de polvo en Z2", "perdimos comunicación") y los cambios de condición sobre la misión
-   anterior ("¿y si acepto 20°?", "¿y si tengo 3 horas?") se detectan por código y la herramienta se llama
+   anterior ("¿y si acepto 12°?", "¿y si tengo 3 horas?") se detectan por código y la herramienta se llama
    siempre: los modelos chicos tendían a responder de memoria.
+6. El **pedido de misión** también se detecta por código (`detectar_mision`): si el mensaje nombra 2 o más
+   estaciones (por id o por su nombre del catálogo; "los puntos de muestreo" = todas las de tipo muestreo) y da
+   tiempo o pendiente, se llama a `optimizar_mision` con esos argumentos. Con qwen2.5:3b la pregunta 1 de la
+   demo salía mal 3 de cada 4 veces (inventaba estaciones o minutos). Después de una llamada forzada, el modelo
+   solo redacta: no recibe herramientas, para que no pida otras que pisen la ruta.
 
 ## Plan B (spec, corte sáb 13:00)
 
 Si ningún modelo local hace bien el tool calling: API comercial para la demo y Ollama como "modo offline".
 Si el LLM falla en vivo: formulario de Axl → `POST /mision`.
 
-## Resultados (sáb 14, laptop L3, solo CPU, contra el mock con `graph_fake.json`)
+## Resultados con GPU y el motor real (sáb 14, noche)
+
+Laptop con RTX 3050 de 4 GB (el modelo entra entero: `ollama ps` → 100% GPU), `qwen2.5:3b`, motor de
+`engine/` con `/chat` montado y el `graph.json` real de `data/out/`. Demo nueva: 8° → 12° → polvo en Z2.
+
+| Modelo | Chequeos | Números sin fuente | Promedio por pregunta | Demo (3 preguntas) |
+| --- | --- | --- | --- | --- |
+| qwen2.5:3b (GPU) | 18/18 (3 corridas) | 0/18 | 2.2 s | ~10 s |
+
+- **Precalentar:** la primera carga del modelo tardó 151 s en frío. `POST /chat/precalentar` lo carga sin
+  generar nada (la UI lo llama al abrir) y `KEEP_ALIVE=60m` lo deja en la GPU una hora (Ollama usa 5 min por
+  defecto). El precalentamiento usa el mismo `num_ctx` que el chat; si no, Ollama recarga el modelo.
+- Respuestas de la demo con el grafo real: a 8° la cima del delta (E2) queda omitida por pendiente (9.18°),
+  230.7 min; a 12° entra y la ruta baja a 200.6 min (−30.1); polvo en Z2 → 175.2 min, Séítah (M1) queda aislada.
+
+## Resultados anteriores (sáb 14, laptop L3, solo CPU, contra el mock con `graph_fake.json`)
 
 | Modelo | Chequeos | Números sin fuente | Promedio por pregunta | Demo (3 preguntas) |
 | --- | --- | --- | --- | --- |

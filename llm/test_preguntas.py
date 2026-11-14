@@ -7,7 +7,8 @@ Uso:
     python test_preguntas.py qwen2.5:3b qwen2.5:7b
 
 Cada caso revisa: la herramienta esperada, los argumentos clave y que no haya números sin fuente.
-Los valores esperados salen de contracts/ejemplos/ (grafo falso). Con el graph.json real se ajustan.
+Demo con el graph.json real (data/out/): a 8° la cima del delta (E2) queda fuera por pendiente y a 12° entra
+(ver data/HALLAZGO_pendiente_demo.md). Con 3 horas E2 no entra por tiempo: la demo usa 4 horas.
 """
 import json
 import sys
@@ -22,15 +23,21 @@ def args_de(r, herramienta):
     return next((c["argumentos"] for c in reversed(r["llamadas"]) if c["herramienta"] == herramienta and c["ok"]), None)
 
 
+PENDIENTE_DEMO_1 = 8   # E2 omitida por pendiente
+PENDIENTE_DEMO_2 = 12  # E2 entra
+
+
 def chequeo_demo1(r):
     a = args_de(r, "optimizar_mision")
-    return bool(a) and set(a["estaciones"]) == {"E1", "M1", "M2", "E2"} and a["pendiente_max"] == 15 \
-        and a["tiempo_max_min"] == 240
+    return bool(a) and set(a["estaciones"]) == {"E1", "M1", "M2", "E2"} and a["pendiente_max"] == PENDIENTE_DEMO_1 \
+        and a["tiempo_max_min"] == 240 and bool(r["ruta"]) \
+        and any(o["id"] == "E2" and o["motivo"] == "pendiente" for o in r["ruta"]["omitidas"])
 
 
 def chequeo_demo2(r):
     a = args_de(r, "optimizar_mision")
-    return bool(a) and "E2" in a["estaciones"] and a["pendiente_max"] == 20 and bool(r["ruta"]) and "E2" in r["ruta"]["ruta"]
+    return bool(a) and "E2" in a["estaciones"] and a["pendiente_max"] == PENDIENTE_DEMO_2 \
+        and bool(r["ruta"]) and "E2" in r["ruta"]["ruta"]
 
 
 def chequeo_demo3(r):
@@ -46,8 +53,8 @@ def chequeo_info(r):
 # Conversación de la demo: cada pregunta ve el historial de la anterior
 DEMO = [
     ("demo-1 mision", "Quiero visitar el frente del delta, los dos puntos de muestreo (Séítah y Three Forks) y la "
-                      "cima del delta, volver en menos de 4 horas y sin pendientes de más de 15 grados.", chequeo_demo1),
-    ("demo-2 cambio", "¿Y si acepto hasta 20°?", chequeo_demo2),
+                      "cima del delta, volver en menos de 4 horas y sin pendientes de más de 8 grados.", chequeo_demo1),
+    ("demo-2 cambio", "¿Y si acepto hasta 12°?", chequeo_demo2),
     ("demo-3 alerta", "Alerta de polvo en la zona Z2. Recalcula.", chequeo_demo3),
 ]
 # Preguntas sueltas (sin historial)
