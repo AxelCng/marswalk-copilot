@@ -1,13 +1,14 @@
 import type { EstacionResumen, EstacionDetalle, RespuestaMision, ChatResponse, PlanBParams } from '../types/mission';
-import { MOCK_ESTACIONES, MOCK_MISION_15DEG, MOCK_MISION_20DEG, MOCK_CHAT_FLOW } from '../mocks/mockData';
+import { MOCK_ESTACIONES, MOCK_MISION_15DEG, MOCK_MISION_20DEG, MOCK_ALERTA_Z2, MOCK_CHAT_FLOW, MOCK_GRAFO } from '../mocks/mockData';
+import type { Grafo } from '../../../map/src/mapa';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 
 class ApiService {
-  public useMock: boolean = true;
+  public useMock: boolean = false;
 
   constructor() {
-    // Default to true until backend is confirmed alive
+    // Por defecto se usa el motor real (FastAPI :8000). El modo prueba se activa a mano desde el HUD.
     const saved = localStorage.getItem('mw_use_mock');
     if (saved !== null) {
       this.useMock = saved === 'true';
@@ -17,6 +18,13 @@ class ApiService {
   public setUseMock(value: boolean) {
     this.useMock = value;
     localStorage.setItem('mw_use_mock', String(value));
+  }
+
+  async getGrafo(): Promise<Grafo> {
+    if (this.useMock) return MOCK_GRAFO;
+    const res = await fetch(`${API_BASE}/grafo`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
   }
 
   async getEstaciones(): Promise<EstacionResumen[]> {
@@ -75,10 +83,9 @@ class ApiService {
 
   async postAlerta(zona: string, tipo: 'polvo' | 'comms'): Promise<RespuestaMision> {
     if (this.useMock) {
-      return {
-        ...MOCK_MISION_15DEG,
-        aristas_afectadas: ["HAB->E1"]
-      };
+      // el único ejemplo de alerta en contracts/ es polvo en Z2 sobre la misión de 15°
+      void zona; void tipo;
+      return MOCK_ALERTA_Z2;
     }
 
     const res = await fetch(`${API_BASE}/alerta`, {
@@ -120,8 +127,8 @@ class ApiService {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.json();
     } catch (err) {
-      console.warn('Chat endpoint failed, fallback:', err);
-      return MOCK_CHAT_FLOW.demo1;
+      // Nunca responder con datos de prueba si el copiloto real falla: el panel avisa y ofrece el plan B.
+      throw new Error(`El copiloto no respondió (${err instanceof Error ? err.message : err}). Usa el formulario Plan B.`);
     }
   }
 }

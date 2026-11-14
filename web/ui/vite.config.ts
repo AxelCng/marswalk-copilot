@@ -8,4 +8,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  // El mapa (web/map) y los datos de prueba (contracts/) están fuera de web/ui.
+  // Las rutas relativas se resuelven desde web/ui.
+  server: { fs: { allow: ['../..'] } },
 })

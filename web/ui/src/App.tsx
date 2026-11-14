@@ -7,13 +7,19 @@ import { StationCard } from './components/StationCard';
 import { StationModal } from './components/StationModal';
 import { MissionSummary } from './components/MissionSummary';
 import { PlanBForm } from './components/PlanBForm';
-import { MOCK_ESTACIONES, MOCK_MISION_15DEG } from './mocks/mockData';
-import { MapPin, Compass, Route, Info } from 'lucide-react';
+import { MapaMision } from './components/MapaMision';
+import { MOCK_ESTACIONES, MOCK_GRAFO } from './mocks/mockData';
+import type { Grafo } from '../../map/src/mapa';
+import type { ChatResponse } from './types/mission';
+import { MapPin, Compass, Route, Info, Wind, RadioTower, RotateCcw } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [stations, setStations] = useState<EstacionDetalle[]>(MOCK_ESTACIONES);
   const [selectedStation, setSelectedStation] = useState<EstacionDetalle | null>(null);
-  const [activeMission, setActiveMission] = useState<RespuestaMision | null>(MOCK_MISION_15DEG);
+  const [activeMission, setActiveMission] = useState<RespuestaMision | null>(null);
+  const [grafo, setGrafo] = useState<Grafo | null>(null);
+  const [zonaAlerta, setZonaAlerta] = useState<string | null>(null);
+  const [avisoAlerta, setAvisoAlerta] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'chat' | 'planb' | 'stations'>('chat');
   const [filterTipo, setFilterTipo] = useState<string>('all');
 
@@ -36,7 +42,39 @@ export const App: React.FC = () => {
       }
     };
     loadData();
+    api.getGrafo()
+      .then(setGrafo)
+      .catch((e) => { console.warn('Sin /grafo, se usa contracts/graph_fake.json:', e); setGrafo(MOCK_GRAFO); });
   }, []);
+
+  /** Misión nueva (chat o plan B): sin alerta activa. */
+  const mostrarMision = (m: RespuestaMision) => { setZonaAlerta(null); setAvisoAlerta(null); setActiveMission(m); };
+
+  /** Respuesta del chat: si el copiloto llamó a recalcular_por_alerta, se muestra como alerta. */
+  const onRutaDelChat = (ruta: RespuestaMision, res?: ChatResponse) => {
+    const alerta = res?.llamadas.find((l) => l.herramienta === 'recalcular_por_alerta');
+    if (alerta) { setZonaAlerta(String(alerta.argumentos.zona ?? '')); setActiveMission(ruta); }
+    else mostrarMision(ruta);
+  };
+
+  const lanzarAlerta = async (zona: string, tipo: 'polvo' | 'comms') => {
+    if (!activeMission) { setAvisoAlerta('Primero pide una misión (chat o Plan B).'); return; }
+    try {
+      const r = await api.postAlerta(zona, tipo);
+      setZonaAlerta(tipo === 'polvo' ? zona : null);
+      setActiveMission(r);
+      const evitados = r.aristas_afectadas ?? [];
+      setAvisoAlerta(`${tipo === 'polvo' ? `Polvo en ${zona}` : 'Pérdida de comunicación'}: ` +
+        (evitados.length ? `evitados ${evitados.join(', ')}` : 'la ruta no cruzaba la zona') + ` · ${r.totales.tiempo_min} min`);
+    } catch (e) {
+      setAvisoAlerta(`No se pudo recalcular: ${e instanceof Error ? e.message : e}`);
+    }
+  };
+
+  const resetear = async () => {
+    try { await api.resetAlerta(); } catch (e) { console.warn(e); }
+    setZonaAlerta(null); setAvisoAlerta(null); setActiveMission(null);
+  };
 
   const handleSelectStationById = async (id: string) => {
     const found = stations.find((s) => s.id === id);
@@ -87,13 +125,43 @@ export const App: React.FC = () => {
           </div>
         </div>
 
+        {/* Mapa de la misión (web/map, Añe) + alertas */}
+        <div className="rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden shadow-xl">
+          <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-slate-800 font-mono text-xs">
+            <span className="text-slate-400 mr-1 flex items-center gap-1"><Wind className="h-3.5 w-3.5 text-red-400" /> Alerta de polvo:</span>
+            {(grafo?.zonas ?? []).map((z) => (
+              <button key={z.id} onClick={() => lanzarAlerta(z.id, 'polvo')}
+                className={`px-2.5 py-1 rounded-md border transition-colors ${zonaAlerta === z.id
+                  ? 'bg-red-600 border-red-400 text-white' : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-red-400'}`}>
+                {z.id} {z.nombre}
+              </button>
+            ))}
+            <button onClick={() => lanzarAlerta('Z1', 'comms')}
+              className="px-2.5 py-1 rounded-md border bg-slate-900 border-slate-700 text-slate-300 hover:border-pink-400 flex items-center gap-1">
+              <RadioTower className="h-3.5 w-3.5" /> Sin comunicación
+            </button>
+            <button onClick={resetear}
+              className="px-2.5 py-1 rounded-md border bg-slate-900 border-slate-700 text-slate-300 hover:border-cyan-400 flex items-center gap-1">
+              <RotateCcw className="h-3.5 w-3.5" /> Reset
+            </button>
+            {avisoAlerta && <span className="ml-auto text-amber-300">{avisoAlerta}</span>}
+          </div>
+          <MapaMision
+            className="h-[460px] w-full"
+            grafo={grafo}
+            mision={activeMission}
+            zonaAlerta={zonaAlerta}
+            onClickEstacion={handleSelectStationById}
+          />
+        </div>
+
         {/* View Switcher Content */}
         {activeTab === 'chat' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left: Chat Copilot (takes 7 cols) */}
             <div className="lg:col-span-7 h-[680px]">
               <ChatPanel
-                onRouteGenerated={(ruta) => setActiveMission(ruta)}
+                onRouteGenerated={onRutaDelChat}
                 onViewRoute={() => {
                   const el = document.getElementById('mission-summary-anchor');
                   el?.scrollIntoView({ behavior: 'smooth' });
@@ -151,7 +219,8 @@ export const App: React.FC = () => {
             <div className="lg:col-span-7">
               <PlanBForm
                 stations={stations}
-                onMissionCalculated={(res) => setActiveMission(res)}
+                onMissionCalculated={mostrarMision}
+                onAlertaCalculada={(r, z) => { setZonaAlerta(z); setActiveMission(r); }}
               />
             </div>
 

@@ -13,6 +13,7 @@ export interface FotoEstacion {
   url: string | null;
   camara: string;
   sol: number;
+  credito?: string;
 }
 
 export interface CapasEstacion {
