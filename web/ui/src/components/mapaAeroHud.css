@@ -1,44 +1,5 @@
 /* Estilos que necesita MarsMap (web/map, AeroHUD de Axl). Copiados de web/map/src/styles.css:
-   solo variables y clases del mapa, sin los estilos globales (body, html) de esa consola. */
-:root {
-  color-scheme: dark;
-  --hud-bg-deep: #0b0e14;
-  --hud-panel: #10131a;
-  --hud-glass: #151b26;
-  --hud-glass-80: rgba(21, 27, 38, 0.8);
-  --hud-glass-92: rgba(21, 27, 38, 0.92);
-  --hud-border: #2a3447;
-  --hud-border-subtle: #1e2638;
-  --on-surface: #e1e2eb;
-  --on-surface-variant: #bac9cc;
-  --outline: #849396;
-  --hud-cyan: #00e5ff;
-  --hud-cyan-faint: rgba(0, 229, 255, 0.08);
-  --mars-rust: #e05a2b;
-  --status-nominal: #10b981;
-  --status-warning: #f59e0b;
-  --status-critical: #ef4444;
-
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: Inter, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --radius-sm: 0.125rem;
-  --radius: 0.25rem;
-  --radius-full: 9999px;
-  --blur-glass: 12px;
-  --glow-cyan: 0 0 12px rgba(0, 229, 255, 0.6);
-  --glow-focus: 0 0 16px rgba(0, 229, 255, 0.15);
-  --glow-alert: 0 0 24px rgba(239, 68, 68, 0.25);
-
-  --barra-h: 52px;
-  --riel-izq: 280px;
-  --riel-der: 340px;
-}
+   solo clases del mapa. Los tokens (--hud-*, --font-*) viven en src/index.css. */
 
 
 .mapa { position: absolute; inset: 0; }

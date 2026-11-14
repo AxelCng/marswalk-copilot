@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "web/map", "run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "web-ui",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "web/ui", "run", "dev", "--", "--port", "5174", "--strictPort"],
+      "port": 5174
     }
   ]
 }
