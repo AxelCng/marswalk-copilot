@@ -1,0 +1,139 @@
+/* AeroHUD Jezero — tokens del design system (https://claude.ai/artifact/TDBvRbN9wBCZ4PCoCyV3Yh) */
+:root {
+  color-scheme: dark;
+  --hud-bg-deep: #0b0e14;
+  --hud-glass-80: rgba(21, 27, 38, 0.8);
+  --hud-glass-92: rgba(21, 27, 38, 0.92);
+  --hud-border: #2a3447;
+  --on-surface: #e1e2eb;
+  --on-surface-variant: #bac9cc;
+  --outline: #849396;
+  --hud-cyan: #00e5ff;
+  --hud-cyan-faint: rgba(0, 229, 255, 0.08);
+  --status-warning: #f59e0b;
+  --status-critical: #ef4444;
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: Inter, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --radius: 0.25rem;
+  --radius-full: 9999px;
+  --blur-glass: 12px;
+  --glow-cyan: 0 0 12px rgba(0, 229, 255, 0.6);
+  --glow-alert: 0 0 24px rgba(239, 68, 68, 0.25);
+}
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; height: 100%; }
+body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+  background: var(--hud-bg-deep);
+  color: var(--on-surface);
+}
+
+.app { position: relative; height: 100%; }
+.mapa { position: absolute; inset: 0; }
+
+/* Nivel 1: panel de telemetría de vidrio */
+.panel {
+  position: absolute; top: var(--space-md); left: var(--space-md);
+  width: 320px; max-width: calc(100% - 2 * var(--space-md));
+  max-height: calc(100% - 4rem); overflow: auto;
+  display: flex; flex-direction: column; gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--hud-glass-80);
+  border: 1px solid var(--hud-border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(var(--blur-glass));
+}
+.panel.alerta-activa { border-color: var(--status-critical); box-shadow: var(--glow-alert); }
+
+.panel h1 {
+  margin: 0; font-family: var(--font-display);
+  font-size: 18px; line-height: 26px; font-weight: 500;
+}
+.label-caps {
+  font-family: var(--font-mono); font-size: 10px; line-height: 12px;
+  font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+.fuente { margin: var(--space-xs) 0 0; }
+
+.botones { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
+button {
+  min-height: 36px; padding: 0 var(--space-sm);
+  border-radius: var(--radius); cursor: pointer;
+  font: 600 12px/16px var(--font-mono); letter-spacing: 0.02em;
+  border: 1px solid var(--hud-border);
+  background: var(--hud-glass-80); color: var(--hud-cyan);
+  transition: border-color 120ms, box-shadow 120ms;
+}
+button:hover { border-color: var(--hud-cyan); }
+button:focus-visible { outline: 1px solid var(--hud-cyan); outline-offset: 2px; }
+button.primario { background: var(--hud-cyan); border-color: var(--hud-cyan); color: var(--hud-bg-deep); }
+button.primario:hover { box-shadow: var(--glow-cyan); }
+button.alerta {
+  background: rgba(239, 68, 68, 0.15); border-color: var(--status-critical); color: var(--status-critical);
+}
+
+.pend { display: flex; gap: var(--space-sm); align-items: center; justify-content: space-between; }
+select {
+  background: var(--hud-glass-92); color: var(--on-surface);
+  border: 1px solid var(--hud-border); border-radius: var(--radius);
+  padding: 2px var(--space-xs); font: 500 12px/16px var(--font-mono);
+}
+select:focus-visible { border-color: var(--hud-cyan); outline: none; }
+
+.resumen { display: flex; flex-direction: column; gap: var(--space-sm); border-top: 1px solid var(--hud-border); padding-top: var(--space-md); }
+.ruta {
+  font: 500 14px/20px var(--font-mono); letter-spacing: 0.02em;
+  color: var(--hud-cyan); word-break: break-word;
+}
+.totales { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-sm); }
+.totales div { display: flex; flex-direction: column; gap: 2px; }
+.totales b {
+  font: 600 20px/26px var(--font-mono); letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums; color: var(--on-surface);
+}
+
+.chip {
+  display: inline-flex; align-items: center; gap: var(--space-xs);
+  min-height: 22px; padding: 0 var(--space-sm);
+  border-radius: 0.125rem; border: 1px solid;
+  font: 700 10px/12px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;
+}
+.chip::before { content: ''; width: 6px; height: 6px; border-radius: var(--radius-full); background: currentColor; }
+.chip.warning { color: var(--status-warning); border-color: rgba(245, 158, 11, 0.4); }
+.chip.critical { color: var(--status-critical); border-color: rgba(239, 68, 68, 0.4); }
+.chips { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-xs); }
+
+.geo { display: flex; flex-direction: column; gap: var(--space-sm); }
+input[type='checkbox'] { accent-color: var(--hud-cyan); width: 14px; height: 14px; }
+.geo-leyenda { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-xs); }
+.geo-leyenda li { display: grid; grid-template-columns: 10px 3.5rem 1fr; align-items: center; gap: var(--space-sm); min-width: 0; }
+.geo-leyenda i { width: 10px; height: 10px; border-radius: 0.125rem; }
+.geo-leyenda b { font: 600 11px/14px var(--font-mono); letter-spacing: 0.05em; }
+.geo-leyenda span { font-size: 12px; line-height: 16px; color: var(--on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.sel, .estado { margin: 0; font: 500 11px/14px var(--font-mono); letter-spacing: 0.05em; color: var(--outline); }
+
+.leyenda { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: var(--space-sm) var(--space-md); }
+.leyenda li { display: flex; align-items: center; gap: var(--space-xs); }
+.leyenda i { width: 8px; height: 8px; border-radius: var(--radius-full); }
+
+.maplibregl-popup-content {
+  background: var(--hud-glass-92); color: var(--on-surface);
+  border: 1px solid var(--hud-border); border-radius: var(--radius);
+  font: 500 11px/14px var(--font-mono); letter-spacing: 0.05em; padding: 6px 10px;
+}
+.maplibregl-popup-tip { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  button { transition: none; }
+}
