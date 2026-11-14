@@ -228,7 +228,9 @@ export const App: React.FC = () => {
               <PlanBForm
                 stations={stations}
                 onMissionCalculated={mostrarMision}
-                onAlertaCalculada={(r, z) => { setZonaAlerta(z); setActiveMission(r); }}
+                zonas={grafo?.zonas ?? []}
+                onAlertaCalculada={(r, z) => { setZonaAlerta(z); setAvisoAlerta(null); setActiveMission(r); }}
+                onReset={() => { setZonaAlerta(null); setAvisoAlerta(null); setActiveMission(null); }}
               />
             </div>
 
