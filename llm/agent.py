@@ -47,6 +47,19 @@ def reiniciar():
     _ESTADO.update(mision=None, resultado=None)
 
 
+def _motivo_error(contenido):
+    """Texto legible del error de una herramienta: {"error": [{"msg": "zona Z9 no existe"}]} -> 'zona Z9 no existe'."""
+    try:
+        err = json.loads(contenido).get("error", contenido)
+    except (ValueError, AttributeError):
+        return str(contenido)[:200]
+    if isinstance(err, list):
+        return "; ".join(str(e.get("msg", e)) if isinstance(e, dict) else str(e) for e in err)[:200]
+    if isinstance(err, dict):
+        return str(err.get("detail") or err.get("msg") or err)[:200]
+    return str(err)[:200]
+
+
 def precalentar(modelo=None):
     """Carga el modelo en la GPU sin generar nada (prompt vacío), para que la primera pregunta de la
     demo no espere la carga. Lo deja cargado KEEP_ALIVE. Devuelve {modelo, segundos} o {error}."""
@@ -416,6 +429,10 @@ def responder(mensaje, historial=None, modelo=None):
         mensajes.append({"role": "assistant", "content": "",
                          "tool_calls": [{"function": {"name": forzada[0], "arguments": forzada[1]}}]})
         ejecutar_lote([forzada])
+        if llamadas and not llamadas[-1]["ok"]:
+            # Si falla, que el modelo no redacte: tendería a repetir la ruta anterior como si fuera la nueva.
+            return salida(f"No pude recalcular: {_motivo_error(mensajes[-1]['content'])}. "
+                          "La ruta anterior sigue vigente; usa el formulario de misión si hace falta.")
 
     # Con la herramienta ya llamada por código, el modelo solo redacta: sin herramientas, para que no pida
     # otras (p. ej. ruta_punto_a_punto) que pisen la ruta de la misión.
