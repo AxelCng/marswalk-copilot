@@ -1,0 +1,12 @@
+.git
+.venv
+**/.venv
+**/node_modules
+**/dist
+**/__pycache__
+**/.pytest_cache
+.claude
+llm/.env
+data/raw
+data/tmp
+*.pdf
