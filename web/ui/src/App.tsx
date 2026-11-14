@@ -14,6 +14,10 @@ import { MOCK_ALERTA_Z2, MOCK_ESTACIONES, MOCK_GRAFO } from './mocks/mockData';
 import type { Grafo } from './types/mission';
 import type { ChatResponse } from './types/mission';
 import { MapPin, Compass, Route, Info, Wind, RadioTower, RotateCcw } from 'lucide-react';
+import { eva, type EstadoAstronauta } from './services/eva';
+
+/** ?vista=visor: esta ventana es solo el visor del astronauta; la consola de otra ventana lo sigue. */
+const VENTANA_VISOR = new URLSearchParams(window.location.search).get('vista') === 'visor';
 
 export const App: React.FC = () => {
   const [stations, setStations] = useState<EstacionDetalle[]>(MOCK_ESTACIONES);
@@ -24,7 +28,9 @@ export const App: React.FC = () => {
   const [avisoAlerta, setAvisoAlerta] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'chat' | 'planb' | 'stations'>('chat');
   const [filterTipo, setFilterTipo] = useState<string>('all');
-  const [vista, setVista] = useState<'consola' | 'visor'>('consola');
+  const [vista, setVista] = useState<'consola' | 'visor'>(VENTANA_VISOR ? 'visor' : 'consola');
+  /** Astronauta de un visor abierto en otra ventana (llega por eva.ts). */
+  const [astronauta, setAstronauta] = useState<EstadoAstronauta | null>(null);
   const [misionPrevia, setMisionPrevia] = useState<RespuestaMision | null>(null);
   const [ejemplo, setEjemplo] = useState(false);
   const [alertaCargando, setAlertaCargando] = useState(false);
@@ -58,6 +64,34 @@ export const App: React.FC = () => {
     api.getGrafo()
       .then(setGrafo)
       .catch((e) => { console.warn('Sin /grafo, se usa contracts/graph_fake.json:', e); setGrafo(MOCK_GRAFO); });
+  }, []);
+
+  // --- EVA en vivo entre ventanas -----------------------------------------------
+  // Consola: comparte la misión con la ventana del visor y muestra al astronauta que esta le manda.
+  useEffect(() => {
+    if (VENTANA_VISOR) return undefined;
+    const compartir = () => eva.publicarMision({ mision: activeMission, misionPrevia, zonaAlerta, ejemplo });
+    compartir();
+    return eva.alPedido(compartir);
+  }, [activeMission, misionPrevia, zonaAlerta, ejemplo]);
+  useEffect(() => {
+    if (VENTANA_VISOR) return undefined;
+    let t: ReturnType<typeof setTimeout>;
+    const quitar = eva.alEstado((e) => {
+      setAstronauta(e);
+      clearTimeout(t);
+      t = setTimeout(() => setAstronauta(null), 3000); // si el visor se cierra, se borra el marcador
+    });
+    return () => { quitar(); clearTimeout(t); };
+  }, []);
+  // Ventana del visor: recibe la misión de la consola.
+  useEffect(() => {
+    if (!VENTANA_VISOR) return undefined;
+    const quitar = eva.alMision((d) => {
+      setActiveMission(d.mision); setMisionPrevia(d.misionPrevia); setZonaAlerta(d.zonaAlerta); setEjemplo(d.ejemplo);
+    });
+    eva.pedirMision();
+    return quitar;
   }, []);
 
   /** Misión nueva (chat o plan B): sin alerta activa. `ejemplo`: salió de contracts/ porque no había motor. */
@@ -127,6 +161,25 @@ export const App: React.FC = () => {
     return s.tipo === filterTipo;
   });
 
+  if (VENTANA_VISOR) {
+    return (
+      <VisorHud
+        mision={activeMission}
+        misionPrevia={misionPrevia}
+        zonaAlerta={zonaAlerta}
+        estaciones={stations}
+        zonas={grafo?.zonas ?? []}
+        grafo={grafo}
+        modo="ventana"
+        fuente={api.useMock || ejemplo ? 'ejemplo' : 'api'}
+        cargando={alertaCargando}
+        onSalir={() => window.close()}
+        onAlerta={(z) => lanzarAlerta(z, 'polvo')}
+        onQuitarAlerta={quitarAlerta}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-hud-deep text-ink flex flex-col font-sans">
       {/* Top Tactical HUD Header */}
@@ -145,9 +198,11 @@ export const App: React.FC = () => {
           zonaAlerta={zonaAlerta}
           estaciones={stations}
           zonas={grafo?.zonas ?? []}
+          grafo={grafo}
+          modo={VENTANA_VISOR ? 'ventana' : 'partido'}
           fuente={api.useMock || ejemplo ? 'ejemplo' : 'api'}
           cargando={alertaCargando}
-          onSalir={() => setVista('consola')}
+          onSalir={() => (VENTANA_VISOR ? window.close() : setVista('consola'))}
           onAlerta={(z) => lanzarAlerta(z, 'polvo')}
           onQuitarAlerta={quitarAlerta}
         />
@@ -208,7 +263,22 @@ export const App: React.FC = () => {
             mision={activeMission}
             zonaAlerta={zonaAlerta}
             onClickEstacion={handleSelectStationById}
+            astronauta={astronauta ? { pos: astronauta.pos, rumbo: astronauta.rumbo } : null}
+            onClickMapa={astronauta ? (q) => eva.ir(q) : undefined}
           />
+          {astronauta && (
+            <div className="flex flex-wrap gap-x-4 gap-y-1 px-3 py-2 border-t border-hud-border font-mono text-xs tabular-nums text-ink-dim">
+              <span className="text-hud-cyan">● Astronauta en vivo</span>
+              <span>{astronauta.pos[1].toFixed(5)}°N {astronauta.pos[0].toFixed(5)}°E</span>
+              <span>elev {astronauta.elev_m != null ? Math.round(astronauta.elev_m) : '—'} m</span>
+              <span>pend {astronauta.pendiente_deg.toFixed(1)}°</span>
+              <span>{astronauta.velocidad_kmh.toFixed(1)} km/h</span>
+              {astronauta.tramo != null && activeMission?.tramos[astronauta.tramo] && (
+                <span>tramo {astronauta.tramo + 1}: {activeMission.tramos[astronauta.tramo].origen} → {activeMission.tramos[astronauta.tramo].destino}</span>
+              )}
+              <span className="ml-auto">clic en el mapa para moverlo</span>
+            </div>
+          )}
         </div>
 
         {/* View Switcher Content */}

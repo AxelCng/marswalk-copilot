@@ -191,7 +191,7 @@ export function crearEscena(contenedor, { origen, nodos = {} }) {
         for (let k = 0; k < pasos; k++) pts.push([a[0] + ((b[0] - a[0]) * k) / pasos, a[1] + ((b[1] - a[1]) * k) / pasos]);
       }
     }
-    const ancho = 1.2;
+    const ancho = 0.35; // media banda: 70 cm, se ve como sendero y no tapa la vista a la altura de los ojos
     const pos = [];
     for (let i = 0; i < pts.length - 1; i++) {
       const [x1, n1] = pts[i];
@@ -209,7 +209,7 @@ export function crearEscena(contenedor, { origen, nodos = {} }) {
     }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    ruta = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: '#FFB000', side: THREE.DoubleSide, fog: true }));
+    ruta = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: '#FFB000', side: THREE.DoubleSide, fog: true, transparent: true, opacity: 0.7, depthWrite: false }));
     escena.add(ruta);
   }
 
