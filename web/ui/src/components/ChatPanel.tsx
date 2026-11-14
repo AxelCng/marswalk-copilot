@@ -13,12 +13,12 @@ interface ChatPanelProps {
 
 const DEMO_PRESETS = [
   {
-    label: "Paso 1: Misión 15° (<3h)",
-    text: "Quiero visitar el frente del delta y dos puntos de muestreo, volver en menos de 3 horas, sin pendientes de más de 15°"
+    label: "Paso 1: Misión 8° (<4h)",
+    text: "Quiero visitar el frente del delta, Séítah, el depósito Three Forks y la cima del delta, volver en menos de 4 horas, sin pendientes de más de 8°"
   },
   {
-    label: "Paso 2: ¿Y si acepto 20°?",
-    text: "¿Y si acepto hasta 20°?"
+    label: "Paso 2: ¿Y si acepto 12°?",
+    text: "¿Y si acepto hasta 12°?"
   },
   {
     label: "Paso 3: Alerta Polvo Z2",
