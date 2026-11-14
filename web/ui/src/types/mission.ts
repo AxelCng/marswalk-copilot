@@ -99,3 +99,4 @@ export interface PlanBParams {
   modo: 'tsp' | 'orientacion';
   origen: string;
 }
+
