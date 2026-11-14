@@ -26,7 +26,7 @@ Lo genera el pipeline (`data/`) y lo lee el motor al arrancar. El motor toma la 
 ```json
 {
   "meta": {"area": "jezero_aoi_v1", "crs": "MTM 77.5E", "modelo_costo": "v1",
-           "fake": false, "limites_pendiente_deg": [15, 20, 25]},
+           "fake": false, "limites_pendiente_deg": [8, 12, 15]},
   "zonas": [{"id": "Z2", "nombre": "Campo de dunas",
              "poligono": [[77.422, 18.441], [77.434, 18.441], [77.434, 18.453], [77.422, 18.453], [77.422, 18.441]]}],
   "nodes": [{

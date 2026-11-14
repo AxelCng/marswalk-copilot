@@ -2,38 +2,47 @@ import { defineConfig } from 'vite'
 import type { Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import { readFileSync, readdirSync, existsSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs'
+import { extname, join, relative, resolve, sep } from 'node:path'
 
-// El mapa (web/map/src/MarsMap.jsx, de Axl) pide su mapa base en /base/*.
-// Esas teselas viven en web/map/public/base: este plugin las sirve en desarrollo y las copia al build.
-const DIR_BASE = resolve(__dirname, '../map/public/base')
-const GEOLOGIA = resolve(__dirname, '../map/public/geologia.geojson')
+// El mapa (web/map/src/MarsMap.jsx, de Axl) pide sus datos con rutas absolutas:
+// /base/* (mapa base), /capas/* (DTM, pendiente, THEMIS) y /geologia.geojson (SIM 3464).
+// Todo eso vive en web/map/public: este plugin lo sirve en desarrollo y lo copia al build,
+// así la pantalla principal ve exactamente lo mismo que la página de prueba de web/map.
+const PUBLICO_MAPA = resolve(__dirname, '../map/public')
+const RUTAS_DEL_MAPA = ['/base/', '/capas/', '/geologia.geojson']
+const TIPOS: Record<string, string> = {
+  '.json': 'application/json', '.geojson': 'application/geo+json',
+  '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp',
+}
 
-function teselasDelMapa(): Plugin {
+function archivosDe(dir: string): string[] {
+  return readdirSync(dir).flatMap((f) => {
+    const p = join(dir, f)
+    return statSync(p).isDirectory() ? archivosDe(p) : [p]
+  })
+}
+
+function datosDelMapa(): Plugin {
   return {
-    name: 'teselas-del-mapa',
+    name: 'datos-del-mapa',
     configureServer(server) {
-      server.middlewares.use('/base', (req, res, next) => {
-        const archivo = join(DIR_BASE, decodeURIComponent((req.url ?? '').split('?')[0]))
-        if (!archivo.startsWith(DIR_BASE) || !existsSync(archivo)) return next()
-        res.setHeader('Content-Type', archivo.endsWith('.json') ? 'application/json' : 'image/png')
+      server.middlewares.use((req, res, next) => {
+        const ruta = decodeURIComponent((req.url ?? '').split('?')[0])
+        if (!RUTAS_DEL_MAPA.some((r) => ruta === r || ruta.startsWith(r))) return next()
+        const archivo = resolve(PUBLICO_MAPA, '.' + ruta)
+        if (!archivo.startsWith(PUBLICO_MAPA + sep) || !existsSync(archivo) || statSync(archivo).isDirectory()) return next()
+        res.setHeader('Content-Type', TIPOS[extname(archivo).toLowerCase()] ?? 'application/octet-stream')
         res.end(readFileSync(archivo))
-      })
-      // Capa geológica SIM 3464 (la entrega data/ en web/map/public): la usan el mapa y las fichas
-      server.middlewares.use('/geologia.geojson', (_req, res, next) => {
-        if (!existsSync(GEOLOGIA)) return next()
-        res.setHeader('Content-Type', 'application/geo+json')
-        res.end(readFileSync(GEOLOGIA))
       })
     },
     generateBundle() {
-      if (existsSync(GEOLOGIA)) {
-        this.emitFile({ type: 'asset', fileName: 'geologia.geojson', source: readFileSync(GEOLOGIA) })
-      }
-      if (!existsSync(DIR_BASE)) return
-      for (const f of readdirSync(DIR_BASE)) {
-        this.emitFile({ type: 'asset', fileName: `base/${f}`, source: readFileSync(join(DIR_BASE, f)) })
+      if (!existsSync(PUBLICO_MAPA)) return
+      for (const archivo of archivosDe(PUBLICO_MAPA)) {
+        const nombre = relative(PUBLICO_MAPA, archivo).split(sep).join('/')
+        if (RUTAS_DEL_MAPA.some((r) => ('/' + nombre).startsWith(r))) {
+          this.emitFile({ type: 'asset', fileName: nombre, source: readFileSync(archivo) })
+        }
       }
     },
   }
@@ -44,7 +53,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    teselasDelMapa(),
+    datosDelMapa(),
   ],
   resolve: {
     // MarsMap está fuera de web/ui: sin esto usaría otra copia de React o MapLibre y se rompe.
