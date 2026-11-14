@@ -1,0 +1,7423 @@
+{
+  "meta": {
+    "area": "jezero_aoi_fake",
+    "crs": "MTM 77.5E",
+    "modelo_costo": "fake-v1",
+    "fake": true,
+    "generado": "2026-11-14",
+    "limites_pendiente_deg": [
+      15,
+      20,
+      25
+    ],
+    "nota": "Datos inventados con la forma del contrato. Reemplazar por graph.json de data/."
+  },
+  "zonas": [
+    {
+      "id": "Z2",
+      "nombre": "Campo de dunas",
+      "poligono": [
+        [
+          77.42,
+          18.444
+        ],
+        [
+          77.431,
+          18.444
+        ],
+        [
+          77.431,
+          18.453
+        ],
+        [
+          77.42,
+          18.453
+        ],
+        [
+          77.42,
+          18.444
+        ]
+      ]
+    },
+    {
+      "id": "Z1",
+      "nombre": "Delta",
+      "poligono": [
+        [
+          77.395,
+          18.43
+        ],
+        [
+          77.42,
+          18.43
+        ],
+        [
+          77.42,
+          18.47
+        ],
+        [
+          77.395,
+          18.47
+        ],
+        [
+          77.395,
+          18.43
+        ]
+      ]
+    },
+    {
+      "id": "Z3",
+      "nombre": "Séítah",
+      "poligono": [
+        [
+          77.42,
+          18.43
+        ],
+        [
+          77.465,
+          18.43
+        ],
+        [
+          77.465,
+          18.441
+        ],
+        [
+          77.42,
+          18.441
+        ],
+        [
+          77.42,
+          18.43
+        ]
+      ]
+    },
+    {
+      "id": "Z4",
+      "nombre": "Llanura norte",
+      "poligono": [
+        [
+          77.42,
+          18.441
+        ],
+        [
+          77.465,
+          18.441
+        ],
+        [
+          77.465,
+          18.47
+        ],
+        [
+          77.42,
+          18.47
+        ],
+        [
+          77.42,
+          18.441
+        ]
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "HAB",
+      "nombre": "Hábitat Octavia",
+      "tipo": "habitat",
+      "lon": 77.4508,
+      "lat": 18.4447,
+      "valor_cientifico": 0,
+      "tarea": "Base de la misión",
+      "permanencia_min": 0,
+      "unidad_geologica": "Fondo del cráter (FAKE)",
+      "zona": "Z4",
+      "capas": {
+        "elev_m": -2569,
+        "pendiente_deg": 3.0,
+        "themis_noche": 205
+      },
+      "fotos": [
+        {
+          "url": null,
+          "camara": "NAVCAM_LEFT",
+          "sol": 0
+        }
+      ]
+    },
+    {
+      "id": "ROV",
+      "nombre": "Rover de apoyo",
+      "tipo": "rover",
+      "lon": 77.443,
+      "lat": 18.4525,
+      "valor_cientifico": 1,
+      "tarea": "Recarga y relevo de muestras",
+      "permanencia_min": 10,
+      "unidad_geologica": "Fondo del cráter (FAKE)",
+      "zona": "Z4",
+      "capas": {
+        "elev_m": -2566,
+        "pendiente_deg": 4.5,
+        "themis_noche": 207
+      },
+      "fotos": [
+        {
+          "url": null,
+          "camara": "NAVCAM_LEFT",
+          "sol": 0
+        }
+      ]
+    },
+    {
+      "id": "E1",
+      "nombre": "Frente del delta",
+      "tipo": "ciencia",
+      "lon": 77.412,
+      "lat": 18.4495,
+      "valor_cientifico": 9,
+      "tarea": "Muestreo de capas",
+      "permanencia_min": 25,
+      "unidad_geologica": "Delta, frente escarpado (FAKE)",
+      "zona": "Z1",
+      "capas": {
+        "elev_m": -2530,
+        "pendiente_deg": 12.0,
+        "themis_noche": 222
+      },
+      "fotos": [
+        {
+          "url": null,
+          "camara": "NAVCAM_LEFT",
+          "sol": 0
+        }
+      ]
+    },
+    {
+      "id": "M1",
+      "nombre": "Muestreo borde de Séítah",
+      "tipo": "muestreo",
+      "lon": 77.439,
+      "lat": 18.4385,
+      "valor_cientifico": 7,
+      "tarea": "Núcleo de roca ígnea",
+      "permanencia_min": 15,
+      "unidad_geologica": "Séítah, roca expuesta (FAKE)",
+      "zona": "Z3",
+      "capas": {
+        "elev_m": -2574,
+        "pendiente_deg": 8.0,
+        "themis_noche": 230
+      },
+      "fotos": [
+        {
+          "url": null,
+          "camara": "NAVCAM_LEFT",
+          "sol": 0
+        }
+      ]
+    },
+    {
+      "id": "M2",
+      "nombre": "Muestreo base del delta",
+      "tipo": "muestreo",
+      "lon": 77.4185,
+      "lat": 18.443,
+      "valor_cientifico": 6,
+      "tarea": "Sedimento fino",
+      "permanencia_min": 15,
+      "unidad_geologica": "Delta, depósitos distales (FAKE)",
+      "zona": "Z1",
+      "capas": {
+        "elev_m": -2552,
+        "pendiente_deg": 9.5,
+        "themis_noche": 214
+      },
+      "fotos": [
+        {
+          "url": null,
+          "camara": "NAVCAM_LEFT",
+          "sol": 0
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Cima del delta",
+      "tipo": "ciencia",
+      "lon": 77.414,
+      "lat": 18.458,
+      "valor_cientifico": 8,
+      "tarea": "Panorámica y estratigrafía",
+      "permanencia_min": 20,
+      "unidad_geologica": "Delta, capa superior (FAKE)",
+      "zona": "Z1",
+      "capas": {
+        "elev_m": -2495,
+        "pendiente_deg": 18.5,
+        "themis_noche": 225
+      },
+      "fotos": [
+        {
+          "url": null,
+          "camara": "NAVCAM_LEFT",
+          "sol": 0
+        }
+      ]
+    },
+    {
+      "id": "REF",
+      "nombre": "Refugio de roca",
+      "tipo": "refugio",
+      "lon": 77.425,
+      "lat": 18.456,
+      "valor_cientifico": 2,
+      "tarea": "Refugio ante tormenta",
+      "permanencia_min": 10,
+      "unidad_geologica": "Llanura norte (FAKE)",
+      "zona": "Z4",
+      "capas": {
+        "elev_m": -2558,
+        "pendiente_deg": 6.0,
+        "themis_noche": 218
+      },
+      "fotos": [
+        {
+          "url": null,
+          "camara": "NAVCAM_LEFT",
+          "sol": 0
+        }
+      ]
+    },
+    {
+      "id": "COM",
+      "nombre": "Repetidora de comunicaciones",
+      "tipo": "comms",
+      "lon": 77.434,
+      "lat": 18.458,
+      "valor_cientifico": 1,
+      "tarea": "Revisión de antena",
+      "permanencia_min": 10,
+      "unidad_geologica": "Llanura norte (FAKE)",
+      "zona": "Z4",
+      "capas": {
+        "elev_m": -2545,
+        "pendiente_deg": 9.0,
+        "themis_noche": 216
+      },
+      "fotos": [
+        {
+          "url": null,
+          "camara": "NAVCAM_LEFT",
+          "sol": 0
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "origen": "HAB",
+      "destino": "ROV",
+      "limite_deg": 15,
+      "distancia_m": 688,
+      "tiempo_min": 10.4,
+      "energia_rel": 13.4,
+      "pendiente_max_deg": 5.8,
+      "dosis_rel": 9.6,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.449499,
+          18.445999
+        ],
+        [
+          77.448199,
+          18.447299
+        ],
+        [
+          77.446898,
+          18.448598
+        ],
+        [
+          77.445599,
+          18.449899
+        ],
+        [
+          77.444299,
+          18.451199
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "HAB",
+      "limite_deg": 15,
+      "distancia_m": 688,
+      "tiempo_min": 10.1,
+      "energia_rel": 13.0,
+      "pendiente_max_deg": 5.8,
+      "dosis_rel": 9.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.444299,
+          18.451199
+        ],
+        [
+          77.445599,
+          18.449899
+        ],
+        [
+          77.446898,
+          18.448598
+        ],
+        [
+          77.448199,
+          18.447299
+        ],
+        [
+          77.449499,
+          18.445999
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "ROV",
+      "limite_deg": 20,
+      "distancia_m": 688,
+      "tiempo_min": 10.4,
+      "energia_rel": 13.4,
+      "pendiente_max_deg": 5.8,
+      "dosis_rel": 9.6,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.449499,
+          18.445999
+        ],
+        [
+          77.448199,
+          18.447299
+        ],
+        [
+          77.446898,
+          18.448598
+        ],
+        [
+          77.445599,
+          18.449899
+        ],
+        [
+          77.444299,
+          18.451199
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "HAB",
+      "limite_deg": 20,
+      "distancia_m": 688,
+      "tiempo_min": 10.1,
+      "energia_rel": 13.0,
+      "pendiente_max_deg": 5.8,
+      "dosis_rel": 9.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.444299,
+          18.451199
+        ],
+        [
+          77.445599,
+          18.449899
+        ],
+        [
+          77.446898,
+          18.448598
+        ],
+        [
+          77.448199,
+          18.447299
+        ],
+        [
+          77.449499,
+          18.445999
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "ROV",
+      "limite_deg": 25,
+      "distancia_m": 688,
+      "tiempo_min": 10.4,
+      "energia_rel": 13.4,
+      "pendiente_max_deg": 5.8,
+      "dosis_rel": 9.6,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.449499,
+          18.445999
+        ],
+        [
+          77.448199,
+          18.447299
+        ],
+        [
+          77.446898,
+          18.448598
+        ],
+        [
+          77.445599,
+          18.449899
+        ],
+        [
+          77.444299,
+          18.451199
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "HAB",
+      "limite_deg": 25,
+      "distancia_m": 688,
+      "tiempo_min": 10.1,
+      "energia_rel": 13.0,
+      "pendiente_max_deg": 5.8,
+      "dosis_rel": 9.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.444299,
+          18.451199
+        ],
+        [
+          77.445599,
+          18.449899
+        ],
+        [
+          77.446898,
+          18.448598
+        ],
+        [
+          77.448199,
+          18.447299
+        ],
+        [
+          77.449499,
+          18.445999
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "E1",
+      "limite_deg": 15,
+      "distancia_m": 2376,
+      "tiempo_min": 41.2,
+      "energia_rel": 70.1,
+      "pendiente_max_deg": 14.0,
+      "dosis_rel": 36.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.444326,
+          18.445443
+        ],
+        [
+          77.437854,
+          18.446201
+        ],
+        [
+          77.431386,
+          18.446985
+        ],
+        [
+          77.424921,
+          18.447801
+        ],
+        [
+          77.41846,
+          18.448643
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "HAB",
+      "limite_deg": 15,
+      "distancia_m": 2376,
+      "tiempo_min": 36.7,
+      "energia_rel": 62.5,
+      "pendiente_max_deg": 14.0,
+      "dosis_rel": 32.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.41846,
+          18.448643
+        ],
+        [
+          77.424921,
+          18.447801
+        ],
+        [
+          77.431386,
+          18.446985
+        ],
+        [
+          77.437854,
+          18.446201
+        ],
+        [
+          77.444326,
+          18.445443
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "E1",
+      "limite_deg": 20,
+      "distancia_m": 2376,
+      "tiempo_min": 41.2,
+      "energia_rel": 70.1,
+      "pendiente_max_deg": 14.0,
+      "dosis_rel": 36.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.444326,
+          18.445443
+        ],
+        [
+          77.437854,
+          18.446201
+        ],
+        [
+          77.431386,
+          18.446985
+        ],
+        [
+          77.424921,
+          18.447801
+        ],
+        [
+          77.41846,
+          18.448643
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "HAB",
+      "limite_deg": 20,
+      "distancia_m": 2376,
+      "tiempo_min": 36.7,
+      "energia_rel": 62.5,
+      "pendiente_max_deg": 14.0,
+      "dosis_rel": 32.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.41846,
+          18.448643
+        ],
+        [
+          77.424921,
+          18.447801
+        ],
+        [
+          77.431386,
+          18.446985
+        ],
+        [
+          77.437854,
+          18.446201
+        ],
+        [
+          77.444326,
+          18.445443
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "E1",
+      "limite_deg": 25,
+      "distancia_m": 2376,
+      "tiempo_min": 41.2,
+      "energia_rel": 70.1,
+      "pendiente_max_deg": 14.0,
+      "dosis_rel": 36.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.444326,
+          18.445443
+        ],
+        [
+          77.437854,
+          18.446201
+        ],
+        [
+          77.431386,
+          18.446985
+        ],
+        [
+          77.424921,
+          18.447801
+        ],
+        [
+          77.41846,
+          18.448643
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "HAB",
+      "limite_deg": 25,
+      "distancia_m": 2376,
+      "tiempo_min": 36.7,
+      "energia_rel": 62.5,
+      "pendiente_max_deg": 14.0,
+      "dosis_rel": 32.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.41846,
+          18.448643
+        ],
+        [
+          77.424921,
+          18.447801
+        ],
+        [
+          77.431386,
+          18.446985
+        ],
+        [
+          77.437854,
+          18.446201
+        ],
+        [
+          77.444326,
+          18.445443
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "M1",
+      "limite_deg": 15,
+      "distancia_m": 819,
+      "tiempo_min": 12.8,
+      "energia_rel": 18.2,
+      "pendiente_max_deg": 8.3,
+      "dosis_rel": 11.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 7,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.448797,
+          18.443736
+        ],
+        [
+          77.446803,
+          18.442754
+        ],
+        [
+          77.444827,
+          18.44174
+        ],
+        [
+          77.44287,
+          18.440687
+        ],
+        [
+          77.44093,
+          18.439603
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "HAB",
+      "limite_deg": 15,
+      "distancia_m": 819,
+      "tiempo_min": 13.4,
+      "energia_rel": 19.0,
+      "pendiente_max_deg": 8.3,
+      "dosis_rel": 12.0,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 7,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.44093,
+          18.439603
+        ],
+        [
+          77.44287,
+          18.440687
+        ],
+        [
+          77.444827,
+          18.44174
+        ],
+        [
+          77.446803,
+          18.442754
+        ],
+        [
+          77.448797,
+          18.443736
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "M1",
+      "limite_deg": 20,
+      "distancia_m": 819,
+      "tiempo_min": 12.8,
+      "energia_rel": 18.2,
+      "pendiente_max_deg": 8.3,
+      "dosis_rel": 11.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 7,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.448797,
+          18.443736
+        ],
+        [
+          77.446803,
+          18.442754
+        ],
+        [
+          77.444827,
+          18.44174
+        ],
+        [
+          77.44287,
+          18.440687
+        ],
+        [
+          77.44093,
+          18.439603
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "HAB",
+      "limite_deg": 20,
+      "distancia_m": 819,
+      "tiempo_min": 13.4,
+      "energia_rel": 19.0,
+      "pendiente_max_deg": 8.3,
+      "dosis_rel": 12.0,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 7,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.44093,
+          18.439603
+        ],
+        [
+          77.44287,
+          18.440687
+        ],
+        [
+          77.444827,
+          18.44174
+        ],
+        [
+          77.446803,
+          18.442754
+        ],
+        [
+          77.448797,
+          18.443736
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "M1",
+      "limite_deg": 25,
+      "distancia_m": 819,
+      "tiempo_min": 12.8,
+      "energia_rel": 18.2,
+      "pendiente_max_deg": 8.3,
+      "dosis_rel": 11.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 7,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.448797,
+          18.443736
+        ],
+        [
+          77.446803,
+          18.442754
+        ],
+        [
+          77.444827,
+          18.44174
+        ],
+        [
+          77.44287,
+          18.440687
+        ],
+        [
+          77.44093,
+          18.439603
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "HAB",
+      "limite_deg": 25,
+      "distancia_m": 819,
+      "tiempo_min": 13.4,
+      "energia_rel": 19.0,
+      "pendiente_max_deg": 8.3,
+      "dosis_rel": 12.0,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 7,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.44093,
+          18.439603
+        ],
+        [
+          77.44287,
+          18.440687
+        ],
+        [
+          77.444827,
+          18.44174
+        ],
+        [
+          77.446803,
+          18.442754
+        ],
+        [
+          77.448797,
+          18.443736
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "M2",
+      "limite_deg": 15,
+      "distancia_m": 1965,
+      "tiempo_min": 31.7,
+      "energia_rel": 47.2,
+      "pendiente_max_deg": 9.8,
+      "dosis_rel": 28.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.445413,
+          18.444495
+        ],
+        [
+          77.440026,
+          18.444269
+        ],
+        [
+          77.434642,
+          18.444007
+        ],
+        [
+          77.42926,
+          18.443703
+        ],
+        [
+          77.423879,
+          18.443362
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "HAB",
+      "limite_deg": 15,
+      "distancia_m": 1965,
+      "tiempo_min": 29.8,
+      "energia_rel": 44.4,
+      "pendiente_max_deg": 9.8,
+      "dosis_rel": 27.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.423879,
+          18.443362
+        ],
+        [
+          77.42926,
+          18.443703
+        ],
+        [
+          77.434642,
+          18.444007
+        ],
+        [
+          77.440026,
+          18.444269
+        ],
+        [
+          77.445413,
+          18.444495
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "M2",
+      "limite_deg": 20,
+      "distancia_m": 1965,
+      "tiempo_min": 31.7,
+      "energia_rel": 47.2,
+      "pendiente_max_deg": 9.8,
+      "dosis_rel": 28.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.445413,
+          18.444495
+        ],
+        [
+          77.440026,
+          18.444269
+        ],
+        [
+          77.434642,
+          18.444007
+        ],
+        [
+          77.42926,
+          18.443703
+        ],
+        [
+          77.423879,
+          18.443362
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "HAB",
+      "limite_deg": 20,
+      "distancia_m": 1965,
+      "tiempo_min": 29.8,
+      "energia_rel": 44.4,
+      "pendiente_max_deg": 9.8,
+      "dosis_rel": 27.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.423879,
+          18.443362
+        ],
+        [
+          77.42926,
+          18.443703
+        ],
+        [
+          77.434642,
+          18.444007
+        ],
+        [
+          77.440026,
+          18.444269
+        ],
+        [
+          77.445413,
+          18.444495
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "M2",
+      "limite_deg": 25,
+      "distancia_m": 1965,
+      "tiempo_min": 31.7,
+      "energia_rel": 47.2,
+      "pendiente_max_deg": 9.8,
+      "dosis_rel": 28.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.445413,
+          18.444495
+        ],
+        [
+          77.440026,
+          18.444269
+        ],
+        [
+          77.434642,
+          18.444007
+        ],
+        [
+          77.42926,
+          18.443703
+        ],
+        [
+          77.423879,
+          18.443362
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "HAB",
+      "limite_deg": 25,
+      "distancia_m": 1965,
+      "tiempo_min": 29.8,
+      "energia_rel": 44.4,
+      "pendiente_max_deg": 9.8,
+      "dosis_rel": 27.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.423879,
+          18.443362
+        ],
+        [
+          77.42926,
+          18.443703
+        ],
+        [
+          77.434642,
+          18.444007
+        ],
+        [
+          77.440026,
+          18.444269
+        ],
+        [
+          77.445413,
+          18.444495
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "E2",
+      "limite_deg": 20,
+      "distancia_m": 2403,
+      "tiempo_min": 44.8,
+      "energia_rel": 86.8,
+      "pendiente_max_deg": 18.7,
+      "dosis_rel": 40.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.444381,
+          18.446127
+        ],
+        [
+          77.438039,
+          18.447765
+        ],
+        [
+          77.431829,
+          18.44977
+        ],
+        [
+          77.425772,
+          18.452198
+        ],
+        [
+          77.419848,
+          18.454993
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "HAB",
+      "limite_deg": 20,
+      "distancia_m": 2403,
+      "tiempo_min": 36.1,
+      "energia_rel": 69.9,
+      "pendiente_max_deg": 18.7,
+      "dosis_rel": 32.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.419848,
+          18.454993
+        ],
+        [
+          77.425772,
+          18.452198
+        ],
+        [
+          77.431829,
+          18.44977
+        ],
+        [
+          77.438039,
+          18.447765
+        ],
+        [
+          77.444381,
+          18.446127
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "E2",
+      "limite_deg": 25,
+      "distancia_m": 2391,
+      "tiempo_min": 44.6,
+      "energia_rel": 90.6,
+      "pendiente_max_deg": 20.6,
+      "dosis_rel": 40.0,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 9,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.444645,
+          18.446856
+        ],
+        [
+          77.438495,
+          18.449027
+        ],
+        [
+          77.432356,
+          18.451228
+        ],
+        [
+          77.426228,
+          18.453461
+        ],
+        [
+          77.420111,
+          18.455722
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "HAB",
+      "limite_deg": 25,
+      "distancia_m": 2391,
+      "tiempo_min": 35.9,
+      "energia_rel": 73.0,
+      "pendiente_max_deg": 20.6,
+      "dosis_rel": 32.2,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 9,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.420111,
+          18.455722
+        ],
+        [
+          77.426228,
+          18.453461
+        ],
+        [
+          77.432356,
+          18.451228
+        ],
+        [
+          77.438495,
+          18.449027
+        ],
+        [
+          77.444645,
+          18.446856
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "REF",
+      "limite_deg": 15,
+      "distancia_m": 1726,
+      "tiempo_min": 26.9,
+      "energia_rel": 35.7,
+      "pendiente_max_deg": 6.5,
+      "dosis_rel": 24.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.446526,
+          18.446642
+        ],
+        [
+          77.442244,
+          18.448568
+        ],
+        [
+          77.437951,
+          18.450467
+        ],
+        [
+          77.433644,
+          18.452335
+        ],
+        [
+          77.429326,
+          18.454175
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "HAB",
+      "limite_deg": 15,
+      "distancia_m": 1726,
+      "tiempo_min": 25.8,
+      "energia_rel": 34.1,
+      "pendiente_max_deg": 6.5,
+      "dosis_rel": 23.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.429326,
+          18.454175
+        ],
+        [
+          77.433644,
+          18.452335
+        ],
+        [
+          77.437951,
+          18.450467
+        ],
+        [
+          77.442244,
+          18.448568
+        ],
+        [
+          77.446526,
+          18.446642
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "REF",
+      "limite_deg": 20,
+      "distancia_m": 1726,
+      "tiempo_min": 26.9,
+      "energia_rel": 35.7,
+      "pendiente_max_deg": 6.5,
+      "dosis_rel": 24.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.446526,
+          18.446642
+        ],
+        [
+          77.442244,
+          18.448568
+        ],
+        [
+          77.437951,
+          18.450467
+        ],
+        [
+          77.433644,
+          18.452335
+        ],
+        [
+          77.429326,
+          18.454175
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "HAB",
+      "limite_deg": 20,
+      "distancia_m": 1726,
+      "tiempo_min": 25.8,
+      "energia_rel": 34.1,
+      "pendiente_max_deg": 6.5,
+      "dosis_rel": 23.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.429326,
+          18.454175
+        ],
+        [
+          77.433644,
+          18.452335
+        ],
+        [
+          77.437951,
+          18.450467
+        ],
+        [
+          77.442244,
+          18.448568
+        ],
+        [
+          77.446526,
+          18.446642
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "REF",
+      "limite_deg": 25,
+      "distancia_m": 1726,
+      "tiempo_min": 26.9,
+      "energia_rel": 35.7,
+      "pendiente_max_deg": 6.5,
+      "dosis_rel": 24.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.446526,
+          18.446642
+        ],
+        [
+          77.442244,
+          18.448568
+        ],
+        [
+          77.437951,
+          18.450467
+        ],
+        [
+          77.433644,
+          18.452335
+        ],
+        [
+          77.429326,
+          18.454175
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "HAB",
+      "limite_deg": 25,
+      "distancia_m": 1726,
+      "tiempo_min": 25.8,
+      "energia_rel": 34.1,
+      "pendiente_max_deg": 6.5,
+      "dosis_rel": 23.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.429326,
+          18.454175
+        ],
+        [
+          77.433644,
+          18.452335
+        ],
+        [
+          77.437951,
+          18.450467
+        ],
+        [
+          77.442244,
+          18.448568
+        ],
+        [
+          77.446526,
+          18.446642
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "COM",
+      "limite_deg": 15,
+      "distancia_m": 1329,
+      "tiempo_min": 21.6,
+      "energia_rel": 32.1,
+      "pendiente_max_deg": 9.7,
+      "dosis_rel": 19.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.448025,
+          18.446948
+        ],
+        [
+          77.445243,
+          18.449188
+        ],
+        [
+          77.44245,
+          18.451413
+        ],
+        [
+          77.439643,
+          18.453621
+        ],
+        [
+          77.436825,
+          18.455815
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "HAB",
+      "limite_deg": 15,
+      "distancia_m": 1329,
+      "tiempo_min": 19.0,
+      "energia_rel": 28.3,
+      "pendiente_max_deg": 9.7,
+      "dosis_rel": 17.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.436825,
+          18.455815
+        ],
+        [
+          77.439643,
+          18.453621
+        ],
+        [
+          77.44245,
+          18.451413
+        ],
+        [
+          77.445243,
+          18.449188
+        ],
+        [
+          77.448025,
+          18.446948
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "COM",
+      "limite_deg": 20,
+      "distancia_m": 1329,
+      "tiempo_min": 21.6,
+      "energia_rel": 32.1,
+      "pendiente_max_deg": 9.7,
+      "dosis_rel": 19.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.448025,
+          18.446948
+        ],
+        [
+          77.445243,
+          18.449188
+        ],
+        [
+          77.44245,
+          18.451413
+        ],
+        [
+          77.439643,
+          18.453621
+        ],
+        [
+          77.436825,
+          18.455815
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "HAB",
+      "limite_deg": 20,
+      "distancia_m": 1329,
+      "tiempo_min": 19.0,
+      "energia_rel": 28.3,
+      "pendiente_max_deg": 9.7,
+      "dosis_rel": 17.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.436825,
+          18.455815
+        ],
+        [
+          77.439643,
+          18.453621
+        ],
+        [
+          77.44245,
+          18.451413
+        ],
+        [
+          77.445243,
+          18.449188
+        ],
+        [
+          77.448025,
+          18.446948
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "HAB",
+      "destino": "COM",
+      "limite_deg": 25,
+      "distancia_m": 1329,
+      "tiempo_min": 21.6,
+      "energia_rel": 32.1,
+      "pendiente_max_deg": 9.7,
+      "dosis_rel": 19.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4508,
+          18.4447
+        ],
+        [
+          77.448025,
+          18.446948
+        ],
+        [
+          77.445243,
+          18.449188
+        ],
+        [
+          77.44245,
+          18.451413
+        ],
+        [
+          77.439643,
+          18.453621
+        ],
+        [
+          77.436825,
+          18.455815
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "HAB",
+      "limite_deg": 25,
+      "distancia_m": 1329,
+      "tiempo_min": 19.0,
+      "energia_rel": 28.3,
+      "pendiente_max_deg": 9.7,
+      "dosis_rel": 17.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.436825,
+          18.455815
+        ],
+        [
+          77.439643,
+          18.453621
+        ],
+        [
+          77.44245,
+          18.451413
+        ],
+        [
+          77.445243,
+          18.449188
+        ],
+        [
+          77.448025,
+          18.446948
+        ],
+        [
+          77.4508,
+          18.4447
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "E1",
+      "limite_deg": 15,
+      "distancia_m": 1892,
+      "tiempo_min": 33.1,
+      "energia_rel": 54.0,
+      "pendiente_max_deg": 12.6,
+      "dosis_rel": 29.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.437829,
+          18.452049
+        ],
+        [
+          77.432658,
+          18.451585
+        ],
+        [
+          77.42749,
+          18.451098
+        ],
+        [
+          77.422325,
+          18.450585
+        ],
+        [
+          77.417162,
+          18.450049
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "ROV",
+      "limite_deg": 15,
+      "distancia_m": 1892,
+      "tiempo_min": 29.0,
+      "energia_rel": 47.3,
+      "pendiente_max_deg": 12.6,
+      "dosis_rel": 25.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.417162,
+          18.450049
+        ],
+        [
+          77.422325,
+          18.450585
+        ],
+        [
+          77.42749,
+          18.451098
+        ],
+        [
+          77.432658,
+          18.451585
+        ],
+        [
+          77.437829,
+          18.452049
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "E1",
+      "limite_deg": 20,
+      "distancia_m": 1892,
+      "tiempo_min": 33.1,
+      "energia_rel": 54.0,
+      "pendiente_max_deg": 12.6,
+      "dosis_rel": 29.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.437829,
+          18.452049
+        ],
+        [
+          77.432658,
+          18.451585
+        ],
+        [
+          77.42749,
+          18.451098
+        ],
+        [
+          77.422325,
+          18.450585
+        ],
+        [
+          77.417162,
+          18.450049
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "ROV",
+      "limite_deg": 20,
+      "distancia_m": 1892,
+      "tiempo_min": 29.0,
+      "energia_rel": 47.3,
+      "pendiente_max_deg": 12.6,
+      "dosis_rel": 25.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.417162,
+          18.450049
+        ],
+        [
+          77.422325,
+          18.450585
+        ],
+        [
+          77.42749,
+          18.451098
+        ],
+        [
+          77.432658,
+          18.451585
+        ],
+        [
+          77.437829,
+          18.452049
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "E1",
+      "limite_deg": 25,
+      "distancia_m": 1892,
+      "tiempo_min": 33.1,
+      "energia_rel": 54.0,
+      "pendiente_max_deg": 12.6,
+      "dosis_rel": 29.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.437829,
+          18.452049
+        ],
+        [
+          77.432658,
+          18.451585
+        ],
+        [
+          77.42749,
+          18.451098
+        ],
+        [
+          77.422325,
+          18.450585
+        ],
+        [
+          77.417162,
+          18.450049
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "ROV",
+      "limite_deg": 25,
+      "distancia_m": 1892,
+      "tiempo_min": 29.0,
+      "energia_rel": 47.3,
+      "pendiente_max_deg": 12.6,
+      "dosis_rel": 25.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.417162,
+          18.450049
+        ],
+        [
+          77.422325,
+          18.450585
+        ],
+        [
+          77.42749,
+          18.451098
+        ],
+        [
+          77.432658,
+          18.451585
+        ],
+        [
+          77.437829,
+          18.452049
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "M1",
+      "limite_deg": 15,
+      "distancia_m": 929,
+      "tiempo_min": 14.4,
+      "energia_rel": 21.2,
+      "pendiente_max_deg": 9.4,
+      "dosis_rel": 13.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.442344,
+          18.450164
+        ],
+        [
+          77.441685,
+          18.447828
+        ],
+        [
+          77.441022,
+          18.445494
+        ],
+        [
+          77.440352,
+          18.443161
+        ],
+        [
+          77.439677,
+          18.44083
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "ROV",
+      "limite_deg": 15,
+      "distancia_m": 929,
+      "tiempo_min": 15.3,
+      "energia_rel": 22.5,
+      "pendiente_max_deg": 9.4,
+      "dosis_rel": 13.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.439677,
+          18.44083
+        ],
+        [
+          77.440352,
+          18.443161
+        ],
+        [
+          77.441022,
+          18.445494
+        ],
+        [
+          77.441685,
+          18.447828
+        ],
+        [
+          77.442344,
+          18.450164
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "M1",
+      "limite_deg": 20,
+      "distancia_m": 929,
+      "tiempo_min": 14.4,
+      "energia_rel": 21.2,
+      "pendiente_max_deg": 9.4,
+      "dosis_rel": 13.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.442344,
+          18.450164
+        ],
+        [
+          77.441685,
+          18.447828
+        ],
+        [
+          77.441022,
+          18.445494
+        ],
+        [
+          77.440352,
+          18.443161
+        ],
+        [
+          77.439677,
+          18.44083
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "ROV",
+      "limite_deg": 20,
+      "distancia_m": 929,
+      "tiempo_min": 15.3,
+      "energia_rel": 22.5,
+      "pendiente_max_deg": 9.4,
+      "dosis_rel": 13.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.439677,
+          18.44083
+        ],
+        [
+          77.440352,
+          18.443161
+        ],
+        [
+          77.441022,
+          18.445494
+        ],
+        [
+          77.441685,
+          18.447828
+        ],
+        [
+          77.442344,
+          18.450164
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "M1",
+      "limite_deg": 25,
+      "distancia_m": 929,
+      "tiempo_min": 14.4,
+      "energia_rel": 21.2,
+      "pendiente_max_deg": 9.4,
+      "dosis_rel": 13.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.442344,
+          18.450164
+        ],
+        [
+          77.441685,
+          18.447828
+        ],
+        [
+          77.441022,
+          18.445494
+        ],
+        [
+          77.440352,
+          18.443161
+        ],
+        [
+          77.439677,
+          18.44083
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "ROV",
+      "limite_deg": 25,
+      "distancia_m": 929,
+      "tiempo_min": 15.3,
+      "energia_rel": 22.5,
+      "pendiente_max_deg": 9.4,
+      "dosis_rel": 13.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.439677,
+          18.44083
+        ],
+        [
+          77.440352,
+          18.443161
+        ],
+        [
+          77.441022,
+          18.445494
+        ],
+        [
+          77.441685,
+          18.447828
+        ],
+        [
+          77.442344,
+          18.450164
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "M2",
+      "limite_deg": 15,
+      "distancia_m": 1607,
+      "tiempo_min": 25.9,
+      "energia_rel": 40.2,
+      "pendiente_max_deg": 11.0,
+      "dosis_rel": 23.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 7,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.438923,
+          18.4509
+        ],
+        [
+          77.434845,
+          18.449304
+        ],
+        [
+          77.430763,
+          18.447716
+        ],
+        [
+          77.426678,
+          18.446137
+        ],
+        [
+          77.42259,
+          18.444566
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "ROV",
+      "limite_deg": 15,
+      "distancia_m": 1607,
+      "tiempo_min": 24.4,
+      "energia_rel": 37.8,
+      "pendiente_max_deg": 11.0,
+      "dosis_rel": 22.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 7,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.42259,
+          18.444566
+        ],
+        [
+          77.426678,
+          18.446137
+        ],
+        [
+          77.430763,
+          18.447716
+        ],
+        [
+          77.434845,
+          18.449304
+        ],
+        [
+          77.438923,
+          18.4509
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "M2",
+      "limite_deg": 20,
+      "distancia_m": 1607,
+      "tiempo_min": 25.9,
+      "energia_rel": 40.2,
+      "pendiente_max_deg": 11.0,
+      "dosis_rel": 23.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 7,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.438923,
+          18.4509
+        ],
+        [
+          77.434845,
+          18.449304
+        ],
+        [
+          77.430763,
+          18.447716
+        ],
+        [
+          77.426678,
+          18.446137
+        ],
+        [
+          77.42259,
+          18.444566
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "ROV",
+      "limite_deg": 20,
+      "distancia_m": 1607,
+      "tiempo_min": 24.4,
+      "energia_rel": 37.8,
+      "pendiente_max_deg": 11.0,
+      "dosis_rel": 22.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 7,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.42259,
+          18.444566
+        ],
+        [
+          77.426678,
+          18.446137
+        ],
+        [
+          77.430763,
+          18.447716
+        ],
+        [
+          77.434845,
+          18.449304
+        ],
+        [
+          77.438923,
+          18.4509
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "M2",
+      "limite_deg": 25,
+      "distancia_m": 1607,
+      "tiempo_min": 25.9,
+      "energia_rel": 40.2,
+      "pendiente_max_deg": 11.0,
+      "dosis_rel": 23.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 7,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.438923,
+          18.4509
+        ],
+        [
+          77.434845,
+          18.449304
+        ],
+        [
+          77.430763,
+          18.447716
+        ],
+        [
+          77.426678,
+          18.446137
+        ],
+        [
+          77.42259,
+          18.444566
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "ROV",
+      "limite_deg": 25,
+      "distancia_m": 1607,
+      "tiempo_min": 24.4,
+      "energia_rel": 37.8,
+      "pendiente_max_deg": 11.0,
+      "dosis_rel": 22.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 7,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.42259,
+          18.444566
+        ],
+        [
+          77.426678,
+          18.446137
+        ],
+        [
+          77.430763,
+          18.447716
+        ],
+        [
+          77.434845,
+          18.449304
+        ],
+        [
+          77.438923,
+          18.4509
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "E2",
+      "limite_deg": 20,
+      "distancia_m": 1796,
+      "tiempo_min": 34.5,
+      "energia_rel": 67.7,
+      "pendiente_max_deg": 19.2,
+      "dosis_rel": 30.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.438175,
+          18.453458
+        ],
+        [
+          77.433347,
+          18.454405
+        ],
+        [
+          77.428516,
+          18.455333
+        ],
+        [
+          77.42368,
+          18.456238
+        ],
+        [
+          77.418841,
+          18.457125
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "ROV",
+      "limite_deg": 20,
+      "distancia_m": 1796,
+      "tiempo_min": 26.2,
+      "energia_rel": 51.3,
+      "pendiente_max_deg": 19.2,
+      "dosis_rel": 23.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.418841,
+          18.457125
+        ],
+        [
+          77.42368,
+          18.456238
+        ],
+        [
+          77.428516,
+          18.455333
+        ],
+        [
+          77.433347,
+          18.454405
+        ],
+        [
+          77.438175,
+          18.453458
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "E2",
+      "limite_deg": 25,
+      "distancia_m": 1796,
+      "tiempo_min": 34.5,
+      "energia_rel": 67.7,
+      "pendiente_max_deg": 19.2,
+      "dosis_rel": 30.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.438175,
+          18.453458
+        ],
+        [
+          77.433347,
+          18.454405
+        ],
+        [
+          77.428516,
+          18.455333
+        ],
+        [
+          77.42368,
+          18.456238
+        ],
+        [
+          77.418841,
+          18.457125
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "ROV",
+      "limite_deg": 25,
+      "distancia_m": 1796,
+      "tiempo_min": 26.2,
+      "energia_rel": 51.3,
+      "pendiente_max_deg": 19.2,
+      "dosis_rel": 23.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.418841,
+          18.457125
+        ],
+        [
+          77.42368,
+          18.456238
+        ],
+        [
+          77.428516,
+          18.455333
+        ],
+        [
+          77.433347,
+          18.454405
+        ],
+        [
+          77.438175,
+          18.453458
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "REF",
+      "limite_deg": 15,
+      "distancia_m": 1116,
+      "tiempo_min": 17.5,
+      "energia_rel": 23.1,
+      "pendiente_max_deg": 6.4,
+      "dosis_rel": 16.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.440012,
+          18.453146
+        ],
+        [
+          77.437021,
+          18.453776
+        ],
+        [
+          77.434025,
+          18.454376
+        ],
+        [
+          77.431021,
+          18.454942
+        ],
+        [
+          77.428012,
+          18.45548
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "ROV",
+      "limite_deg": 15,
+      "distancia_m": 1116,
+      "tiempo_min": 16.6,
+      "energia_rel": 21.9,
+      "pendiente_max_deg": 6.4,
+      "dosis_rel": 15.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.428012,
+          18.45548
+        ],
+        [
+          77.431021,
+          18.454942
+        ],
+        [
+          77.434025,
+          18.454376
+        ],
+        [
+          77.437021,
+          18.453776
+        ],
+        [
+          77.440012,
+          18.453146
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "REF",
+      "limite_deg": 20,
+      "distancia_m": 1116,
+      "tiempo_min": 17.5,
+      "energia_rel": 23.1,
+      "pendiente_max_deg": 6.4,
+      "dosis_rel": 16.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.440012,
+          18.453146
+        ],
+        [
+          77.437021,
+          18.453776
+        ],
+        [
+          77.434025,
+          18.454376
+        ],
+        [
+          77.431021,
+          18.454942
+        ],
+        [
+          77.428012,
+          18.45548
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "ROV",
+      "limite_deg": 20,
+      "distancia_m": 1116,
+      "tiempo_min": 16.6,
+      "energia_rel": 21.9,
+      "pendiente_max_deg": 6.4,
+      "dosis_rel": 15.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.428012,
+          18.45548
+        ],
+        [
+          77.431021,
+          18.454942
+        ],
+        [
+          77.434025,
+          18.454376
+        ],
+        [
+          77.437021,
+          18.453776
+        ],
+        [
+          77.440012,
+          18.453146
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "REF",
+      "limite_deg": 25,
+      "distancia_m": 1116,
+      "tiempo_min": 17.5,
+      "energia_rel": 23.1,
+      "pendiente_max_deg": 6.4,
+      "dosis_rel": 16.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.440012,
+          18.453146
+        ],
+        [
+          77.437021,
+          18.453776
+        ],
+        [
+          77.434025,
+          18.454376
+        ],
+        [
+          77.431021,
+          18.454942
+        ],
+        [
+          77.428012,
+          18.45548
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "ROV",
+      "limite_deg": 25,
+      "distancia_m": 1116,
+      "tiempo_min": 16.6,
+      "energia_rel": 21.9,
+      "pendiente_max_deg": 6.4,
+      "dosis_rel": 15.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.428012,
+          18.45548
+        ],
+        [
+          77.431021,
+          18.454942
+        ],
+        [
+          77.434025,
+          18.454376
+        ],
+        [
+          77.437021,
+          18.453776
+        ],
+        [
+          77.440012,
+          18.453146
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "COM",
+      "limite_deg": 15,
+      "distancia_m": 650,
+      "tiempo_min": 11.1,
+      "energia_rel": 17.2,
+      "pendiente_max_deg": 10.9,
+      "dosis_rel": 10.2,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.441473,
+          18.453372
+        ],
+        [
+          77.439952,
+          18.454256
+        ],
+        [
+          77.438445,
+          18.45516
+        ],
+        [
+          77.436952,
+          18.456089
+        ],
+        [
+          77.435473,
+          18.457038
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "ROV",
+      "limite_deg": 15,
+      "distancia_m": 650,
+      "tiempo_min": 8.9,
+      "energia_rel": 13.7,
+      "pendiente_max_deg": 10.9,
+      "dosis_rel": 8.2,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.435473,
+          18.457038
+        ],
+        [
+          77.436952,
+          18.456089
+        ],
+        [
+          77.438445,
+          18.45516
+        ],
+        [
+          77.439952,
+          18.454256
+        ],
+        [
+          77.441473,
+          18.453372
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "COM",
+      "limite_deg": 20,
+      "distancia_m": 650,
+      "tiempo_min": 11.1,
+      "energia_rel": 17.2,
+      "pendiente_max_deg": 10.9,
+      "dosis_rel": 10.2,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.441473,
+          18.453372
+        ],
+        [
+          77.439952,
+          18.454256
+        ],
+        [
+          77.438445,
+          18.45516
+        ],
+        [
+          77.436952,
+          18.456089
+        ],
+        [
+          77.435473,
+          18.457038
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "ROV",
+      "limite_deg": 20,
+      "distancia_m": 650,
+      "tiempo_min": 8.9,
+      "energia_rel": 13.7,
+      "pendiente_max_deg": 10.9,
+      "dosis_rel": 8.2,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.435473,
+          18.457038
+        ],
+        [
+          77.436952,
+          18.456089
+        ],
+        [
+          77.438445,
+          18.45516
+        ],
+        [
+          77.439952,
+          18.454256
+        ],
+        [
+          77.441473,
+          18.453372
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "ROV",
+      "destino": "COM",
+      "limite_deg": 25,
+      "distancia_m": 650,
+      "tiempo_min": 11.1,
+      "energia_rel": 17.2,
+      "pendiente_max_deg": 10.9,
+      "dosis_rel": 10.2,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.443,
+          18.4525
+        ],
+        [
+          77.441473,
+          18.453372
+        ],
+        [
+          77.439952,
+          18.454256
+        ],
+        [
+          77.438445,
+          18.45516
+        ],
+        [
+          77.436952,
+          18.456089
+        ],
+        [
+          77.435473,
+          18.457038
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "ROV",
+      "limite_deg": 25,
+      "distancia_m": 650,
+      "tiempo_min": 8.9,
+      "energia_rel": 13.7,
+      "pendiente_max_deg": 10.9,
+      "dosis_rel": 8.2,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.435473,
+          18.457038
+        ],
+        [
+          77.436952,
+          18.456089
+        ],
+        [
+          77.438445,
+          18.45516
+        ],
+        [
+          77.439952,
+          18.454256
+        ],
+        [
+          77.441473,
+          18.453372
+        ],
+        [
+          77.443,
+          18.4525
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "M1",
+      "limite_deg": 15,
+      "distancia_m": 1785,
+      "tiempo_min": 28.6,
+      "energia_rel": 46.1,
+      "pendiente_max_deg": 12.2,
+      "dosis_rel": 24.6,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 14,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.41647,
+          18.447592
+        ],
+        [
+          77.420947,
+          18.445704
+        ],
+        [
+          77.425439,
+          18.44385
+        ],
+        [
+          77.429947,
+          18.442037
+        ],
+        [
+          77.43447,
+          18.440259
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "E1",
+      "limite_deg": 15,
+      "distancia_m": 1785,
+      "tiempo_min": 34.0,
+      "energia_rel": 54.8,
+      "pendiente_max_deg": 12.2,
+      "dosis_rel": 29.2,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 14,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.43447,
+          18.440259
+        ],
+        [
+          77.429947,
+          18.442037
+        ],
+        [
+          77.425439,
+          18.44385
+        ],
+        [
+          77.420947,
+          18.445704
+        ],
+        [
+          77.41647,
+          18.447592
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "M1",
+      "limite_deg": 20,
+      "distancia_m": 1785,
+      "tiempo_min": 28.6,
+      "energia_rel": 46.1,
+      "pendiente_max_deg": 12.2,
+      "dosis_rel": 24.6,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 14,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.41647,
+          18.447592
+        ],
+        [
+          77.420947,
+          18.445704
+        ],
+        [
+          77.425439,
+          18.44385
+        ],
+        [
+          77.429947,
+          18.442037
+        ],
+        [
+          77.43447,
+          18.440259
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "E1",
+      "limite_deg": 20,
+      "distancia_m": 1785,
+      "tiempo_min": 34.0,
+      "energia_rel": 54.8,
+      "pendiente_max_deg": 12.2,
+      "dosis_rel": 29.2,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 14,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.43447,
+          18.440259
+        ],
+        [
+          77.429947,
+          18.442037
+        ],
+        [
+          77.425439,
+          18.44385
+        ],
+        [
+          77.420947,
+          18.445704
+        ],
+        [
+          77.41647,
+          18.447592
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "M1",
+      "limite_deg": 25,
+      "distancia_m": 1785,
+      "tiempo_min": 28.6,
+      "energia_rel": 46.1,
+      "pendiente_max_deg": 12.2,
+      "dosis_rel": 24.6,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 14,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.41647,
+          18.447592
+        ],
+        [
+          77.420947,
+          18.445704
+        ],
+        [
+          77.425439,
+          18.44385
+        ],
+        [
+          77.429947,
+          18.442037
+        ],
+        [
+          77.43447,
+          18.440259
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "E1",
+      "limite_deg": 25,
+      "distancia_m": 1785,
+      "tiempo_min": 34.0,
+      "energia_rel": 54.8,
+      "pendiente_max_deg": 12.2,
+      "dosis_rel": 29.2,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 14,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.43447,
+          18.440259
+        ],
+        [
+          77.429947,
+          18.442037
+        ],
+        [
+          77.425439,
+          18.44385
+        ],
+        [
+          77.420947,
+          18.445704
+        ],
+        [
+          77.41647,
+          18.447592
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "M2",
+      "limite_deg": 15,
+      "distancia_m": 574,
+      "tiempo_min": 8.6,
+      "energia_rel": 13.8,
+      "pendiente_max_deg": 12.2,
+      "dosis_rel": 6.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.413026,
+          18.44836
+        ],
+        [
+          77.414068,
+          18.447235
+        ],
+        [
+          77.415136,
+          18.446136
+        ],
+        [
+          77.416235,
+          18.445068
+        ],
+        [
+          77.41736,
+          18.444026
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "E1",
+      "limite_deg": 15,
+      "distancia_m": 574,
+      "tiempo_min": 11.2,
+      "energia_rel": 18.1,
+      "pendiente_max_deg": 12.2,
+      "dosis_rel": 8.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.41736,
+          18.444026
+        ],
+        [
+          77.416235,
+          18.445068
+        ],
+        [
+          77.415136,
+          18.446136
+        ],
+        [
+          77.414068,
+          18.447235
+        ],
+        [
+          77.413026,
+          18.44836
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "M2",
+      "limite_deg": 20,
+      "distancia_m": 574,
+      "tiempo_min": 8.6,
+      "energia_rel": 13.8,
+      "pendiente_max_deg": 12.2,
+      "dosis_rel": 6.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.413026,
+          18.44836
+        ],
+        [
+          77.414068,
+          18.447235
+        ],
+        [
+          77.415136,
+          18.446136
+        ],
+        [
+          77.416235,
+          18.445068
+        ],
+        [
+          77.41736,
+          18.444026
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "E1",
+      "limite_deg": 20,
+      "distancia_m": 574,
+      "tiempo_min": 11.2,
+      "energia_rel": 18.1,
+      "pendiente_max_deg": 12.2,
+      "dosis_rel": 8.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.41736,
+          18.444026
+        ],
+        [
+          77.416235,
+          18.445068
+        ],
+        [
+          77.415136,
+          18.446136
+        ],
+        [
+          77.414068,
+          18.447235
+        ],
+        [
+          77.413026,
+          18.44836
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "M2",
+      "limite_deg": 25,
+      "distancia_m": 574,
+      "tiempo_min": 8.6,
+      "energia_rel": 13.8,
+      "pendiente_max_deg": 12.2,
+      "dosis_rel": 6.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.413026,
+          18.44836
+        ],
+        [
+          77.414068,
+          18.447235
+        ],
+        [
+          77.415136,
+          18.446136
+        ],
+        [
+          77.416235,
+          18.445068
+        ],
+        [
+          77.41736,
+          18.444026
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "E1",
+      "limite_deg": 25,
+      "distancia_m": 574,
+      "tiempo_min": 11.2,
+      "energia_rel": 18.1,
+      "pendiente_max_deg": 12.2,
+      "dosis_rel": 8.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.41736,
+          18.444026
+        ],
+        [
+          77.416235,
+          18.445068
+        ],
+        [
+          77.415136,
+          18.446136
+        ],
+        [
+          77.414068,
+          18.447235
+        ],
+        [
+          77.413026,
+          18.44836
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "E2",
+      "limite_deg": 20,
+      "distancia_m": 558,
+      "tiempo_min": 12.7,
+      "energia_rel": 24.5,
+      "pendiente_max_deg": 18.6,
+      "dosis_rel": 9.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.412421,
+          18.450896
+        ],
+        [
+          77.412819,
+          18.452298
+        ],
+        [
+          77.413176,
+          18.453709
+        ],
+        [
+          77.413485,
+          18.455131
+        ],
+        [
+          77.413754,
+          18.456563
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "E1",
+      "limite_deg": 20,
+      "distancia_m": 558,
+      "tiempo_min": 8.9,
+      "energia_rel": 17.2,
+      "pendiente_max_deg": 18.6,
+      "dosis_rel": 6.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.413754,
+          18.456563
+        ],
+        [
+          77.413485,
+          18.455131
+        ],
+        [
+          77.413176,
+          18.453709
+        ],
+        [
+          77.412819,
+          18.452298
+        ],
+        [
+          77.412421,
+          18.450896
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "E2",
+      "limite_deg": 25,
+      "distancia_m": 558,
+      "tiempo_min": 12.7,
+      "energia_rel": 24.5,
+      "pendiente_max_deg": 18.6,
+      "dosis_rel": 9.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.412421,
+          18.450896
+        ],
+        [
+          77.412819,
+          18.452298
+        ],
+        [
+          77.413176,
+          18.453709
+        ],
+        [
+          77.413485,
+          18.455131
+        ],
+        [
+          77.413754,
+          18.456563
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "E1",
+      "limite_deg": 25,
+      "distancia_m": 558,
+      "tiempo_min": 8.9,
+      "energia_rel": 17.2,
+      "pendiente_max_deg": 18.6,
+      "dosis_rel": 6.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.413754,
+          18.456563
+        ],
+        [
+          77.413485,
+          18.455131
+        ],
+        [
+          77.413176,
+          18.453709
+        ],
+        [
+          77.412819,
+          18.452298
+        ],
+        [
+          77.412421,
+          18.450896
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "REF",
+      "limite_deg": 15,
+      "distancia_m": 893,
+      "tiempo_min": 13.4,
+      "energia_rel": 23.0,
+      "pendiente_max_deg": 14.3,
+      "dosis_rel": 10.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 21,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.414128,
+          18.45066
+        ],
+        [
+          77.416267,
+          18.451799
+        ],
+        [
+          77.418424,
+          18.452903
+        ],
+        [
+          77.420601,
+          18.453966
+        ],
+        [
+          77.422795,
+          18.454993
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "E1",
+      "limite_deg": 15,
+      "distancia_m": 893,
+      "tiempo_min": 16.7,
+      "energia_rel": 28.6,
+      "pendiente_max_deg": 14.3,
+      "dosis_rel": 13.6,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 21,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.422795,
+          18.454993
+        ],
+        [
+          77.420601,
+          18.453966
+        ],
+        [
+          77.418424,
+          18.452903
+        ],
+        [
+          77.416267,
+          18.451799
+        ],
+        [
+          77.414128,
+          18.45066
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "REF",
+      "limite_deg": 20,
+      "distancia_m": 893,
+      "tiempo_min": 13.4,
+      "energia_rel": 23.0,
+      "pendiente_max_deg": 14.3,
+      "dosis_rel": 10.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 21,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.414128,
+          18.45066
+        ],
+        [
+          77.416267,
+          18.451799
+        ],
+        [
+          77.418424,
+          18.452903
+        ],
+        [
+          77.420601,
+          18.453966
+        ],
+        [
+          77.422795,
+          18.454993
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "E1",
+      "limite_deg": 20,
+      "distancia_m": 893,
+      "tiempo_min": 16.7,
+      "energia_rel": 28.6,
+      "pendiente_max_deg": 14.3,
+      "dosis_rel": 13.6,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 21,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.422795,
+          18.454993
+        ],
+        [
+          77.420601,
+          18.453966
+        ],
+        [
+          77.418424,
+          18.452903
+        ],
+        [
+          77.416267,
+          18.451799
+        ],
+        [
+          77.414128,
+          18.45066
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "REF",
+      "limite_deg": 25,
+      "distancia_m": 893,
+      "tiempo_min": 13.4,
+      "energia_rel": 23.0,
+      "pendiente_max_deg": 14.3,
+      "dosis_rel": 10.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 21,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.414128,
+          18.45066
+        ],
+        [
+          77.416267,
+          18.451799
+        ],
+        [
+          77.418424,
+          18.452903
+        ],
+        [
+          77.420601,
+          18.453966
+        ],
+        [
+          77.422795,
+          18.454993
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "E1",
+      "limite_deg": 25,
+      "distancia_m": 893,
+      "tiempo_min": 16.7,
+      "energia_rel": 28.6,
+      "pendiente_max_deg": 14.3,
+      "dosis_rel": 13.6,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 21,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.422795,
+          18.454993
+        ],
+        [
+          77.420601,
+          18.453966
+        ],
+        [
+          77.418424,
+          18.452903
+        ],
+        [
+          77.416267,
+          18.451799
+        ],
+        [
+          77.414128,
+          18.45066
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "COM",
+      "limite_deg": 15,
+      "distancia_m": 1443,
+      "tiempo_min": 23.3,
+      "energia_rel": 40.1,
+      "pendiente_max_deg": 14.4,
+      "dosis_rel": 20.0,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 14,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.415635,
+          18.451
+        ],
+        [
+          77.419278,
+          18.452477
+        ],
+        [
+          77.422936,
+          18.453916
+        ],
+        [
+          77.426611,
+          18.45531
+        ],
+        [
+          77.430301,
+          18.456666
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "E1",
+      "limite_deg": 15,
+      "distancia_m": 1443,
+      "tiempo_min": 25.1,
+      "energia_rel": 43.1,
+      "pendiente_max_deg": 14.4,
+      "dosis_rel": 21.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 14,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.430301,
+          18.456666
+        ],
+        [
+          77.426611,
+          18.45531
+        ],
+        [
+          77.422936,
+          18.453916
+        ],
+        [
+          77.419278,
+          18.452477
+        ],
+        [
+          77.415635,
+          18.451
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "COM",
+      "limite_deg": 20,
+      "distancia_m": 1443,
+      "tiempo_min": 23.3,
+      "energia_rel": 40.1,
+      "pendiente_max_deg": 14.4,
+      "dosis_rel": 20.0,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 14,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.415635,
+          18.451
+        ],
+        [
+          77.419278,
+          18.452477
+        ],
+        [
+          77.422936,
+          18.453916
+        ],
+        [
+          77.426611,
+          18.45531
+        ],
+        [
+          77.430301,
+          18.456666
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "E1",
+      "limite_deg": 20,
+      "distancia_m": 1443,
+      "tiempo_min": 25.1,
+      "energia_rel": 43.1,
+      "pendiente_max_deg": 14.4,
+      "dosis_rel": 21.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 14,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.430301,
+          18.456666
+        ],
+        [
+          77.426611,
+          18.45531
+        ],
+        [
+          77.422936,
+          18.453916
+        ],
+        [
+          77.419278,
+          18.452477
+        ],
+        [
+          77.415635,
+          18.451
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "E1",
+      "destino": "COM",
+      "limite_deg": 25,
+      "distancia_m": 1443,
+      "tiempo_min": 23.3,
+      "energia_rel": 40.1,
+      "pendiente_max_deg": 14.4,
+      "dosis_rel": 20.0,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 14,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.412,
+          18.4495
+        ],
+        [
+          77.415635,
+          18.451
+        ],
+        [
+          77.419278,
+          18.452477
+        ],
+        [
+          77.422936,
+          18.453916
+        ],
+        [
+          77.426611,
+          18.45531
+        ],
+        [
+          77.430301,
+          18.456666
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "E1",
+      "limite_deg": 25,
+      "distancia_m": 1443,
+      "tiempo_min": 25.1,
+      "energia_rel": 43.1,
+      "pendiente_max_deg": 14.4,
+      "dosis_rel": 21.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 14,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.430301,
+          18.456666
+        ],
+        [
+          77.426611,
+          18.45531
+        ],
+        [
+          77.422936,
+          18.453916
+        ],
+        [
+          77.419278,
+          18.452477
+        ],
+        [
+          77.415635,
+          18.451
+        ],
+        [
+          77.412,
+          18.4495
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "M2",
+      "limite_deg": 15,
+      "distancia_m": 1278,
+      "tiempo_min": 22.7,
+      "energia_rel": 34.7,
+      "pendiente_max_deg": 10.5,
+      "dosis_rel": 19.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.435588,
+          18.43927
+        ],
+        [
+          77.432174,
+          18.440035
+        ],
+        [
+          77.428759,
+          18.44079
+        ],
+        [
+          77.425341,
+          18.441535
+        ],
+        [
+          77.421921,
+          18.44227
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "M1",
+      "limite_deg": 15,
+      "distancia_m": 1278,
+      "tiempo_min": 20.2,
+      "energia_rel": 30.7,
+      "pendiente_max_deg": 10.5,
+      "dosis_rel": 17.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.421921,
+          18.44227
+        ],
+        [
+          77.425341,
+          18.441535
+        ],
+        [
+          77.428759,
+          18.44079
+        ],
+        [
+          77.432174,
+          18.440035
+        ],
+        [
+          77.435588,
+          18.43927
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "M2",
+      "limite_deg": 20,
+      "distancia_m": 1278,
+      "tiempo_min": 22.7,
+      "energia_rel": 34.7,
+      "pendiente_max_deg": 10.5,
+      "dosis_rel": 19.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.435588,
+          18.43927
+        ],
+        [
+          77.432174,
+          18.440035
+        ],
+        [
+          77.428759,
+          18.44079
+        ],
+        [
+          77.425341,
+          18.441535
+        ],
+        [
+          77.421921,
+          18.44227
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "M1",
+      "limite_deg": 20,
+      "distancia_m": 1278,
+      "tiempo_min": 20.2,
+      "energia_rel": 30.7,
+      "pendiente_max_deg": 10.5,
+      "dosis_rel": 17.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.421921,
+          18.44227
+        ],
+        [
+          77.425341,
+          18.441535
+        ],
+        [
+          77.428759,
+          18.44079
+        ],
+        [
+          77.432174,
+          18.440035
+        ],
+        [
+          77.435588,
+          18.43927
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "M2",
+      "limite_deg": 25,
+      "distancia_m": 1278,
+      "tiempo_min": 22.7,
+      "energia_rel": 34.7,
+      "pendiente_max_deg": 10.5,
+      "dosis_rel": 19.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.435588,
+          18.43927
+        ],
+        [
+          77.432174,
+          18.440035
+        ],
+        [
+          77.428759,
+          18.44079
+        ],
+        [
+          77.425341,
+          18.441535
+        ],
+        [
+          77.421921,
+          18.44227
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "M1",
+      "limite_deg": 25,
+      "distancia_m": 1278,
+      "tiempo_min": 20.2,
+      "energia_rel": 30.7,
+      "pendiente_max_deg": 10.5,
+      "dosis_rel": 17.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 10,
+      "zonas": [
+        "Z1",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.421921,
+          18.44227
+        ],
+        [
+          77.425341,
+          18.441535
+        ],
+        [
+          77.428759,
+          18.44079
+        ],
+        [
+          77.432174,
+          18.440035
+        ],
+        [
+          77.435588,
+          18.43927
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "E2",
+      "limite_deg": 20,
+      "distancia_m": 1966,
+      "tiempo_min": 40.4,
+      "energia_rel": 78.8,
+      "pendiente_max_deg": 19.0,
+      "dosis_rel": 35.6,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.434873,
+          18.4418
+        ],
+        [
+          77.430735,
+          18.445087
+        ],
+        [
+          77.426578,
+          18.448351
+        ],
+        [
+          77.422401,
+          18.451587
+        ],
+        [
+          77.418206,
+          18.4548
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "M1",
+      "limite_deg": 20,
+      "distancia_m": 1966,
+      "tiempo_min": 30.5,
+      "energia_rel": 59.5,
+      "pendiente_max_deg": 19.0,
+      "dosis_rel": 26.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.418206,
+          18.4548
+        ],
+        [
+          77.422401,
+          18.451587
+        ],
+        [
+          77.426578,
+          18.448351
+        ],
+        [
+          77.430735,
+          18.445087
+        ],
+        [
+          77.434873,
+          18.4418
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "E2",
+      "limite_deg": 25,
+      "distancia_m": 1966,
+      "tiempo_min": 40.4,
+      "energia_rel": 78.8,
+      "pendiente_max_deg": 19.0,
+      "dosis_rel": 35.6,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.434873,
+          18.4418
+        ],
+        [
+          77.430735,
+          18.445087
+        ],
+        [
+          77.426578,
+          18.448351
+        ],
+        [
+          77.422401,
+          18.451587
+        ],
+        [
+          77.418206,
+          18.4548
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "M1",
+      "limite_deg": 25,
+      "distancia_m": 1966,
+      "tiempo_min": 30.5,
+      "energia_rel": 59.5,
+      "pendiente_max_deg": 19.0,
+      "dosis_rel": 26.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.418206,
+          18.4548
+        ],
+        [
+          77.422401,
+          18.451587
+        ],
+        [
+          77.426578,
+          18.448351
+        ],
+        [
+          77.430735,
+          18.445087
+        ],
+        [
+          77.434873,
+          18.4418
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "REF",
+      "limite_deg": 15,
+      "distancia_m": 1406,
+      "tiempo_min": 24.0,
+      "energia_rel": 34.3,
+      "pendiente_max_deg": 8.6,
+      "dosis_rel": 22.0,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.436709,
+          18.44145
+        ],
+        [
+          77.434406,
+          18.444392
+        ],
+        [
+          77.432084,
+          18.447317
+        ],
+        [
+          77.42974,
+          18.450225
+        ],
+        [
+          77.427376,
+          18.453117
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "M1",
+      "limite_deg": 15,
+      "distancia_m": 1406,
+      "tiempo_min": 22.1,
+      "energia_rel": 31.7,
+      "pendiente_max_deg": 8.6,
+      "dosis_rel": 20.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.427376,
+          18.453117
+        ],
+        [
+          77.42974,
+          18.450225
+        ],
+        [
+          77.432084,
+          18.447317
+        ],
+        [
+          77.434406,
+          18.444392
+        ],
+        [
+          77.436709,
+          18.44145
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "REF",
+      "limite_deg": 20,
+      "distancia_m": 1406,
+      "tiempo_min": 24.0,
+      "energia_rel": 34.3,
+      "pendiente_max_deg": 8.6,
+      "dosis_rel": 22.0,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.436709,
+          18.44145
+        ],
+        [
+          77.434406,
+          18.444392
+        ],
+        [
+          77.432084,
+          18.447317
+        ],
+        [
+          77.42974,
+          18.450225
+        ],
+        [
+          77.427376,
+          18.453117
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "M1",
+      "limite_deg": 20,
+      "distancia_m": 1406,
+      "tiempo_min": 22.1,
+      "energia_rel": 31.7,
+      "pendiente_max_deg": 8.6,
+      "dosis_rel": 20.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.427376,
+          18.453117
+        ],
+        [
+          77.42974,
+          18.450225
+        ],
+        [
+          77.432084,
+          18.447317
+        ],
+        [
+          77.434406,
+          18.444392
+        ],
+        [
+          77.436709,
+          18.44145
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "REF",
+      "limite_deg": 25,
+      "distancia_m": 1406,
+      "tiempo_min": 24.0,
+      "energia_rel": 34.3,
+      "pendiente_max_deg": 8.6,
+      "dosis_rel": 22.0,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.436709,
+          18.44145
+        ],
+        [
+          77.434406,
+          18.444392
+        ],
+        [
+          77.432084,
+          18.447317
+        ],
+        [
+          77.42974,
+          18.450225
+        ],
+        [
+          77.427376,
+          18.453117
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "M1",
+      "limite_deg": 25,
+      "distancia_m": 1406,
+      "tiempo_min": 22.1,
+      "energia_rel": 31.7,
+      "pendiente_max_deg": 8.6,
+      "dosis_rel": 20.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z2",
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.427376,
+          18.453117
+        ],
+        [
+          77.42974,
+          18.450225
+        ],
+        [
+          77.432084,
+          18.447317
+        ],
+        [
+          77.434406,
+          18.444392
+        ],
+        [
+          77.436709,
+          18.44145
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "COM",
+      "limite_deg": 15,
+      "distancia_m": 1285,
+      "tiempo_min": 22.8,
+      "energia_rel": 35.9,
+      "pendiente_max_deg": 11.5,
+      "dosis_rel": 20.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.438071,
+          18.441726
+        ],
+        [
+          77.437168,
+          18.444958
+        ],
+        [
+          77.436309,
+          18.448201
+        ],
+        [
+          77.435501,
+          18.451458
+        ],
+        [
+          77.434738,
+          18.454726
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "M1",
+      "limite_deg": 15,
+      "distancia_m": 1285,
+      "tiempo_min": 19.4,
+      "energia_rel": 30.6,
+      "pendiente_max_deg": 11.5,
+      "dosis_rel": 17.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.434738,
+          18.454726
+        ],
+        [
+          77.435501,
+          18.451458
+        ],
+        [
+          77.436309,
+          18.448201
+        ],
+        [
+          77.437168,
+          18.444958
+        ],
+        [
+          77.438071,
+          18.441726
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "COM",
+      "limite_deg": 20,
+      "distancia_m": 1285,
+      "tiempo_min": 22.8,
+      "energia_rel": 35.9,
+      "pendiente_max_deg": 11.5,
+      "dosis_rel": 20.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.438071,
+          18.441726
+        ],
+        [
+          77.437168,
+          18.444958
+        ],
+        [
+          77.436309,
+          18.448201
+        ],
+        [
+          77.435501,
+          18.451458
+        ],
+        [
+          77.434738,
+          18.454726
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "M1",
+      "limite_deg": 20,
+      "distancia_m": 1285,
+      "tiempo_min": 19.4,
+      "energia_rel": 30.6,
+      "pendiente_max_deg": 11.5,
+      "dosis_rel": 17.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.434738,
+          18.454726
+        ],
+        [
+          77.435501,
+          18.451458
+        ],
+        [
+          77.436309,
+          18.448201
+        ],
+        [
+          77.437168,
+          18.444958
+        ],
+        [
+          77.438071,
+          18.441726
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M1",
+      "destino": "COM",
+      "limite_deg": 25,
+      "distancia_m": 1285,
+      "tiempo_min": 22.8,
+      "energia_rel": 35.9,
+      "pendiente_max_deg": 11.5,
+      "dosis_rel": 20.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.439,
+          18.4385
+        ],
+        [
+          77.438071,
+          18.441726
+        ],
+        [
+          77.437168,
+          18.444958
+        ],
+        [
+          77.436309,
+          18.448201
+        ],
+        [
+          77.435501,
+          18.451458
+        ],
+        [
+          77.434738,
+          18.454726
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "M1",
+      "limite_deg": 25,
+      "distancia_m": 1285,
+      "tiempo_min": 19.4,
+      "energia_rel": 30.6,
+      "pendiente_max_deg": 11.5,
+      "dosis_rel": 17.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 6,
+      "zonas": [
+        "Z3",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.434738,
+          18.454726
+        ],
+        [
+          77.435501,
+          18.451458
+        ],
+        [
+          77.436309,
+          18.448201
+        ],
+        [
+          77.437168,
+          18.444958
+        ],
+        [
+          77.438071,
+          18.441726
+        ],
+        [
+          77.439,
+          18.4385
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "E2",
+      "limite_deg": 20,
+      "distancia_m": 999,
+      "tiempo_min": 21.3,
+      "energia_rel": 41.6,
+      "pendiente_max_deg": 19.0,
+      "dosis_rel": 16.0,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.417811,
+          18.445518
+        ],
+        [
+          77.417106,
+          18.448032
+        ],
+        [
+          77.416372,
+          18.450537
+        ],
+        [
+          77.415606,
+          18.453032
+        ],
+        [
+          77.414811,
+          18.455518
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "M2",
+      "limite_deg": 20,
+      "distancia_m": 999,
+      "tiempo_min": 15.0,
+      "energia_rel": 29.3,
+      "pendiente_max_deg": 19.0,
+      "dosis_rel": 11.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.414811,
+          18.455518
+        ],
+        [
+          77.415606,
+          18.453032
+        ],
+        [
+          77.416372,
+          18.450537
+        ],
+        [
+          77.417106,
+          18.448032
+        ],
+        [
+          77.417811,
+          18.445518
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "E2",
+      "limite_deg": 25,
+      "distancia_m": 999,
+      "tiempo_min": 21.3,
+      "energia_rel": 41.6,
+      "pendiente_max_deg": 19.0,
+      "dosis_rel": 16.0,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.417811,
+          18.445518
+        ],
+        [
+          77.417106,
+          18.448032
+        ],
+        [
+          77.416372,
+          18.450537
+        ],
+        [
+          77.415606,
+          18.453032
+        ],
+        [
+          77.414811,
+          18.455518
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "M2",
+      "limite_deg": 25,
+      "distancia_m": 999,
+      "tiempo_min": 15.0,
+      "energia_rel": 29.3,
+      "pendiente_max_deg": 19.0,
+      "dosis_rel": 11.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 30,
+      "zonas": [
+        "Z1"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.414811,
+          18.455518
+        ],
+        [
+          77.415606,
+          18.453032
+        ],
+        [
+          77.416372,
+          18.450537
+        ],
+        [
+          77.417106,
+          18.448032
+        ],
+        [
+          77.417811,
+          18.445518
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "REF",
+      "limite_deg": 15,
+      "distancia_m": 921,
+      "tiempo_min": 14.4,
+      "energia_rel": 21.8,
+      "pendiente_max_deg": 10.2,
+      "dosis_rel": 12.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 11,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.419625,
+          18.445146
+        ],
+        [
+          77.420739,
+          18.447297
+        ],
+        [
+          77.421834,
+          18.449458
+        ],
+        [
+          77.422906,
+          18.45163
+        ],
+        [
+          77.423959,
+          18.453812
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "M2",
+      "limite_deg": 15,
+      "distancia_m": 921,
+      "tiempo_min": 15.1,
+      "energia_rel": 22.8,
+      "pendiente_max_deg": 10.2,
+      "dosis_rel": 13.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 11,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.423959,
+          18.453812
+        ],
+        [
+          77.422906,
+          18.45163
+        ],
+        [
+          77.421834,
+          18.449458
+        ],
+        [
+          77.420739,
+          18.447297
+        ],
+        [
+          77.419625,
+          18.445146
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "REF",
+      "limite_deg": 20,
+      "distancia_m": 921,
+      "tiempo_min": 14.4,
+      "energia_rel": 21.8,
+      "pendiente_max_deg": 10.2,
+      "dosis_rel": 12.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 11,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.419625,
+          18.445146
+        ],
+        [
+          77.420739,
+          18.447297
+        ],
+        [
+          77.421834,
+          18.449458
+        ],
+        [
+          77.422906,
+          18.45163
+        ],
+        [
+          77.423959,
+          18.453812
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "M2",
+      "limite_deg": 20,
+      "distancia_m": 921,
+      "tiempo_min": 15.1,
+      "energia_rel": 22.8,
+      "pendiente_max_deg": 10.2,
+      "dosis_rel": 13.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 11,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.423959,
+          18.453812
+        ],
+        [
+          77.422906,
+          18.45163
+        ],
+        [
+          77.421834,
+          18.449458
+        ],
+        [
+          77.420739,
+          18.447297
+        ],
+        [
+          77.419625,
+          18.445146
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "REF",
+      "limite_deg": 25,
+      "distancia_m": 921,
+      "tiempo_min": 14.4,
+      "energia_rel": 21.8,
+      "pendiente_max_deg": 10.2,
+      "dosis_rel": 12.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 11,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.419625,
+          18.445146
+        ],
+        [
+          77.420739,
+          18.447297
+        ],
+        [
+          77.421834,
+          18.449458
+        ],
+        [
+          77.422906,
+          18.45163
+        ],
+        [
+          77.423959,
+          18.453812
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "M2",
+      "limite_deg": 25,
+      "distancia_m": 921,
+      "tiempo_min": 15.1,
+      "energia_rel": 22.8,
+      "pendiente_max_deg": 10.2,
+      "dosis_rel": 13.5,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 11,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.423959,
+          18.453812
+        ],
+        [
+          77.422906,
+          18.45163
+        ],
+        [
+          77.421834,
+          18.449458
+        ],
+        [
+          77.420739,
+          18.447297
+        ],
+        [
+          77.419625,
+          18.445146
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "COM",
+      "limite_deg": 15,
+      "distancia_m": 1345,
+      "tiempo_min": 21.9,
+      "energia_rel": 35.1,
+      "pendiente_max_deg": 12.0,
+      "dosis_rel": 20.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 8,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.421015,
+          18.445571
+        ],
+        [
+          77.423548,
+          18.448123
+        ],
+        [
+          77.426113,
+          18.450642
+        ],
+        [
+          77.428714,
+          18.453123
+        ],
+        [
+          77.431348,
+          18.455571
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "M2",
+      "limite_deg": 15,
+      "distancia_m": 1345,
+      "tiempo_min": 21.1,
+      "energia_rel": 33.8,
+      "pendiente_max_deg": 12.0,
+      "dosis_rel": 19.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 8,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.431348,
+          18.455571
+        ],
+        [
+          77.428714,
+          18.453123
+        ],
+        [
+          77.426113,
+          18.450642
+        ],
+        [
+          77.423548,
+          18.448123
+        ],
+        [
+          77.421015,
+          18.445571
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "COM",
+      "limite_deg": 20,
+      "distancia_m": 1345,
+      "tiempo_min": 21.9,
+      "energia_rel": 35.1,
+      "pendiente_max_deg": 12.0,
+      "dosis_rel": 20.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 8,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.421015,
+          18.445571
+        ],
+        [
+          77.423548,
+          18.448123
+        ],
+        [
+          77.426113,
+          18.450642
+        ],
+        [
+          77.428714,
+          18.453123
+        ],
+        [
+          77.431348,
+          18.455571
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "M2",
+      "limite_deg": 20,
+      "distancia_m": 1345,
+      "tiempo_min": 21.1,
+      "energia_rel": 33.8,
+      "pendiente_max_deg": 12.0,
+      "dosis_rel": 19.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 8,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.431348,
+          18.455571
+        ],
+        [
+          77.428714,
+          18.453123
+        ],
+        [
+          77.426113,
+          18.450642
+        ],
+        [
+          77.423548,
+          18.448123
+        ],
+        [
+          77.421015,
+          18.445571
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "M2",
+      "destino": "COM",
+      "limite_deg": 25,
+      "distancia_m": 1345,
+      "tiempo_min": 21.9,
+      "energia_rel": 35.1,
+      "pendiente_max_deg": 12.0,
+      "dosis_rel": 20.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 8,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.4185,
+          18.443
+        ],
+        [
+          77.421015,
+          18.445571
+        ],
+        [
+          77.423548,
+          18.448123
+        ],
+        [
+          77.426113,
+          18.450642
+        ],
+        [
+          77.428714,
+          18.453123
+        ],
+        [
+          77.431348,
+          18.455571
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "M2",
+      "limite_deg": 25,
+      "distancia_m": 1345,
+      "tiempo_min": 21.1,
+      "energia_rel": 33.8,
+      "pendiente_max_deg": 12.0,
+      "dosis_rel": 19.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 8,
+      "zonas": [
+        "Z1",
+        "Z2",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.431348,
+          18.455571
+        ],
+        [
+          77.428714,
+          18.453123
+        ],
+        [
+          77.426113,
+          18.450642
+        ],
+        [
+          77.423548,
+          18.448123
+        ],
+        [
+          77.421015,
+          18.445571
+        ],
+        [
+          77.4185,
+          18.443
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "REF",
+      "limite_deg": 20,
+      "distancia_m": 731,
+      "tiempo_min": 11.9,
+      "energia_rel": 23.0,
+      "pendiente_max_deg": 18.5,
+      "dosis_rel": 9.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 18,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.416005,
+          18.458611
+        ],
+        [
+          77.417964,
+          18.458969
+        ],
+        [
+          77.419843,
+          18.458889
+        ],
+        [
+          77.421631,
+          18.458303
+        ],
+        [
+          77.423338,
+          18.457278
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "E2",
+      "limite_deg": 20,
+      "distancia_m": 731,
+      "tiempo_min": 16.9,
+      "energia_rel": 32.6,
+      "pendiente_max_deg": 18.5,
+      "dosis_rel": 14.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 18,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.423338,
+          18.457278
+        ],
+        [
+          77.421631,
+          18.458303
+        ],
+        [
+          77.419843,
+          18.458889
+        ],
+        [
+          77.417964,
+          18.458969
+        ],
+        [
+          77.416005,
+          18.458611
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "REF",
+      "limite_deg": 25,
+      "distancia_m": 681,
+      "tiempo_min": 11.4,
+      "energia_rel": 23.2,
+      "pendiente_max_deg": 20.9,
+      "dosis_rel": 9.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 19,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.41585,
+          18.457758
+        ],
+        [
+          77.417695,
+          18.457491
+        ],
+        [
+          77.419533,
+          18.457182
+        ],
+        [
+          77.421362,
+          18.456824
+        ],
+        [
+          77.423183,
+          18.456424
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "E2",
+      "limite_deg": 25,
+      "distancia_m": 681,
+      "tiempo_min": 16.1,
+      "energia_rel": 33.0,
+      "pendiente_max_deg": 20.9,
+      "dosis_rel": 13.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 19,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.423183,
+          18.456424
+        ],
+        [
+          77.421362,
+          18.456824
+        ],
+        [
+          77.419533,
+          18.457182
+        ],
+        [
+          77.417695,
+          18.457491
+        ],
+        [
+          77.41585,
+          18.457758
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "COM",
+      "limite_deg": 20,
+      "distancia_m": 1244,
+      "tiempo_min": 18.5,
+      "energia_rel": 35.7,
+      "pendiente_max_deg": 18.6,
+      "dosis_rel": 16.1,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.417333,
+          18.45896
+        ],
+        [
+          77.420667,
+          18.459663
+        ],
+        [
+          77.424,
+          18.45992
+        ],
+        [
+          77.427333,
+          18.459663
+        ],
+        [
+          77.430667,
+          18.45896
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "E2",
+      "limite_deg": 20,
+      "distancia_m": 1244,
+      "tiempo_min": 24.5,
+      "energia_rel": 47.3,
+      "pendiente_max_deg": 18.6,
+      "dosis_rel": 21.3,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.430667,
+          18.45896
+        ],
+        [
+          77.427333,
+          18.459663
+        ],
+        [
+          77.424,
+          18.45992
+        ],
+        [
+          77.420667,
+          18.459663
+        ],
+        [
+          77.417333,
+          18.45896
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "E2",
+      "destino": "COM",
+      "limite_deg": 25,
+      "distancia_m": 1215,
+      "tiempo_min": 18.0,
+      "energia_rel": 36.8,
+      "pendiente_max_deg": 20.9,
+      "dosis_rel": 15.7,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.414,
+          18.458
+        ],
+        [
+          77.417333,
+          18.458089
+        ],
+        [
+          77.420667,
+          18.458154
+        ],
+        [
+          77.424,
+          18.458178
+        ],
+        [
+          77.427333,
+          18.458154
+        ],
+        [
+          77.430667,
+          18.458089
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "E2",
+      "limite_deg": 25,
+      "distancia_m": 1215,
+      "tiempo_min": 24.0,
+      "energia_rel": 49.1,
+      "pendiente_max_deg": 20.9,
+      "dosis_rel": 20.9,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 12,
+      "zonas": [
+        "Z1",
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.430667,
+          18.458089
+        ],
+        [
+          77.427333,
+          18.458154
+        ],
+        [
+          77.424,
+          18.458178
+        ],
+        [
+          77.420667,
+          18.458154
+        ],
+        [
+          77.417333,
+          18.458089
+        ],
+        [
+          77.414,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "COM",
+      "limite_deg": 15,
+      "distancia_m": 561,
+      "tiempo_min": 9.5,
+      "energia_rel": 14.3,
+      "pendiente_max_deg": 10.1,
+      "dosis_rel": 8.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.426503,
+          18.456321
+        ],
+        [
+          77.428005,
+          18.456645
+        ],
+        [
+          77.429505,
+          18.456975
+        ],
+        [
+          77.431005,
+          18.457312
+        ],
+        [
+          77.432503,
+          18.457654
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "REF",
+      "limite_deg": 15,
+      "distancia_m": 561,
+      "tiempo_min": 8.1,
+      "energia_rel": 12.2,
+      "pendiente_max_deg": 10.1,
+      "dosis_rel": 7.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.432503,
+          18.457654
+        ],
+        [
+          77.431005,
+          18.457312
+        ],
+        [
+          77.429505,
+          18.456975
+        ],
+        [
+          77.428005,
+          18.456645
+        ],
+        [
+          77.426503,
+          18.456321
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "COM",
+      "limite_deg": 20,
+      "distancia_m": 561,
+      "tiempo_min": 9.5,
+      "energia_rel": 14.3,
+      "pendiente_max_deg": 10.1,
+      "dosis_rel": 8.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.426503,
+          18.456321
+        ],
+        [
+          77.428005,
+          18.456645
+        ],
+        [
+          77.429505,
+          18.456975
+        ],
+        [
+          77.431005,
+          18.457312
+        ],
+        [
+          77.432503,
+          18.457654
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "REF",
+      "limite_deg": 20,
+      "distancia_m": 561,
+      "tiempo_min": 8.1,
+      "energia_rel": 12.2,
+      "pendiente_max_deg": 10.1,
+      "dosis_rel": 7.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.432503,
+          18.457654
+        ],
+        [
+          77.431005,
+          18.457312
+        ],
+        [
+          77.429505,
+          18.456975
+        ],
+        [
+          77.428005,
+          18.456645
+        ],
+        [
+          77.426503,
+          18.456321
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    },
+    {
+      "origen": "REF",
+      "destino": "COM",
+      "limite_deg": 25,
+      "distancia_m": 561,
+      "tiempo_min": 9.5,
+      "energia_rel": 14.3,
+      "pendiente_max_deg": 10.1,
+      "dosis_rel": 8.8,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.425,
+          18.456
+        ],
+        [
+          77.426503,
+          18.456321
+        ],
+        [
+          77.428005,
+          18.456645
+        ],
+        [
+          77.429505,
+          18.456975
+        ],
+        [
+          77.431005,
+          18.457312
+        ],
+        [
+          77.432503,
+          18.457654
+        ],
+        [
+          77.434,
+          18.458
+        ]
+      ]
+    },
+    {
+      "origen": "COM",
+      "destino": "REF",
+      "limite_deg": 25,
+      "distancia_m": 561,
+      "tiempo_min": 8.1,
+      "energia_rel": 12.2,
+      "pendiente_max_deg": 10.1,
+      "dosis_rel": 7.4,
+      "cobertura_com_pct": 100,
+      "sombra_pct": 5,
+      "zonas": [
+        "Z4"
+      ],
+      "geometria": [
+        [
+          77.434,
+          18.458
+        ],
+        [
+          77.432503,
+          18.457654
+        ],
+        [
+          77.431005,
+          18.457312
+        ],
+        [
+          77.429505,
+          18.456975
+        ],
+        [
+          77.428005,
+          18.456645
+        ],
+        [
+          77.426503,
+          18.456321
+        ],
+        [
+          77.425,
+          18.456
+        ]
+      ]
+    }
+  ]
+}

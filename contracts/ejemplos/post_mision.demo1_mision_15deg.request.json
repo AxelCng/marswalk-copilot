@@ -1,0 +1,11 @@
+{
+  "estaciones": [
+    "E1",
+    "M1",
+    "M2",
+    "E2"
+  ],
+  "tiempo_max_min": 180,
+  "pendiente_max": 15,
+  "modo": "orientacion"
+}

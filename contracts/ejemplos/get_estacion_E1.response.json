@@ -1,0 +1,24 @@
+{
+  "id": "E1",
+  "nombre": "Frente del delta",
+  "tipo": "ciencia",
+  "lon": 77.412,
+  "lat": 18.4495,
+  "valor_cientifico": 9,
+  "tarea": "Muestreo de capas",
+  "permanencia_min": 25,
+  "unidad_geologica": "Delta, frente escarpado (FAKE)",
+  "zona": "Z1",
+  "capas": {
+    "elev_m": -2530,
+    "pendiente_deg": 12.0,
+    "themis_noche": 222
+  },
+  "fotos": [
+    {
+      "url": null,
+      "camara": "NAVCAM_LEFT",
+      "sol": 0
+    }
+  ]
+}
