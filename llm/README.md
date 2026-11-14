@@ -101,7 +101,12 @@ Laptop con RTX 3050 de 4 GB (el modelo entra entero: `ollama ps` → 100% GPU), 
 
 | Modelo | Chequeos | Números sin fuente | Promedio por pregunta | Demo (3 preguntas) |
 | --- | --- | --- | --- | --- |
-| qwen2.5:3b (GPU) | 18/18 (3 corridas) | 0/18 | 2.2 s | ~10 s |
+| qwen2.5:3b (GPU) | 10/10 × 2 corridas (10 preguntas) | 0/20 | 2.2 s | ~10 s |
+
+Las 10 preguntas de `test_preguntas.py`: las 3 de la demo, una pérdida de comunicación en la misma conversación,
+y 6 sueltas (tarea de una estación, ruta en inglés, pregunta trampa sin misión, misión de 3 horas, ruta A→B en
+inglés y una estación que no existe). Si una herramienta forzada falla (zona inexistente, alerta sin misión), el
+agente responde por código "No pude recalcular: …" en vez de dejar que el modelo repita la ruta anterior.
 
 - **Precalentar:** la primera carga del modelo tardó 151 s en frío. `POST /chat/precalentar` lo carga sin
   generar nada (la UI lo llama al abrir) y `KEEP_ALIVE=60m` lo deja en la GPU una hora (Ollama usa 5 min por

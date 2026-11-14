@@ -8,8 +8,10 @@ services:
     ports:
       - "8000:8000"
     environment:
-      # Para el graph.json real de Pedro:  GRAPH_PATH=data/out/graph.json docker compose up
-      GRAPH_PATH: ${GRAPH_PATH:-contracts/graph_fake.json}
+      # Vacío = el motor usa data/out/graph.json (real, montado abajo) si existe; si no, el falso.
+      # La demo de 8° → 12° solo funciona con el real. Forzar el falso:
+      #   GRAPH_PATH=contracts/graph_fake.json docker compose up
+      GRAPH_PATH: ${GRAPH_PATH:-}
       # Dónde corre Ollama (laptop, laptop con GPU o túnel de Colab)
       OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
       MODELO: ${MODELO:-qwen2.5:3b}
