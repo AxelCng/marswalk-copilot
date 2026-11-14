@@ -75,3 +75,12 @@ button.primario:hover:not(:disabled) { box-shadow: none; border-color: var(--on-
 
 /* Fondos sólidos (antes compartían línea con el desenfoque) */
 .mision, .lock-ficha, .cinta-centro { background: var(--hud-glass-80); }
+
+/* Reglas finales: sin sombras de color (bordes sólidos) y cifras tabulares que no saltan */
+.hud-alerta .visor { box-shadow: inset 0 0 0 2px var(--status-critical); }
+.lock-caja::after { box-shadow: none; outline: 1px solid #000; }
+button, button.primario:hover:not(:disabled) { box-shadow: none; }
+button { transition: border-color 120ms; }
+.alerta-franja { box-shadow: none; }
+.mision-tramo b, .mision-ruta li.hacia, .lock-id, .tick span.card { text-shadow: 0 0 2px #000; }
+.mision-datos dd, .lock-ficha dd, .cinta-centro b, .tick span, .credito, .alerta-franja .mono, .mision-omitidas, .lock-geo.sub, .reticula text, .minimapa text { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }

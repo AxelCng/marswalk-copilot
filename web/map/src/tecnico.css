@@ -157,3 +157,11 @@
 .tag-nasa { color: var(--status-info); border-color: rgba(88, 166, 255, 0.45); }
 .ficha { border-radius: var(--radius-sm); box-shadow: inset 0 2px 0 var(--franja, var(--outline)); }
 .ficha-foto img { border-radius: var(--radius-sm); }
+
+/* Reglas finales: sin sombras de color (bordes sólidos) y cifras tabulares que no saltan */
+.wp-ret { box-shadow: none; outline: 1px solid var(--c); outline-offset: 0; }
+.wp.en-ruta .wp-ret { box-shadow: none; outline: 2px solid var(--acento); }
+.wp.omitida .wp-ret { box-shadow: none; outline: 1px dashed var(--status-warning); }
+button, button.primario:hover:not(:disabled) { box-shadow: none; }
+button { transition: border-color 120ms; }
+.dato, .tile b, .tile .sub, .tabla-tramos, .ficha dd, .wp-tag, .capa-pct, .capa-nombre small, .franja, .leyenda-pend span, .maplibregl-ctrl-scale, .aviso-mapa, .ruta, .estado, input[type="number"] { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
