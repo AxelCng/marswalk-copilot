@@ -1,0 +1,20 @@
+[
+  {
+    "map_key": 1,
+    "series": "SIM 3464",
+    "title": "Geologic map of Jezero crater and the Nili Planum region, Mars",
+    "authors": "Vivian Z. Sun; Kathryn M. Stack",
+    "pub_year": 2020,
+    "publisher": "US Geologic Survey",
+    "doi": "https://doi.org/10.3133/sim3464",
+    "map_scale": 75000,
+    "crs_name": "MTM 77.5E",
+    "datum": "Mars_2000_(Sphere)",
+    "lon_min": 76.8,
+    "lon_max": 77.8,
+    "lat_min": 17.7,
+    "lat_max": 18.7,
+    "fuente": "data/raw/sim3464/Metadata/SIM3464_metadata.xml",
+    "nota": "MapBoundary trae LON_MIN/LON_MAX/LAT_MIN/LAT_MAX en NULL; esta extensión sale del XML FGDC. crs_name y datum salen del .prj."
+  }
+]
