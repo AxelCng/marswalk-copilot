@@ -1,0 +1,369 @@
+/* GENERADO por scripts/scope-hud-css.mjs desde hud/src/styles.css: no editar a mano.
+   Mismos estilos del visor de casco, acotados a .hud para que no afecten a la consola. */
+/* AeroHUD Jezero — tokens copiados de web/map/src/styles.css
+   (design system: https://claude.ai/artifact/TDBvRbN9wBCZ4PCoCyV3Yh) */
+.hud {
+  color-scheme: dark;
+  --hud-bg-deep: #0b0e14;
+  --hud-glass-80: rgba(21, 27, 38, 0.8);
+  --hud-glass-92: rgba(21, 27, 38, 0.92);
+  --hud-glass-50: rgba(11, 14, 20, 0.5);
+  --hud-border: #2a3447;
+  --on-surface: #e1e2eb;
+  --on-surface-variant: #bac9cc;
+  --outline: #849396;
+  --hud-cyan: #00e5ff;
+  --hud-cyan-dim: #00838f;
+  --hud-cyan-faint: rgba(0, 229, 255, 0.08);
+  --hud-cyan-line: rgba(0, 229, 255, 0.55);
+  --status-nominal: #10b981;
+  --status-warning: #f59e0b;
+  --status-critical: #ef4444;
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: Inter, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --radius: 0.25rem;
+  --radius-full: 9999px;
+  --blur-glass: 12px;
+  --glow-cyan: 0 0 12px rgba(0, 229, 255, 0.6);
+  --glow-alert: 0 0 24px rgba(239, 68, 68, 0.25);
+  --text-glow: 0 0 6px rgba(0, 229, 255, 0.55);
+
+  --gutter: var(--space-md);
+}
+.hud {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+  background: var(--hud-bg-deep);
+  color: var(--on-surface);
+}
+
+.hud .label-caps {
+  font-family: var(--font-mono); font-size: 10px; line-height: 12px;
+  font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+.hud .mono { font-family: var(--font-mono); letter-spacing: 0.02em; }
+
+/* ---------- Capas base ---------- */
+.hud {
+  position: fixed; inset: 0; overflow: hidden; overflow: clip;
+  background: var(--hud-bg-deep);
+  touch-action: pan-y; user-select: none;
+  cursor: grab;
+}
+.hud:active { cursor: grabbing; }
+.hud .cargando { position: absolute; inset: 0; display: grid; place-items: center; color: var(--hud-cyan); }
+
+.hud .escena { position: absolute; inset: 0; overflow: clip; }
+.hud .escena img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  filter: saturate(1.05) contrast(1.05) brightness(0.85);
+  transition: transform 80ms linear;
+}
+.hud .sin-foto {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--space-xs); background: var(--hud-bg-deep);
+  background-image: radial-gradient(circle at 50% 60%, rgba(0, 229, 255, 0.05), transparent 60%);
+}
+.hud .sin-foto .label-caps { color: var(--status-warning); }
+.hud .sin-foto-sub { font-size: 12px; color: var(--outline); }
+
+.hud .tinte {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(11, 14, 20, 0.55) 0%, transparent 22%, transparent 70%, rgba(11, 14, 20, 0.6) 100%),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.06) 0%, transparent 28%, transparent 70%, rgba(0, 229, 255, 0.04) 100%);
+}
+/* Viñeta circular del casco + reflejo del vidrio */
+.hud .visor { overflow: clip;
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 58% 70% at 50% 48%, transparent 70%, rgba(5, 7, 10, 0.75) 90%, #020305 104%);
+}
+.hud .visor::before {
+  content: ''; position: absolute; left: 50%; top: 48%;
+  width: 128vmax; height: 152vmax; max-width: 136vw; max-height: 164vh;
+  transform: translate(-50%, -50%);
+  border-radius: 50%; border: 1px solid rgba(0, 229, 255, 0.12);
+  box-shadow: inset 0 0 80px rgba(0, 229, 255, 0.05);
+}
+.hud .visor::after {
+  content: ''; position: absolute; left: 8%; top: 6%; width: 38%; height: 26%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 30% 30%, rgba(255, 255, 255, 0.07), transparent 65%);
+  transform: rotate(-18deg);
+}
+.hud.hud-alerta .visor { box-shadow: inset 0 0 120px rgba(239, 68, 68, 0.18); }
+
+/* ---------- Cinta de rumbo ---------- */
+.hud .cinta {
+  position: absolute; top: var(--gutter); left: 50%; transform: translateX(-50%);
+  width: min(560px, 52vw); height: 52px; pointer-events: none;
+}
+.hud .cinta-escala {
+  position: absolute; inset: 0 0 auto 0; height: 34px; overflow: hidden;
+  border-bottom: 1px solid var(--hud-cyan-line);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+}
+.hud .tick {
+  position: absolute; bottom: 0; width: 1px; height: 6px; background: var(--hud-cyan-line);
+}
+.hud .tick.mayor { height: 11px; background: var(--hud-cyan); }
+.hud .tick span {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  font: 600 10px/12px var(--font-mono); letter-spacing: 0.04em; color: var(--on-surface-variant);
+  text-shadow: 0 0 4px #000;
+}
+.hud .tick span.card { color: var(--hud-cyan); font-size: 12px; text-shadow: var(--text-glow); }
+.hud .cinta-obj {
+  position: absolute; bottom: 0; transform: translateX(-50%);
+  width: 0; height: 0; border: 7px solid transparent; border-bottom-color: var(--hud-cyan);
+  filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.9));
+}
+.hud .cinta-obj span {
+  position: absolute; top: 9px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+  font: 700 9px/10px var(--font-mono); color: var(--hud-cyan); display: none;
+}
+.hud .cinta-obj.fuera { border-bottom-color: var(--status-warning); }
+.hud .cinta-centro {
+  position: absolute; top: 34px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: baseline; gap: 6px; padding: 2px 8px;
+  background: var(--hud-glass-80); border: 1px solid var(--hud-cyan-line); border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.hud .cinta-centro b { font: 700 13px/16px var(--font-mono); color: var(--hud-cyan); letter-spacing: 0.06em; font-variant-numeric: tabular-nums; }
+.hud .cinta-centro span { font: 600 10px/12px var(--font-mono); color: var(--on-surface-variant); }
+.hud .cinta-centro::before {
+  content: ''; position: absolute; top: -40px; left: 50%; width: 1px; height: 38px;
+  background: var(--on-surface); opacity: 0.8;
+}
+
+/* ---------- Retícula central ---------- */
+.hud .reticula {
+  position: absolute; left: 50%; top: 50%; width: 260px; height: 320px;
+  transform: translate(-50%, -50%); pointer-events: none; overflow: visible;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 4px rgba(0, 229, 255, 0.5));
+}
+.hud .ret-punto { fill: var(--hud-cyan); }
+.hud .ret-anillo { fill: none; stroke: var(--hud-cyan-line); stroke-width: 1; stroke-dasharray: 2 4; }
+.hud .ret-linea { stroke: var(--hud-cyan); stroke-width: 1.5; fill: none; }
+.hud .ret-pitch path { stroke: var(--hud-cyan); stroke-width: 1; fill: none; }
+.hud .ret-pitch text { fill: var(--on-surface-variant); font: 600 9px var(--font-mono); }
+.hud .ret-pend path { fill: var(--hud-cyan); }
+.hud .ret-pend text { fill: var(--hud-cyan); font: 700 9px var(--font-mono); letter-spacing: 0.04em; }
+
+/* ---------- Objetivo fijado ---------- */
+.hud .lock {
+  position: absolute; left: 50%; top: 30%; width: 0; height: 0;
+  transition: transform 120ms ease-out;
+}
+.hud .lock-caja {
+  position: absolute; left: -36px; top: -36px; width: 72px; height: 72px;
+  animation: fijar 2.4s ease-in-out infinite;
+}
+.hud .lock-caja::before {
+  content: ''; position: absolute; inset: 14px; border-radius: 50%;
+  border: 1px dashed var(--hud-cyan-line);
+}
+.hud .lock-caja::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px;
+  margin: -3px 0 0 -3px; border-radius: 50%; background: var(--hud-cyan); box-shadow: var(--glow-cyan);
+}
+.hud .lock .c { position: absolute; width: 14px; height: 14px; border: 2px solid var(--hud-cyan); filter: drop-shadow(0 0 3px rgba(0, 229, 255, 0.8)); }
+.hud .lock .tl { left: 0; top: 0; border-right: none; border-bottom: none; }
+.hud .lock .tr { right: 0; top: 0; border-left: none; border-bottom: none; }
+.hud .lock .bl { left: 0; bottom: 0; border-right: none; border-top: none; }
+.hud .lock .br { right: 0; bottom: 0; border-left: none; border-top: none; }
+.hud .lock-id {
+  position: absolute; left: 50%; bottom: -18px; transform: translateX(-50%);
+  font: 700 11px/12px var(--font-mono); color: var(--hud-cyan); letter-spacing: 0.08em; text-shadow: var(--text-glow);
+}
+.hud .lock-ficha {
+  position: absolute; left: 52px; top: -40px; width: 220px;
+  display: flex; flex-direction: column; gap: 4px; padding: 8px 10px;
+  background: var(--hud-glass-80); backdrop-filter: blur(var(--blur-glass));
+  border: 1px solid var(--hud-cyan-line); border-left: 2px solid var(--hud-cyan);
+  border-radius: var(--radius);
+}
+.hud .lock-ficha.izq { left: auto; right: 52px; border-left: 1px solid var(--hud-cyan-line); border-right: 2px solid var(--hud-cyan); }
+.hud .lock-ficha::before {
+  content: ''; position: absolute; top: 40px; left: -18px; width: 16px; height: 1px; background: var(--hud-cyan-line);
+}
+.hud .lock-ficha.izq::before { left: auto; right: -18px; }
+.hud .lock-estado { color: var(--hud-cyan); }
+.hud .lock-nombre { font: 600 14px/18px var(--font-display); color: var(--on-surface); }
+.hud .lock-ficha dl { margin: 2px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
+.hud .lock-ficha dl div { display: flex; flex-direction: column; }
+.hud .lock-ficha dt { font: 700 9px/11px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--outline); }
+.hud .lock-ficha dd { margin: 0; font: 600 14px/18px var(--font-mono); color: var(--on-surface); font-variant-numeric: tabular-nums; }
+.hud .lock.fuera .lock-caja { opacity: 0.6; animation: none; }
+.hud .lock .lock-centrar { position: absolute; top: 46px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+@keyframes fijar {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.92); }
+}
+
+/* ---------- Panel de misión (arriba izquierda) ---------- */
+.hud .mision {
+  position: absolute; top: var(--gutter); left: var(--gutter); width: 270px;
+  display: flex; flex-direction: column; gap: var(--space-sm);
+  padding: 12px; pointer-events: none;
+  background: var(--hud-glass-80); backdrop-filter: blur(var(--blur-glass));
+  border: 1px solid var(--hud-border); border-radius: var(--radius);
+}
+.hud .mision header { display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); }
+.hud .mision-tramo { display: flex; align-items: baseline; gap: var(--space-sm); }
+.hud .mision-tramo b { font: 700 28px/32px var(--font-display); color: var(--hud-cyan); text-shadow: var(--text-glow); font-variant-numeric: tabular-nums; }
+.hud .mision-tramo small { font-size: 16px; color: var(--on-surface-variant); text-shadow: none; }
+.hud .mision-datos { margin: 0; display: grid; grid-template-columns: repeat(3, auto); gap: var(--space-sm); }
+.hud .mision-datos div { display: flex; flex-direction: column; gap: 2px; }
+.hud .mision-datos dd { margin: 0; font: 600 15px/20px var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hud .mision-ruta {
+  list-style: none; margin: 0; padding: var(--space-sm) 0 0; border-top: 1px solid var(--hud-border);
+  display: flex; flex-wrap: wrap; gap: 2px 0;
+  font: 600 12px/16px var(--font-mono); letter-spacing: 0.04em; color: var(--outline);
+}
+.hud .mision-ruta li + li::before { content: '›'; margin: 0 5px; color: var(--hud-border); }
+.hud .mision-ruta li.hecho { color: var(--hud-cyan-dim); }
+.hud .mision-ruta li.desde { color: var(--on-surface); }
+.hud .mision-ruta li.hacia { color: var(--hud-cyan); text-shadow: var(--text-glow); }
+.hud .mision-omitidas { list-style: none; margin: 0; padding: 0; font-size: 12px; line-height: 16px; color: var(--on-surface-variant); }
+.hud .mision-omitidas .label-caps { color: var(--status-warning); }
+
+.hud .chip {
+  display: inline-flex; align-items: center; gap: var(--space-xs);
+  min-height: 20px; padding: 0 var(--space-sm); margin: 0;
+  border-radius: 0.125rem; border: 1px solid;
+  font: 700 10px/12px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;
+}
+.hud .chip::before { content: ''; width: 6px; height: 6px; border-radius: var(--radius-full); background: currentColor; }
+.hud .chip.nominal { color: var(--status-nominal); border-color: rgba(16, 185, 129, 0.4); }
+.hud .chip.warning { color: var(--status-warning); border-color: rgba(245, 158, 11, 0.4); }
+.hud .chip.critical { color: var(--status-critical); border-color: rgba(239, 68, 68, 0.4); }
+
+/* ---------- Abajo izquierda: alerta + crédito ---------- */
+.hud .abajo-izq {
+  position: absolute; left: var(--gutter); bottom: var(--gutter); width: 340px;
+  display: flex; flex-direction: column; gap: var(--space-sm); pointer-events: none;
+}
+.hud .alerta-franja {
+  display: flex; flex-direction: column; gap: 4px; padding: 10px 12px;
+  background: rgba(40, 10, 12, 0.82); backdrop-filter: blur(var(--blur-glass));
+  border: 1px solid var(--status-critical); border-left-width: 4px; border-radius: var(--radius);
+  box-shadow: var(--glow-alert); color: var(--on-surface);
+  animation: entra 300ms ease-out;
+}
+.hud .alerta-titulo { display: flex; align-items: center; gap: var(--space-sm); }
+.hud .alerta-titulo b {
+  font: 700 12px/16px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--status-critical);
+}
+.hud .alerta-icono {
+  display: grid; place-items: center; width: 18px; height: 18px; flex: none;
+  border-radius: 50%; background: var(--status-critical); color: var(--hud-bg-deep);
+  font: 700 12px/1 var(--font-mono); animation: latido 1.2s ease-in-out infinite;
+}
+.hud .alerta-franja p { margin: 0; font-size: 12px; line-height: 16px; color: var(--on-surface-variant); }
+.hud .alerta-franja p.mono { color: var(--on-surface); }
+.hud .credito {
+  margin: 0; font: 500 10px/12px var(--font-mono); letter-spacing: 0.05em; color: var(--outline);
+  text-shadow: 0 0 4px #000;
+}
+@keyframes latido { 50% { opacity: 0.45; } }
+@keyframes entra { from { opacity: 0; transform: translateY(8px); } }
+
+/* ---------- Minimapa (abajo derecha) ---------- */
+.hud .minimapa {
+  position: absolute; right: var(--gutter); bottom: var(--gutter); margin: 0;
+  width: 220px; padding: 8px; pointer-events: none;
+  background: var(--hud-glass-80); backdrop-filter: blur(var(--blur-glass));
+  border: 1px solid var(--hud-border); border-radius: 50%;
+  aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.hud .minimapa figcaption {
+  position: absolute; top: 14px; left: 0; right: 0; text-align: center;
+}
+.hud .minimapa figcaption span { color: var(--hud-cyan); margin-left: 4px; }
+.hud .minimapa svg { width: 82%; height: 82%; overflow: visible; }
+.hud .mm-zona { fill: rgba(239, 68, 68, 0.16); stroke: var(--status-critical); stroke-width: 1; stroke-dasharray: 3 2; }
+.hud .mm-zona-id { fill: var(--status-critical); font: 700 9px var(--font-mono); }
+.hud .mm-afectado { fill: none; stroke: var(--status-critical); stroke-width: 1.5; stroke-dasharray: 2 3; opacity: 0.8; }
+.hud .mm-tramo { fill: none; stroke: var(--hud-cyan-dim); stroke-width: 1.5; }
+.hud .mm-tramo.hecho { opacity: 0.5; }
+.hud .mm-actual { fill: none; stroke: var(--hud-cyan); stroke-width: 3; filter: drop-shadow(0 0 3px rgba(0, 229, 255, 0.9)); }
+.hud .mm-nodo circle { fill: var(--hud-bg-deep); stroke: var(--on-surface-variant); stroke-width: 1.2; }
+.hud .mm-nodo text { fill: var(--on-surface-variant); font: 600 9px var(--font-mono); paint-order: stroke; stroke: var(--hud-bg-deep); stroke-width: 2px; }
+.hud .mm-nodo.obj circle { stroke: var(--hud-cyan); fill: var(--hud-cyan); }
+.hud .mm-nodo.obj text { fill: var(--hud-cyan); }
+.hud .mm-yo { fill: none; stroke: var(--on-surface); stroke-width: 1.5; }
+
+/* ---------- Controles ---------- */
+.hud .controles {
+  position: absolute; left: 50%; bottom: var(--gutter); transform: translateX(-50%);
+  display: flex; gap: var(--space-sm);
+}
+.hud button {
+  min-height: 40px; padding: 0 14px;
+  border-radius: var(--radius); cursor: pointer;
+  font: 600 12px/16px var(--font-mono); letter-spacing: 0.04em; text-transform: uppercase;
+  border: 1px solid var(--hud-border);
+  background: var(--hud-glass-80); color: var(--hud-cyan);
+  backdrop-filter: blur(var(--blur-glass));
+  transition: border-color 120ms, box-shadow 120ms;
+}
+.hud button:hover:not(:disabled) { border-color: var(--hud-cyan); }
+.hud button:focus-visible { outline: 1px solid var(--hud-cyan); outline-offset: 2px; }
+.hud button:disabled { opacity: 0.4; cursor: default; }
+.hud button.primario { background: var(--hud-cyan); border-color: var(--hud-cyan); color: var(--hud-bg-deep); }
+.hud button.primario:hover:not(:disabled) { box-shadow: var(--glow-cyan); }
+.hud button.alerta { background: rgba(239, 68, 68, 0.15); border-color: var(--status-critical); color: var(--status-critical); }
+
+/* ---------- Pantallas medianas: el minimapa y la alerta no pisan los botones ---------- */
+@media (max-width: 1100px) {
+  .hud .abajo-izq { bottom: calc(var(--gutter) + 52px); }
+  .hud .minimapa { bottom: calc(var(--gutter) + 52px); width: 180px; }
+}
+
+/* ---------- Celular ---------- */
+@media (max-width: 640px) {
+  .hud .cinta { top: 8px; width: calc(100% - 2 * var(--gutter)); }
+  .hud .mision {
+    top: 68px; left: var(--gutter); right: var(--gutter); width: auto;
+    padding: 8px 10px; gap: 6px;
+  }
+  .hud .mision-tramo { position: absolute; top: 6px; right: 10px; }
+  .hud .mision header { padding-right: 96px; }
+  .hud .mision-tramo b { font-size: 22px; line-height: 24px; }
+  .hud .mision-datos dd { font-size: 13px; line-height: 16px; }
+  .hud .mision-omitidas { display: none; }
+  .hud .reticula { width: 200px; height: 250px; top: 65%; }
+  .hud .lock { top: 31%; }
+  .hud .lock-ficha, .hud .lock-ficha.izq {
+    left: 50%; right: auto; top: 52px; transform: translateX(-50%);
+    width: 210px; padding: 6px 8px;
+    border: 1px solid var(--hud-cyan-line); border-top: 2px solid var(--hud-cyan);
+  }
+  .hud .lock-ficha::before, .hud .lock-ficha.izq::before { display: none; }
+  .hud .lock-id { display: none; }
+  .hud .lock-nombre { font-size: 12px; line-height: 15px; }
+  .hud .lock-ficha dd { font-size: 12px; line-height: 15px; }
+  .hud .abajo-izq { left: var(--gutter); right: calc(var(--gutter) + 132px); width: auto; bottom: calc(var(--gutter) + 52px); }
+  .hud .credito { display: none; }
+  .hud .alerta-franja { padding: 8px; }
+  .hud .alerta-franja p { font-size: 11px; line-height: 14px; }
+  .hud .minimapa { width: 124px; padding: 4px; bottom: calc(var(--gutter) + 52px); }
+  .hud .minimapa figcaption { top: 8px; font-size: 8px; }
+  .hud .controles { left: var(--gutter); right: var(--gutter); transform: none; }
+  .hud .controles button { flex: 1; padding: 0 6px; font-size: 11px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud *, .hud, .hud *::before, .hud::before, .hud *::after, .hud::after { animation: none !important; transition: none !important; }
+}
