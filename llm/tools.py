@@ -91,6 +91,9 @@ ZONES_EN = {
     "frente del delta": ("Delta front", []),
     "campo de dunas seitah": ("Séítah dune field", ["dune field", "dunes", "seitah"]),
     "corredor de acceso": ("Access corridor", ["corridor"]),
+    "entrada al delta": ("Delta entrance", ["delta entrance", "delta"]),
+    "borde norte de seitah": ("North edge of Séítah", ["seitah"]),
+    "corredor del habitat": ("Habitat corridor", ["corridor"]),
 }
 TYPES_EN = {"habitat": "habitat", "rover": "rover", "ciencia": "science", "muestreo": "sampling",
             "refugio": "shelter", "comms": "comms"}

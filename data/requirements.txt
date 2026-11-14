@@ -4,3 +4,5 @@ numpy>=2,<3
 pyogrio>=0.10,<1
 pyarrow>=15,<22
 shapely>=2.0,<3
+scikit-image>=0.24,<1   # route_through_array (paso 60)
+pyyaml>=6,<7

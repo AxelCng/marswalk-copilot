@@ -26,7 +26,7 @@ export interface EstacionDetalle extends EstacionResumen {
   tarea: string;
   permanencia_min: number;
   unidad_geologica: string;
-  zona: string;
+  zona?: string | null; // null: las zonas de alerta no contienen estaciones
   capas: CapasEstacion;
   fotos: FotoEstacion[];
   /** Solo en la UI: unidad USGS SIM 3464 bajo la estación (services/geologia.ts), si hay capa geológica. */

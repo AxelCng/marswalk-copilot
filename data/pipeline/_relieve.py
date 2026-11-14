@@ -117,29 +117,28 @@ def zonas_de_alerta(aoi: dict) -> list[dict]:
     """Zonas de alerta para la demo, en lon/lat y dentro del AOI.
 
     El SIM 3464 no trae zonas de alerta: son un supuesto del spec para poder
-    cerrar una zona en la demo de polvo. Se derivan del AOI en fracciones.
+    cerrar una zona en la demo de polvo. La alerta quita las aristas que CRUZAN
+    la zona, así que una zona no debe contener estaciones: si las contiene, las
+    deja aisladas (la versión anterior, cajas por fracción del AOI, encerraba a
+    E1/M2/E2/REF en Z1 y a HAB en Z4, y con Z4 no se llegaba a ninguna estación).
+
+    Cada caja está entre estaciones, sobre corredores que usan los caminos reales,
+    y se eligió probando el motor con el grafo real (misión de 12°, 4 estaciones):
+    las cuatro desvían la ruta sin dejar estaciones aisladas.
+      Z1 Entrada al delta       evita HAB->M2          (+6.6 min)
+      Z2 Campo de dunas         evita HAB->M2, E1->M1  (+30.3 min)  <- la de la demo
+      Z3 Borde norte de Séítah  evita E1->M1           (+17.1 min)
+      Z4 Corredor del hábitat   evita M1->HAB          (+8.0 min)
     """
-    from . import crs
-
-    x0, x1 = aoi["x_min"], aoi["x_max"]
-    y0, y1 = aoi["y_min"], aoi["y_max"]
-    ancho, alto = x1 - x0, y1 - y0
-    inverso = crs.mtm_a_lonlat()
-
-    def caja(fx0, fy0, fx1, fy1):
-        esquinas = [
-            (x0 + fx0 * ancho, y0 + fy0 * alto),
-            (x0 + fx1 * ancho, y0 + fy0 * alto),
-            (x0 + fx1 * ancho, y0 + fy1 * alto),
-            (x0 + fx0 * ancho, y0 + fy1 * alto),
-            (x0 + fx0 * ancho, y0 + fy0 * alto),
-        ]
-        return [[round(lo, 6), round(la, 6)] for lo, la in
-                (inverso.transform(x, y) for x, y in esquinas)]
-
-    return [
-        {"id": "Z1", "nombre": "Frente del delta", "poligono": caja(0.00, 0.40, 0.38, 1.00)},
-        {"id": "Z2", "nombre": "Campo de dunas Séítah", "poligono": caja(0.45, 0.00, 0.82, 0.38)},
-        {"id": "Z3", "nombre": "Llanura norte", "poligono": caja(0.38, 0.40, 0.82, 1.00)},
-        {"id": "Z4", "nombre": "Corredor de acceso", "poligono": caja(0.82, 0.00, 1.00, 1.00)},
-    ]
+    cajas = {   # (lon_min, lat_min, lon_max, lat_max)
+        "Z1": ("Entrada al delta", (77.4140, 18.4470, 77.4200, 18.4530)),
+        "Z2": ("Campo de dunas", (77.4250, 18.4400, 77.4370, 18.4520)),
+        "Z3": ("Borde norte de Séítah", (77.4340, 18.4355, 77.4420, 18.4395)),
+        "Z4": ("Corredor del hábitat", (77.4440, 18.4360, 77.4490, 18.4420)),
+    }
+    zonas = []
+    for zid, (nombre, (x0, y0, x1, y1)) in cajas.items():
+        assert aoi["lon_min"] <= x0 < x1 <= aoi["lon_max"] and aoi["lat_min"] <= y0 < y1 <= aoi["lat_max"], zid
+        zonas.append({"id": zid, "nombre": nombre,
+                      "poligono": [[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]})
+    return zonas
