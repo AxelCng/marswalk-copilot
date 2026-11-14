@@ -8,11 +8,12 @@ The model picks tools; the API computes. Every number in an answer comes from a 
 | File | What it does |
 | --- | --- |
 | `config.py` | Reads `.env`: `OLLAMA_URL`, `MODEL`, `API_URL` and the `params.yaml` defaults (15°, 240 min). The old Spanish names (`MODELO`, `PENDIENTE_DEFAULT`, `TIEMPO_DEFAULT`, `MAX_PASOS`) still work |
-| `tools.py` | The 5 tools (schemas + HTTP calls). English tool names and arguments, translated to the engine's Spanish fields. Accepts English or Spanish station and zone names as well as ids |
+| `tools.py` | The 5 tools (schemas + HTTP calls). English tool names and arguments, translated to the engine's Spanish fields. Accepts English or Spanish station and zone names as well as ids. English names come from `web/shared/i18n_en.json`, the same file the screen uses |
 | `agent.py` | Copilot loop, system prompt with the station catalog (English names), comparison with the previous mission and unsourced-number detector |
 | `router.py` | `POST /chat` (+ `/chat/reset`, `/chat/warmup`, `/chat/status`) as an APIRouter, mounted by `engine/main.py` |
 | `mock_api.py` | Fake API with the `contracts/api.md` contract, over `contracts/graph_fake.json` |
-| `test_questions.py` | The demo conversation + alert variants + single questions, per model |
+| `test_questions.py` | The demo conversation + alert variants + single questions, per model (needs Ollama) |
+| `tests/test_offline.py` | 51 tests without Ollama: tools, detectors, translations, demo flow and `/chat`, against the real engine started inside the test |
 
 ## Tools
 
@@ -49,6 +50,16 @@ With the real engine (from the repo root): `python -m uvicorn engine.main:app --
 
 Using the GPU of another laptop on the same network: on that laptop run Ollama with `OLLAMA_HOST=0.0.0.0`,
 and here set `OLLAMA_URL=http://<its-IP>:11434`.
+
+## Tests without the model
+
+From the repo root (with `engine/requirements-dev.txt` and `llm/requirements.txt` installed):
+```
+python -m pytest llm/tests -q
+```
+They start the real engine with `data/out/graph.json`. If the graph changes (a new station, a renamed zone,
+the 8°/12° demo no longer separating E2), a test fails and says what to update. New station or zone names go in
+`web/shared/i18n_en.json`: the screen and the copilot both read it.
 
 ## `/chat` (contracts/api.md)
 

@@ -19,6 +19,8 @@ COPY params.yaml ./
 COPY contracts/ contracts/
 COPY engine/ engine/
 COPY llm/ llm/
+# Nombres en inglés compartidos con la pantalla (llm/tools.py y web/ui/src/i18n.ts leen el mismo archivo)
+COPY web/shared/i18n_en.json web/shared/i18n_en.json
 COPY data/ data/
 
 # Grafo: sin GRAPH_PATH el motor usa data/out/graph.json (el real de Pedro) si existe, y si no

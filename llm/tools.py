@@ -5,8 +5,11 @@ The LLM never receives the full graph and never computes anything: it only picks
 The model sees English tool names and arguments; this file translates them to the engine API fields
 (which are part of the Spanish contract owned by the engine: estaciones, pendiente_max, zona...).
 """
+import json
+import os
 import re
 import unicodedata
+from pathlib import Path
 
 import requests
 
@@ -59,46 +62,38 @@ TOOLS = [
             "required": ["type"]}}},
 ]
 
-# English names and tasks by id. The catalog (estaciones.csv / graph.json) is in Spanish and owned by
-# other people; these maps let the copilot speak English and understand English place names.
-STATION_NAMES_EN = {
-    "HAB": "Octavia E. Butler habitat",
-    "ROV": "Support rover, south floor",
-    "E1": "Delta front, Amalik outcrop",
-    "M1": "South Séítah, Brac outcrop",
-    "M2": "Three Forks sample depot",
-    "E2": "Upper delta (Upper Fan)",
-    "REF": "Shelter at the base of Hawksbill Gap",
-    "COM": "Relay antenna, northern plain",
-}
-STATION_TASKS_EN = {
-    "HAB": "Mission base",
-    "ROV": "Battery swap and sample handoff",
-    "E1": "Stratigraphy of sedimentary layers",
-    "M1": "Core sample of olivine-rich igneous rock",
-    "M2": "Check the depot sample tubes",
-    "E2": "Stratigraphy and panorama of the fan",
-    "REF": "Shelter from dust storms",
-    "COM": "Antenna inspection",
-}
-# Zones are keyed by their Spanish NAME, not by id: the fake and the real graph reuse Z1..Z4 for
-# different zones. Value: (English name, extra aliases the user may say). Unknown zones keep their name.
-ZONES_EN = {
-    "delta": ("Delta", []),
-    "campo de dunas": ("Dune field", ["dunes"]),
-    "seitah": ("Séítah", []),
-    "llanura norte": ("Northern plain", ["north plain"]),
-    "frente del delta": ("Delta front", []),
-    "campo de dunas seitah": ("Séítah dune field", ["dune field", "dunes", "seitah"]),
-    "corredor de acceso": ("Access corridor", ["corridor"]),
-    "entrada al delta": ("Delta entrance", ["delta entrance", "delta"]),
-    "borde norte de seitah": ("North edge of Séítah", ["seitah"]),
-    "corredor del habitat": ("Habitat corridor", ["corridor"]),
-}
-TYPES_EN = {"habitat": "habitat", "rover": "rover", "ciencia": "science", "muestreo": "sampling",
-            "refugio": "shelter", "comms": "comms"}
-REASONS_EN = {"pendiente": "slope", "tiempo": "time", "alerta": "alert", "comms": "comms", "no_existe": "not_found"}
+# English names: ONE dictionary for the screen and the copilot, web/shared/i18n_en.json (web/ui/src/i18n.ts
+# reads it too). The catalog (estaciones.csv / graph.json) is in Spanish and owned by other people.
+# If the file is missing the copilot still works, with the Spanish names.
+I18N_PATH = Path(os.getenv("I18N_PATH", Path(__file__).resolve().parents[1] / "web" / "shared" / "i18n_en.json"))
 
+
+def _load_i18n(path=I18N_PATH):
+    try:
+        return json.loads(Path(path).read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError) as e:
+        print(f"Warning: English names not loaded ({path}): {e}")
+        return {}
+
+
+_I18N = _load_i18n()
+STATION_NAMES_EN = _I18N.get("estaciones", {})          # by station id
+STATION_TASKS_EN = _I18N.get("tareas", {})              # by station id
+# Zones go by their normalized Spanish NAME, not by id: the fake and the real graph reuse Z1..Z4 for
+# different zones. Unknown zones keep their Spanish name.
+ZONE_NAMES_EN = _I18N.get("zonas", {})
+TYPES_EN = _I18N.get("tipos", {})
+REASONS_EN = _I18N.get("motivos", {})
+# Extra ways the crew may name a zone (only the copilot needs them), by normalized Spanish name.
+ZONE_ALIASES = {
+    "campo de dunas": ["dunes"],
+    "llanura norte": ["north plain"],
+    "campo de dunas seitah": ["dune field", "dunes", "seitah"],
+    "corredor de acceso": ["corridor"],
+    "entrada al delta": ["delta entrance", "delta"],
+    "borde norte de seitah": ["seitah"],
+    "corredor del habitat": ["corridor"],
+}
 
 # ---------- tolerance: accepts names as well as ids (helps small models a lot) ----------
 def _norm(s):
@@ -128,7 +123,8 @@ def _zones():
             zones = []
             for z in r.json().get("zonas", []):
                 nombre = z.get("nombre", "")
-                name, aliases = ZONES_EN.get(_norm(nombre), (nombre, []))
+                name = ZONE_NAMES_EN.get(_norm(nombre), nombre)
+                aliases = ZONE_ALIASES.get(_norm(nombre), [])
                 zones.append({"id": z["id"], "nombre": nombre, "name": name, "aliases": aliases})
             _cache["zones"] = zones
         except (requests.RequestException, ValueError):
