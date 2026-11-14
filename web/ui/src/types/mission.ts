@@ -13,6 +13,7 @@ export interface FotoEstacion {
   url: string | null;
   camara: string;
   sol: number;
+  credito?: string;
 }
 
 export interface CapasEstacion {
@@ -100,3 +101,11 @@ export interface PlanBParams {
   origen: string;
 }
 
+
+/** Grafo completo (GET /grafo o contracts/graph_fake.json). Lo dibuja web/map/src/MarsMap.jsx. */
+export interface Grafo {
+  meta?: Record<string, unknown>;
+  zonas?: { id: string; nombre: string; poligono: [number, number][] }[];
+  nodes: EstacionDetalle[];
+  edges: (Tramo & { limite_deg: number; energia_rel?: number; sombra_pct?: number })[];
+}
