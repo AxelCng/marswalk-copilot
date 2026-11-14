@@ -25,7 +25,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, 
         {isUser ? (
           <>
             <span>{message.timestamp}</span>
-            <span className="font-semibold text-rust">ASTRONAUTA</span>
+            <span className="font-semibold text-rust">ASTRONAUT</span>
             <div className="flex h-4 w-4 items-center justify-center rounded-full bg-rust/20 text-rust">
               <User className="h-2.5 w-2.5" />
             </div>
@@ -63,7 +63,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, 
         {/* Qué cambió respecto a la misión anterior (lo calcula llm/agent.py, no el modelo) */}
         {comp && (
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
-            <span className="label-caps mr-1">Vs. misión anterior</span>
+            <span className="label-caps mr-1">Vs. previous mission</span>
             <span className={`chip ${comp.time_difference_min > 0 ? 'warning' : 'nominal'} dato-num`}>
               {signo(comp.time_difference_min)} min
             </span>
@@ -78,7 +78,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, 
 
         {sinFuente.length > 0 && (
           <p className="nota warning mt-3">
-            Revisar: números sin herramienta que los respalde ({sinFuente.join(', ')}).
+            Check: numbers without a tool backing them ({sinFuente.join(', ')}).
           </p>
         )}
 
@@ -93,8 +93,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, 
             >
               <Wrench className="h-3 w-3" />
               <span>
-                {llamadas.length} {llamadas.length === 1 ? 'función ejecutada' : 'funciones ejecutadas'}
-                {fallidas > 0 && <span className="text-critical"> · {fallidas} con error</span>}
+                {llamadas.length} {llamadas.length === 1 ? 'function called' : 'functions called'}
+                {fallidas > 0 && <span className="text-critical"> · {fallidas} with errors</span>}
               </span>
               {showTools ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
             </button>
@@ -127,7 +127,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, 
           <div className="mt-2.5 pt-2 border-t border-hud-border/60 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
             <span className={`${message.ruta.factible ? 'text-nominal' : 'text-critical'} flex items-center gap-1`}>
               <Route className="h-3.5 w-3.5 shrink-0" />
-              {message.ruta.factible ? message.ruta.ruta.join(' → ') : 'Sin ruta factible'}
+              {message.ruta.factible ? message.ruta.ruta.join(' → ') : 'No feasible route'}
             </span>
             {onViewRoute && (
               <button
@@ -135,7 +135,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, 
                 onClick={onViewRoute}
                 className="px-2 py-0.5 rounded bg-hud-cyan/10 border border-hud-cyan/50 text-hud-cyan hover:border-hud-cyan transition-colors text-[10px]"
               >
-                Ver telemetría
+                View telemetry
               </button>
             )}
           </div>

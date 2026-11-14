@@ -241,7 +241,7 @@ export default function MarsMap({
     });
     map.addControl(new maplibregl.AttributionControl({
       compact: true,
-      customAttribution: 'CTX: NASA/JPL-Caltech/MSSS · Murray Lab/Caltech · Esri · DTM, THEMIS y geología: USGS SIM 3464 (Sun y Stack, 2020)',
+      customAttribution: 'CTX: NASA/JPL-Caltech/MSSS · Murray Lab/Caltech · Esri · DTM, THEMIS and geology: USGS SIM 3464 (Sun and Stack, 2020)',
     }));
     // El contenedor puede medir 0 al montar (estilos aún sin aplicar): seguir su tamaño
     // y volver a encuadrar mientras el usuario no haya movido el mapa.
@@ -383,17 +383,17 @@ export default function MarsMap({
         if (e.originalEvent?.target?.closest?.('.wp')) return popupGeo.remove();
         const p = e.features[0].properties;
         const titulo = [p.unit_symbol, p.unit_name].filter(Boolean).join(' · ');
-        const sub = [p.age_prefix, p.feature_type].filter(Boolean).join(' · ');
+        const sub = [p.age_prefix && String(p.age_prefix).replace(/Noachiano/g, 'Noachian').replace(/Hesperiano/g, 'Hesperian'), p.feature_type].filter(Boolean).join(' · ');
         popupGeo.setLngLat(e.lngLat).setHTML(`<b>${titulo || 'Unidad'}</b>${sub ? `<br/>${sub}` : ''}`).addTo(map);
       });
       map.on('mouseleave', 'geo-fill', () => popupGeo.remove());
       const RASGO_ES = {
-        'delta lobe front': 'Frente de lóbulo del delta',
-        'channel (fluvial)': 'Canal fluvial',
-        'crest of crater rim': 'Cresta de borde de cráter',
-        'crest of buried crater': 'Cresta de cráter enterrado',
-        'ridge crest (type 1), certain': 'Cresta de loma',
-        lineament: 'Lineamiento',
+        'delta lobe front': 'Delta lobe front',
+        'channel (fluvial)': 'Fluvial channel',
+        'crest of crater rim': 'Crater rim crest',
+        'crest of buried crater': 'Buried crater crest',
+        'ridge crest (type 1), certain': 'Ridge crest',
+        lineament: 'Lineament',
       };
       map.on('mousemove', 'geo-rasgos', (e) => {
         const p = e.features[0].properties;
@@ -441,7 +441,7 @@ export default function MarsMap({
         .setLngLat([n.lon, n.lat]).addTo(map),
     ]));
     // MapLibre pone aria-label='Map marker': devolverle el nombre de la estación.
-    grafo.nodes.forEach((n) => waypoints.current[n.id].getElement().setAttribute('aria-label', `Estación ${n.id}, ${n.nombre}`));
+    grafo.nodes.forEach((n) => waypoints.current[n.id].getElement().setAttribute('aria-label', `Station ${n.id}, ${n.nombre}`));
     map.getSource('aristas').setData(aristasGeoJSON(grafo.edges));
     map.getSource('zonas').setData(zonasGeoJSON(grafo.zonas));
     nodosRef.current = grafo.nodes;
@@ -552,9 +552,9 @@ export default function MarsMap({
       el.className = 'aviso-mapa';
       const n = alerta.aristas_afectadas?.length ?? 0;
       const tipo = (alerta.tipo ?? 'polvo').toUpperCase();
-      el.innerHTML = '<span class="aviso-titulo">Alerta crítica · ' + tipo + '</span>'
+      el.innerHTML = '<span class="aviso-titulo">Critical alert · ' + tipo + '</span>'
         + '<span class="aviso-zona">' + (zona.nombre ?? zona.id) + ' · ' + zona.id + '</span>'
-        + '<span class="aviso-dato">' + n + (n === 1 ? ' tramo bloqueado' : ' tramos bloqueados') + '</span>';
+        + '<span class="aviso-dato">' + n + (n === 1 ? ' leg blocked' : ' legs blocked') + '</span>';
       aviso = new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat(centroide(zona.poligono)).addTo(map);
     }
     let raf;
@@ -602,7 +602,7 @@ export default function MarsMap({
     <>
       <div ref={contenedor} className="mapa" />
       {astronauta?.pos && !seguir && (
-        <button className="btn-seguir" onClick={() => setSeguir(true)}>Seguir al astronauta</button>
+        <button className="btn-seguir" onClick={() => setSeguir(true)}>Follow the astronaut</button>
       )}
     </>
   );

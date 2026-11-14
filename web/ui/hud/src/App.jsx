@@ -110,7 +110,7 @@ export default function App() {
   if (!mision || !grafo) {
     return (
       <div className="hud">
-        <p className="cargando label-caps">Enlazando visor…</p>
+        <p className="cargando label-caps">Linking visor…</p>
       </div>
     );
   }
@@ -131,16 +131,16 @@ export default function App() {
           <img
             key={fotoUrl}
             src={fotoUrl}
-            alt={`Navcam en ${destino.id}, ${destino.nombre}`}
+            alt={`Navcam at ${destino.id}, ${destino.nombre}`}
             draggable={false}
             style={{ transform: `scale(1.25) translateX(${paralaje * 100}%)` }}
             onError={() => setFotoFallo((f) => ({ ...f, [foto.url]: true }))}
           />
         ) : (
           <div className="sin-foto">
-            <span className="label-caps">Sin imagen Navcam para {tramo?.destino ?? '—'}</span>
+            <span className="label-caps">No Navcam image for {tramo?.destino ?? '—'}</span>
             <span className="sin-foto-sub">
-              {foto?.url ? 'La foto no cargó.' : 'El nodo no tiene foto (fotos[0].url es null).'}
+              {foto?.url ? 'The photo did not load.' : 'The node has no photo (fotos[0].url is null).'}
             </span>
           </div>
         )}
@@ -181,15 +181,15 @@ export default function App() {
         nodos={nodos}
       />
 
-      <nav className="controles" aria-label="Navegación por tramos">
+      <nav className="controles" aria-label="Leg navigation">
         <button onClick={() => irA(idx - 1)} disabled={idx === 0}>
-          ◀ Anterior
+          ◀ Previous
         </button>
         <button className="primario" onClick={() => irA(idx + 1)} disabled={idx >= tramos.length - 1}>
-          Siguiente ▶
+          Next ▶
         </button>
         <button className={alerta ? '' : 'alerta'} onClick={toggleAlerta} disabled={cargando}>
-          {alerta ? 'Quitar alerta' : `Alerta ${ALERTA_DEMO.tipo} ${ALERTA_DEMO.zona}`}
+          {alerta ? 'Clear alert' : `Dust alert ${ALERTA_DEMO.zona}`}
         </button>
       </nav>
     </div>

@@ -5,12 +5,12 @@ import type { EstacionDetalle, FotoEstacion } from '../types/mission';
 import { limpiarUnidad } from '../services/geologia';
 
 const CAMARAS: Record<string, string> = {
-  NAVCAM_LEFT: 'Navcam izq.',
-  NAVCAM_RIGHT: 'Navcam der.',
-  MCZ_LEFT: 'Mastcam-Z izq.',
-  MCZ_RIGHT: 'Mastcam-Z der.',
+  NAVCAM_LEFT: 'Navcam left',
+  NAVCAM_RIGHT: 'Navcam right',
+  MCZ_LEFT: 'Mastcam-Z left',
+  MCZ_RIGHT: 'Mastcam-Z right',
 };
-export const nombreCamara = (c?: string) => (c ? CAMARAS[c] ?? c.replace(/_/g, ' ') : 'Cámara');
+export const nombreCamara = (c?: string) => (c ? CAMARAS[c] ?? c.replace(/_/g, ' ') : 'Camera');
 
 interface FotoProps {
   foto?: FotoEstacion;
@@ -42,7 +42,7 @@ export const FotoEstacionView: React.FC<FotoProps> = ({ foto, alt, className = '
       ) : (
         <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center bg-[repeating-linear-gradient(135deg,transparent_0_6px,rgba(42,52,71,0.35)_6px_7px)]">
           <Camera className={`${grande ? 'h-9 w-9' : 'h-6 w-6'} text-ink-mute`} />
-          <span className="label-caps">{fallo ? 'Foto no disponible' : 'Sin foto'}</span>
+          <span className="label-caps">{fallo ? 'Photo not available' : 'No photo'}</span>
           {foto?.sol != null && (
             <span className="font-mono text-[10px] text-ink-mute dato-num">
               Referencia: sol {foto.sol}
@@ -76,9 +76,9 @@ export const UnidadGeo: React.FC<{ station: EstacionDetalle; compacta?: boolean 
   const { texto, provisional } = limpiarUnidad(station.unidad_geologica ?? '');
   return (
     <span className="inline-flex items-center gap-1.5 min-w-0">
-      <span className="truncate text-[11px] font-mono text-ink-dim">{texto || 'Unidad sin datos'}</span>
+      <span className="truncate text-[11px] font-mono text-ink-dim">{texto || 'Unit without data'}</span>
       {provisional && (
-        <span className="chip sin-punto warning !min-h-[16px] !px-1 !text-[8px] shrink-0" title="graph_fake.json: falta la capa SIM 3464 de data/">
+        <span className="chip sin-punto warning !min-h-[16px] !px-1 !text-[8px] shrink-0" title="graph_fake.json: SIM 3464 layer from data/ is missing">
           provisional
         </span>
       )}

@@ -30,7 +30,7 @@ const saludo = (contenido: string): MensajeHistorial => ({
 
 export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRoute, onIrPlanB }) => {
   const [messages, setMessages] = useState<MensajeHistorial[]>([
-    saludo("Copiloto EVA MarsWalk en línea. Indícame los objetivos científicos de la caminata en Jezero Crater, el tiempo límite de soporte vital y la pendiente máxima tolerable por el traje.")
+    saludo("MarsWalk EVA copilot online. Tell me the science targets for the walk in Jezero Crater, the life-support time limit and the maximum slope the suit can take.")
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -97,7 +97,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
       setMessages((prev) => [...prev, {
         id: `err-${Date.now()}`,
         rol: 'asistente',
-        contenido: "Sin enlace con el copiloto. Calcula la misión directo con el motor de grafos desde el formulario Plan B.",
+        contenido: "No link to the copilot. Compute the mission directly with the graph engine from the Plan B form.",
         timestamp: hora(),
         error: true,
         local: true,
@@ -108,7 +108,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
   };
 
   const handleClear = () => {
-    setMessages([saludo("Historial reiniciado. Lista para planificar una nueva EVA en Jezero Crater.")]);
+    setMessages([saludo("History cleared. Ready to plan a new EVA in Jezero Crater.")]);
   };
 
   return (
@@ -122,7 +122,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
           </div>
           <div>
             <h3 className="m-0 font-display text-sm font-semibold text-ink">
-              Canal EVA / Copiloto de Caminata
+              EVA Channel / Walk Copilot
             </h3>
             <span className="label-caps">
               Tool calling · FastAPI
@@ -133,7 +133,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
         <button
           onClick={handleClear}
           disabled={loading}
-          title="Reiniciar conversación"
+          title="Restart conversation"
           className="p-1.5 rounded text-ink-dim hover:bg-hud-glass hover:text-ink transition-colors disabled:opacity-40"
         >
           <RefreshCw className="h-3.5 w-3.5" />
@@ -167,11 +167,11 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
         {loading && (
           <div className="flex items-center gap-2 text-xs font-mono text-hud-cyan bg-hud-cyan/5 border border-hud-cyan/40 rounded p-3 w-fit">
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Copiloto calculando con el motor de grafos…</span>
+            <span>Copilot computing with the graph engine…</span>
             <span className="dato-num text-ink-dim">{espera} s</span>
             {espera >= 20 && onIrPlanB && (
               <button type="button" onClick={onIrPlanB} className="ml-1 underline text-ink-dim hover:text-hud-cyan">
-                usar Plan B
+                use Plan B
               </button>
             )}
           </div>
@@ -192,9 +192,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={`Ej: Quiero visitar E1 y M1 con máx ${DEMO.pendiente_2}° de pendiente...`}
+            placeholder={`E.g.: I want to visit E1 and M1 with at most ${DEMO.pendiente_2}° of slope...`}
             disabled={loading}
-            aria-label="Mensaje al copiloto"
+            aria-label="Message to the copilot"
             className="flex-1 min-w-0 bg-hud-deep/90 border border-hud-border rounded px-4 py-2.5 text-sm text-ink placeholder-ink-mute focus:outline-none focus:border-hud-cyan focus:shadow-glow-focus transition-all font-mono"
           />
 

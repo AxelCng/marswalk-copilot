@@ -13,15 +13,15 @@ interface StationCardProps {
 export const getTipoBadge = (tipo: TipoEstacion) => {
   switch (tipo) {
     case 'ciencia':
-      return { bg: 'bg-black/75', border: 'border-tipo-ciencia/60', text: 'text-tipo-ciencia', label: 'CIENCIA' };
+      return { bg: 'bg-black/75', border: 'border-tipo-ciencia/60', text: 'text-tipo-ciencia', label: 'SCIENCE' };
     case 'muestreo':
-      return { bg: 'bg-black/75', border: 'border-tipo-muestreo/60', text: 'text-tipo-muestreo', label: 'MUESTREO' };
+      return { bg: 'bg-black/75', border: 'border-tipo-muestreo/60', text: 'text-tipo-muestreo', label: 'SAMPLING' };
     case 'habitat':
-      return { bg: 'bg-black/75', border: 'border-tipo-habitat/60', text: 'text-tipo-habitat', label: 'HÁBITAT' };
+      return { bg: 'bg-black/75', border: 'border-tipo-habitat/60', text: 'text-tipo-habitat', label: 'HABITAT' };
     case 'rover':
       return { bg: 'bg-black/75', border: 'border-tipo-rover/60', text: 'text-tipo-rover', label: 'ROVER' };
     case 'refugio':
-      return { bg: 'bg-black/75', border: 'border-tipo-refugio/60', text: 'text-tipo-refugio', label: 'REFUGIO' };
+      return { bg: 'bg-black/75', border: 'border-tipo-refugio/60', text: 'text-tipo-refugio', label: 'SHELTER' };
     case 'comms':
       return { bg: 'bg-black/75', border: 'border-tipo-comms/60', text: 'text-tipo-comms', label: 'COMMS' };
     default:
@@ -37,7 +37,7 @@ export const StationCard: React.FC<StationCardProps> = ({ station, isSelected, o
     <div
       role="button"
       tabIndex={0}
-      aria-label={`Ficha de ${station.id}: ${station.nombre}`}
+      aria-label={`Station card ${station.id}: ${station.nombre}`}
       onClick={() => onSelect?.(station)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect?.(station); } }}
       className={`group relative overflow-hidden rounded border transition-all duration-200 cursor-pointer ${
@@ -70,7 +70,7 @@ export const StationCard: React.FC<StationCardProps> = ({ station, isSelected, o
         {station.valor_cientifico > 0 && (
           <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/80 border border-hud-border rounded px-1.5 py-0.5 text-hud-cyan text-[11px] font-mono dato-num">
             <Sparkles className="h-3 w-3" />
-            <span title="Valor científico">+{station.valor_cientifico}</span>
+            <span title="Science value">+{station.valor_cientifico}</span>
           </div>
         )}
 

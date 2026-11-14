@@ -21,15 +21,15 @@ const EJEMPLO_POR_PENDIENTE = { 15: ejemplos.demo1, 20: ejemplos.demo2 };
 const LIMITES_PENDIENTE = (/limites_pendiente_deg:\s*\[([^\]]+)\]/.exec(paramsYaml)?.[1] ?? '15, 20, 25').split(',').map(Number);
 const MARGEN_MAPA = { top: 60, right: 60, bottom: 110, left: 60 };
 
-const fmt = (n, d = 0) => (n == null || Number.isNaN(n) ? '—' : Number(n).toLocaleString('es', { minimumFractionDigits: d, maximumFractionDigits: d }));
+const fmt = (n, d = 0) => (n == null || Number.isNaN(n) ? '—' : Number(n).toLocaleString('en', { minimumFractionDigits: d, maximumFractionDigits: d }));
 
 
 const MOTIVO = {
-  pendiente: (d) => `pendiente ${d.pendiente_max_deg}° > ${d.limite}°`,
-  tiempo: (d) => `no entra en ${d.tiempo_max_min} min`,
-  alerta: (d) => `aislada por alerta en ${(d.zonas ?? []).join(', ')}`,
-  comms: (d) => `cobertura ${d.cobertura_com_pct}% < ${d.umbral}%`,
-  no_existe: () => 'estación desconocida',
+  pendiente: (d) => `slope ${d.pendiente_max_deg}° > ${d.limite}°`,
+  tiempo: (d) => `does not fit in ${d.tiempo_max_min} min`,
+  alerta: (d) => `cut off by the alert in ${(d.zonas ?? []).join(', ')}`,
+  comms: (d) => `coverage ${d.cobertura_com_pct}% < ${d.umbral}%`,
+  no_existe: () => 'unknown station',
 };
 const textoMotivo = (o) => (MOTIVO[o.motivo]?.(o.detalle ?? {}) ?? o.motivo);
 
@@ -39,7 +39,7 @@ export default function App() {
   const [geologia, setGeologia] = useState(null);
   const [mision, setMision] = useState(null);
   const [alerta, setAlerta] = useState(null);
-  const [estado, setEstado] = useState('Sin misión. Elegí estaciones y calculá la ruta, o abrí el visor 3D para explorar el terreno.');
+  const [estado, setEstado] = useState('No mission. Pick stations and calculate the route, or open the 3D visor to explore the terrain.');
   const [seleccion, setSeleccion] = useState(null);
   const [paso, setPaso] = useState(-1);
   const [capas, setCapas] = useState(CAPAS_INICIALES);
@@ -64,19 +64,19 @@ export default function App() {
     if (usarApi) {
       try {
         setMision(await postMision({ ...MISION_BASE, estaciones: ests, tiempo_max_min: tmax, pendiente_max: pend }));
-        setEstado(`Misión calculada por la API · ≤ ${pend}° · ${tmax} min`);
+        setEstado(`Mission calculated by the API · ≤ ${pend}° · ${tmax} min`);
         return;
       } catch (e) {
-        setEstado(`La API falló (${e.message}). Se muestra el ejemplo.`);
+        setEstado(`The API failed (${e.message}). Showing the example.`);
       }
     }
     const ej = EJEMPLO_POR_PENDIENTE[pend];
     if (ej) {
       setMision(ej);
-      if (!usarApi) setEstado(`Sin API: ejemplo de contracts/ para ≤ ${pend}° (estaciones E1, M1, M2, E2 · 240 min).`);
+      if (!usarApi) setEstado(`No API: example from contracts/ for ≤ ${pend}° (stations E1, M1, M2, E2 · 240 min).`);
     } else {
       setMision(null);
-      setEstado(`Sin API no hay ejemplo para ≤ ${pend}°. Levanta engine/ para calcular.`);
+      setEstado(`No API and no example for ≤ ${pend}°. Start engine/ to calculate.`);
     }
   }
 
@@ -86,23 +86,23 @@ export default function App() {
         const r = await postAlerta(zonaAlerta, 'polvo');
         setMision(r);
         setAlerta({ zona: zonaAlerta, tipo: 'polvo', aristas_afectadas: r.aristas_afectadas });
-        setEstado(`Alerta de polvo en ${zonaAlerta}: misión recalculada por la API.`);
+        setEstado(`Dust alert in ${zonaAlerta}: mission recalculated by the API.`);
         return;
       } catch (e) {
-        setEstado(`La API falló (${e.message}). Se muestra el ejemplo de Z2.`);
+        setEstado(`The API failed (${e.message}). Showing the Z2 example.`);
       }
     }
     setPendiente(15);
     setMision(ejemplos.alertaZ2);
     setAlerta({ zona: 'Z2', tipo: 'polvo', aristas_afectadas: ejemplos.alertaZ2.aristas_afectadas });
-    if (!usarApi) setEstado('Sin API: ejemplo de alerta de polvo en Z2 sobre la misión a 15°.');
+    if (!usarApi) setEstado('No API: example dust alert in Z2 over the 15° mission.');
   }
 
   async function reset() {
     if (usarApi) await postReset().catch(() => {});
     setMision(null);
     setAlerta(null);
-    setEstado('Alertas y misión borradas.');
+    setEstado('Alerts and mission cleared.');
   }
 
   const t = mision?.totales;
@@ -125,17 +125,17 @@ export default function App() {
           </div>
         </div>
         <div className="barra-datos">
-          <span className={`chip ${usarApi ? 'nominal' : 'warning'}`}>{usarApi ? 'API en línea' : 'Datos de ejemplo'}</span>
-          {alerta && <span className="chip critical">Polvo · {alerta.zona}</span>}
+          <span className={`chip ${usarApi ? 'nominal' : 'warning'}`}>{usarApi ? 'API online' : 'Example data'}</span>
+          {alerta && <span className="chip critical">Dust · {alerta.zona}</span>}
         </div>
       </header>
 
       {/* ---------------- Riel izquierdo: planificación ---------------- */}
       <aside className="riel riel-izq">
         <section className="bloque">
-          <h2 className="label-caps">Planificar travesía</h2>
+          <h2 className="label-caps">Plan traverse</h2>
           <fieldset className="estaciones">
-            <legend className="sr">Estaciones a visitar</legend>
+            <legend className="sr">Stations to visit</legend>
             {visitables.map((n) => (
               <label key={n.id} className="estacion" htmlFor={`est-${n.id}`}>
                 <input
@@ -152,7 +152,7 @@ export default function App() {
           </fieldset>
 
           <label className="campo" htmlFor="tiempo-max">
-            <span className="label-caps">Tiempo máximo</span>
+            <span className="label-caps">Maximum time</span>
             <span className="input-unidad">
               <input id="tiempo-max" type="number" min="30" step="10" value={tiempoMax} onChange={(e) => setTiempoMax(Number(e.target.value))} />
               <span>min</span>
@@ -160,7 +160,7 @@ export default function App() {
           </label>
 
           <div className="campo">
-            <span className="label-caps" id="lbl-pend">Pendiente máxima</span>
+            <span className="label-caps" id="lbl-pend">Maximum slope</span>
             <div className="segmentado" role="radiogroup" aria-labelledby="lbl-pend">
               {LIMITES_PENDIENTE.map((p) => (
                 <button key={p} id={`pend-${p}`} role="radio" aria-checked={pendiente === p} className={pendiente === p ? 'activo' : ''} onClick={() => setPendiente(p)}>
@@ -171,17 +171,17 @@ export default function App() {
           </div>
 
           <button id="btn-calcular" className="primario ancho" onClick={() => calcular()} disabled={!elegidas.length}>
-            Calcular ruta óptima
+            Calculate optimal route
           </button>
         </section>
 
         <section className="bloque">
-          <h2 className="label-caps">Alerta de polvo</h2>
+          <h2 className="label-caps">Dust alert</h2>
           <div className="alerta-herr">
-            <select id="zona-alerta" aria-label="Zona de la alerta" value={zonaAlerta} onChange={(e) => setZonaAlerta(e.target.value)}>
+            <select id="zona-alerta" aria-label="Alert zone" value={zonaAlerta} onChange={(e) => setZonaAlerta(e.target.value)}>
               {(grafo?.zonas ?? []).map((z) => <option key={z.id} value={z.id}>{z.id} · {z.nombre}</option>)}
             </select>
-            <button id="btn-polvo" className="alerta" onClick={simularPolvo} disabled={!mision}>Simular</button>
+            <button id="btn-polvo" className="alerta" onClick={simularPolvo} disabled={!mision}>Simulate</button>
           </div>
           <button id="btn-reset" onClick={reset}>Reset</button>
         </section>
@@ -216,7 +216,7 @@ export default function App() {
 
         {!visor && (<>
         <button id="btn-visor" className="btn-visor primario" onClick={() => setVisor(true)} disabled={!mapa}>
-          Visor 3D del astronauta
+          Astronaut 3D visor
         </button>
         <div className="dock-capas">
           <PanelCapas capas={capas} setCapas={setCapas} hayGeologia={!!geologia} grafoFake={!!grafo?.meta?.fake} />
@@ -228,18 +228,18 @@ export default function App() {
       <aside className="riel riel-der">
         <section className="bloque">
           <div className="fila-titulo">
-            <h2 className="label-caps">Ruta calculada</h2>
-            {mision && <span className={`chip ${mision.factible ? 'nominal' : 'critical'}`}>{mision.factible ? 'Factible' : 'No factible'}</span>}
+            <h2 className="label-caps">Calculated route</h2>
+            {mision && <span className={`chip ${mision.factible ? 'nominal' : 'critical'}`}>{mision.factible ? 'Feasible' : 'Not feasible'}</span>}
           </div>
           {mision ? (
             <>
               <p className="ruta">{mision.ruta.join(' → ')}</p>
               <dl className="resumen-ruta">
-                <div><dt>Tiempo</dt><dd>{fmt(t.tiempo_min, 1)} min</dd></div>
+                <div><dt>Time</dt><dd>{fmt(t.tiempo_min, 1)} min</dd></div>
                 <div className={t.margen_min != null && t.margen_min < 0 ? 'mal' : ''}>
-                  <dt>Margen</dt><dd>{t.margen_min != null ? `${t.margen_min >= 0 ? '+' : ''}${fmt(t.margen_min, 1)} min` : 'sin tope'}</dd>
+                  <dt>Margin</dt><dd>{t.margen_min != null ? `${t.margen_min >= 0 ? '+' : ''}${fmt(t.margen_min, 1)} min` : 'no limit'}</dd>
                 </div>
-                <div><dt>Dosis rel.</dt><dd>{fmt(t.dosis_rel, 1)}</dd></div>
+                <div><dt>Rel. dose</dt><dd>{fmt(t.dosis_rel, 1)}</dd></div>
               </dl>
               <button
                 id="btn-caminata"
@@ -247,34 +247,34 @@ export default function App() {
                 onClick={() => setVisor((v) => !v)}
                 disabled={!mapa || !mision.tramos?.length}
               >
-                {visor ? 'Salir del visor 3D' : 'Recorrer en el visor 3D'}
+                {visor ? 'Exit the 3D visor' : 'Walk it in the 3D visor'}
               </button>
               {alerta && (
-                <p className="nota critical">Evita {alerta.aristas_afectadas?.join(', ')} por polvo en {alerta.zona}.</p>
+                <p className="nota critical">Avoids {alerta.aristas_afectadas?.join(', ')} due to dust in {alerta.zona}.</p>
               )}
               {mision.omitidas?.map((o) => (
-                <p key={o.id} className="nota warning"><b>{o.id}</b> omitida: {textoMotivo(o)}.</p>
+                <p key={o.id} className="nota warning"><b>{o.id}</b> skipped: {textoMotivo(o)}.</p>
               ))}
             </>
           ) : (
-            <p className="vacio">Todavía no hay ruta. Calcula una misión en Planificar travesía.</p>
+            <p className="vacio">No route yet. Calculate a mission in Plan traverse.</p>
           )}
         </section>
 
         <section className="bloque">
           <div className="fila-titulo">
-            <h2 className="label-caps">Secuencia de tramos</h2>
-            <span className="label-caps">{tramos.length} segmentos</span>
+            <h2 className="label-caps">Leg sequence</h2>
+            <span className="label-caps">{tramos.length} legs</span>
           </div>
           {tramos.length ? (
             <table className="tabla-tramos">
               <thead>
                 <tr>
                   <th scope="col">WP</th>
-                  <th scope="col">Tramo</th>
+                  <th scope="col">Leg</th>
                   <th scope="col" className="num">km</th>
                   <th scope="col" className="num">min</th>
-                  <th scope="col" className="num">Pend</th>
+                  <th scope="col" className="num">Slope</th>
                   <th scope="col" className="num">Com</th>
                 </tr>
               </thead>
@@ -301,7 +301,7 @@ export default function App() {
               </tfoot>
             </table>
           ) : (
-            <p className="vacio">Sin tramos.</p>
+            <p className="vacio">No legs.</p>
           )}
         </section>
 
@@ -309,7 +309,7 @@ export default function App() {
           <FichaEstacion
             key={(sel ?? objetivo).id}
             nodo={sel ?? objetivo}
-            titulo={sel ? 'Estación seleccionada' : 'Objetivo primario'}
+            titulo={sel ? 'Selected station' : 'Primary target'}
             colorFranja={COLOR_TIPO[(sel ?? objetivo).tipo]}
             grafoFake={!!grafo?.meta?.fake}
             onVolver={sel ? () => setSeleccion(null) : null}

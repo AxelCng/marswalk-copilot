@@ -6,7 +6,7 @@ import { COLOR_TIPO, HUD } from './tokens.js';
 
 const VELOCIDADES = [10, 60, 300];
 const PUNTOS = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
-const fmt = (n, d = 0) => (n == null || Number.isNaN(n) ? '—' : Number(n).toLocaleString('es', { minimumFractionDigits: d, maximumFractionDigits: d }));
+const fmt = (n, d = 0) => (n == null || Number.isNaN(n) ? '—' : Number(n).toLocaleString('en', { minimumFractionDigits: d, maximumFractionDigits: d }));
 const rad = (d) => (d * Math.PI) / 180;
 
 function distancia([lo1, la1], [lo2, la2]) {
@@ -26,7 +26,7 @@ function Cinta({ r }) {
     );
   }
   return (
-    <div className="v3d-cinta" aria-label={`Rumbo ${Math.round(r)}°`}>
+    <div className="v3d-cinta" aria-label={`Heading ${Math.round(r)}°`}>
       <div className="v3d-cinta-escala">{marcas}</div>
       <div className="v3d-cinta-valor">{String(Math.round(r) % 360).padStart(3, '0')}° {PUNTOS[Math.round(r / 45) % 8]}</div>
     </div>
@@ -102,27 +102,27 @@ export default function Visor3D({ mision, nodos, pendienteMax, limites, onEstado
 
   return (
     <div className="v3d">
-      <div ref={lienzo} className="v3d-lienzo" tabIndex={0} aria-label="Vista 3D en primera persona. WASD para moverse, arrastrar para mirar." />
-      {cargando && <p className="v3d-cargando label-caps">Cargando terreno de la DTM…</p>}
+      <div ref={lienzo} className="v3d-lienzo" tabIndex={0} aria-label="First-person 3D view. WASD to move, drag to look around." />
+      {cargando && <p className="v3d-cargando label-caps">Loading DTM terrain…</p>}
       <Cinta r={est?.rumbo ?? inicio.rumbo} />
       <div className="v3d-reticula" aria-hidden="true" />
 
-      <section className="v3d-panel" aria-label="Lecturas del visor">
+      <section className="v3d-panel" aria-label="Visor readings">
         <header>
-          <span className="label-caps">Visor del astronauta</span>
-          <button onClick={onSalir} aria-label="Salir del visor (Esc)">Salir</button>
+          <span className="label-caps">Astronaut visor</span>
+          <button onClick={onSalir} aria-label="Exit the visor (Esc)">Exit</button>
         </header>
         <dl className="v3d-datos">
-          <div><dt>Elevación</dt><dd>{fmt(est?.elev_m)} m</dd></div>
-          <div className={clasePend}><dt>Pendiente</dt><dd>{pend != null ? `${pend > 0 ? '+' : ''}${fmt(pend, 1)}°` : '—'}</dd></div>
-          <div><dt>Marcha</dt><dd>{fmt(est?.velocidad_kmh, 1)} km/h</dd></div>
-          <div className="ancho"><dt>Posición</dt><dd>{est?.pos ? `${est.pos[1].toFixed(5)}°N ${est.pos[0].toFixed(5)}°E` : '—'}</dd></div>
-          <div className="ancho"><dt>Estación más cercana</dt><dd>{cercana ? `${cercana.n.id} · ${fmt(cercana.d)} m · ${String(Math.round(cercana.r)).padStart(3, '0')}°` : '—'}</dd></div>
+          <div><dt>Elevation</dt><dd>{fmt(est?.elev_m)} m</dd></div>
+          <div className={clasePend}><dt>Slope</dt><dd>{pend != null ? `${pend > 0 ? '+' : ''}${fmt(pend, 1)}°` : '—'}</dd></div>
+          <div><dt>Pace</dt><dd>{fmt(est?.velocidad_kmh, 1)} km/h</dd></div>
+          <div className="ancho"><dt>Position</dt><dd>{est?.pos ? `${est.pos[1].toFixed(5)}°N ${est.pos[0].toFixed(5)}°E` : '—'}</dd></div>
+          <div className="ancho"><dt>Nearest station</dt><dd>{cercana ? `${cercana.n.id} · ${fmt(cercana.d)} m · ${String(Math.round(cercana.r)).padStart(3, '0')}°` : '—'}</dd></div>
         </dl>
-        {est?.bloqueado && <p className="v3d-alerta">Pendiente mayor a {MARCHA.thetaMax}°: terreno bloqueado</p>}
-        {!est?.bloqueado && clasePend === 'aviso' && <p className="v3d-aviso">Supera la pendiente máxima elegida ({pendienteMax}°)</p>}
+        {est?.bloqueado && <p className="v3d-alerta">Slope above {MARCHA.thetaMax}°: terrain blocked</p>}
+        {!est?.bloqueado && clasePend === 'aviso' && <p className="v3d-aviso">Above the chosen maximum slope ({pendienteMax}°)</p>}
 
-        <div className="segmentado" role="radiogroup" aria-label="Cámara">
+        <div className="segmentado" role="radiogroup" aria-label="Camera">
           {Object.entries(CAMARAS).map(([k, v]) => (
             <button key={k} role="radio" aria-checked={cam === k} className={cam === k ? 'activo' : ''} onClick={() => setCam(k)}>{v.nombre}</button>
           ))}
@@ -131,15 +131,15 @@ export default function Visor3D({ mision, nodos, pendienteMax, limites, onEstado
         {tramos.length > 0 && (
           <div className="v3d-piloto">
             {!pil ? (
-              <button className="primario" onClick={() => control.current?.seguirRuta(tramos, vel)}>Seguir la ruta calculada</button>
+              <button className="primario" onClick={() => control.current?.seguirRuta(tramos, vel)}>Follow the calculated route</button>
             ) : (
               <>
-                <span className="label-caps">Piloto · tramo {pil.idx + 1}/{tramos.length} · {tramos[pil.idx].origen} → {tramos[pil.idx].destino}</span>
+                <span className="label-caps">Autopilot · leg {pil.idx + 1}/{tramos.length} · {tramos[pil.idx].origen} → {tramos[pil.idx].destino}</span>
                 <div className="v3d-piloto-ctrl">
-                  <button onClick={() => control.current?.pilotoTramo(pil.idx - 1)} disabled={pil.idx === 0} aria-label="Tramo anterior">◀</button>
-                  <button className="primario" onClick={() => control.current?.pilotoPausa(!pil.enMarcha)}>{pil.enMarcha ? 'Pausa' : 'Seguir'}</button>
-                  <button onClick={() => control.current?.pilotoTramo(pil.idx + 1)} disabled={pil.idx >= tramos.length - 1} aria-label="Tramo siguiente">▶</button>
-                  <div className="segmentado" role="radiogroup" aria-label="Velocidad del piloto">
+                  <button onClick={() => control.current?.pilotoTramo(pil.idx - 1)} disabled={pil.idx === 0} aria-label="Previous leg">◀</button>
+                  <button className="primario" onClick={() => control.current?.pilotoPausa(!pil.enMarcha)}>{pil.enMarcha ? 'Pause' : 'Resume'}</button>
+                  <button onClick={() => control.current?.pilotoTramo(pil.idx + 1)} disabled={pil.idx >= tramos.length - 1} aria-label="Next leg">▶</button>
+                  <div className="segmentado" role="radiogroup" aria-label="Autopilot speed">
                     {VELOCIDADES.map((v) => (
                       <button key={v} role="radio" aria-checked={vel === v} className={vel === v ? 'activo' : ''} onClick={() => setVel(v)}>×{v}</button>
                     ))}
@@ -151,10 +151,10 @@ export default function Visor3D({ mision, nodos, pendienteMax, limites, onEstado
           </div>
         )}
         <p className="v3d-ayuda">
-          <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> moverse · <kbd>Q</kbd><kbd>E</kbd> girar · arrastrar para mirar · <kbd>Shift</kbd> ×10
+          <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>Q</kbd><kbd>E</kbd> turn · drag to look · <kbd>Shift</kbd> ×10
         </p>
         <p className="v3d-nota">
-          Terreno DTM CTX 20 m (USGS SIM 3464) a escala 1:1 · marcha Tobler × {fmt(MARCHA.factor, 2)} (params.yaml) · clic en el mapa para moverte
+          Terrain DTM CTX 20 m (USGS SIM 3464) at 1:1 scale · Tobler pace × {fmt(MARCHA.factor, 2)} (params.yaml) · click the map to move
         </p>
       </section>
     </div>

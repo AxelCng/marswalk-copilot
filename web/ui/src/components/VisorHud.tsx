@@ -80,7 +80,7 @@ function distancia([lo1, la1]: Pos, [lo2, la2]: Pos) {
   return 2 * R_MARTE * Math.asin(Math.sqrt(a));
 }
 const fmt = (n: number | null | undefined, d = 0) =>
-  n == null || Number.isNaN(n) ? '—' : Number(n).toLocaleString('es', { minimumFractionDigits: d, maximumFractionDigits: d });
+  n == null || Number.isNaN(n) ? '—' : Number(n).toLocaleString('en', { minimumFractionDigits: d, maximumFractionDigits: d });
 
 /** Tramo en curso: el del piloto, o el más cercano a la posición (por sus puntos de geometría). */
 function tramoEnCurso(mision: RespuestaMision | null, est: EstadoVisor | null): number | null {
@@ -210,11 +210,11 @@ export const VisorHud: React.FC<Props> = ({
   };
 
   return (
-    <div className={`eva eva-${modo}`} role="dialog" aria-modal="true" aria-label="Visor del astronauta" style={{ zIndex: 60 }}>
+    <div className={`eva eva-${modo}`} role="dialog" aria-modal="true" aria-label="Astronaut visor" style={{ zIndex: 60 }}>
       <div ref={hudRef} className={`hud eva-visor${alerta ? ' hud-alerta' : ''}`}>
-        <div ref={lienzoRef} className="eva-lienzo" tabIndex={0} aria-label="Vista 3D. W A S D para moverse, arrastrar para mirar." />
+        <div ref={lienzoRef} className="eva-lienzo" tabIndex={0} aria-label="3D view. W A S D to move, drag to look around." />
         <div className="visor" />
-        {cargandoTerreno && <p className="eva-cargando label-caps">Cargando terreno de la DTM…</p>}
+        {cargandoTerreno && <p className="eva-cargando label-caps">Loading DTM terrain…</p>}
 
         <HeadingTape vista={vista} objetivo={rumboObj ?? vista} idObjetivo={tramo?.destino ?? '—'} />
         <Reticle pendiente={Math.round((pend ?? 0) * 10) / 10} />
@@ -233,73 +233,73 @@ export const VisorHud: React.FC<Props> = ({
           <MissionPanel mision={mision} idx={idx} fuente={fuente} />
         ) : (
           <section className="mision eva-sin-mision">
-            <span className="label-caps">Exploración libre</span>
-            <p>Sin misión: pedí una ruta en el copiloto o el Plan B para tener objetivo y piloto.</p>
+            <span className="label-caps">Free exploration</span>
+            <p>No mission: request a route in the copilot or Plan B to get a target and the autopilot.</p>
           </section>
         )}
 
         {/* lecturas del terreno bajo los pies (DTM) */}
         <dl className={`eva-lecturas ${clasePend}`}>
           <div><dt>Elev.</dt><dd>{fmt(est?.elev_m)} m</dd></div>
-          <div><dt>Pend.</dt><dd>{pend != null ? `${pend > 0 ? '+' : ''}${fmt(pend, 1)}°` : '—'}</dd></div>
-          <div><dt>Marcha</dt><dd>{fmt(est?.velocidad_kmh, 1)} km/h</dd></div>
-          {distObj != null && <div><dt>A {tramo?.destino}</dt><dd>{fmt(distObj)} m</dd></div>}
+          <div><dt>Slope</dt><dd>{pend != null ? `${pend > 0 ? '+' : ''}${fmt(pend, 1)}°` : '—'}</dd></div>
+          <div><dt>Pace</dt><dd>{fmt(est?.velocidad_kmh, 1)} km/h</dd></div>
+          {distObj != null && <div><dt>To {tramo?.destino}</dt><dd>{fmt(distObj)} m</dd></div>}
         </dl>
-        <p className="eva-ayuda"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> moverse · <kbd>Q</kbd><kbd>E</kbd> girar · arrastrar para mirar · <kbd>Shift</kbd> ×10</p>
-        {est?.bloqueado && <p className="eva-aviso critico">Pendiente &gt; {MARCHA.thetaMax}°: terreno bloqueado</p>}
-        {!est?.bloqueado && clasePend === 'aviso' && <p className="eva-aviso">Supera la pendiente máxima ({pendienteMax}°)</p>}
+        <p className="eva-ayuda"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>Q</kbd><kbd>E</kbd> turn · drag to look · <kbd>Shift</kbd> ×10</p>
+        {est?.bloqueado && <p className="eva-aviso critico">Slope &gt; {MARCHA.thetaMax}°: terrain blocked</p>}
+        {!est?.bloqueado && clasePend === 'aviso' && <p className="eva-aviso">Above the maximum slope ({pendienteMax}°)</p>}
 
         {navcam?.url && cercana && (
           <figure className="eva-navcam">
-            <img src={navcam.url} alt={`Navcam en ${cercana.n.id}`} referrerPolicy="no-referrer" />
+            <img src={navcam.url} alt={`Navcam at ${cercana.n.id}`} referrerPolicy="no-referrer" />
             <figcaption>{cercana.n.id} · {navcam.camara} · sol {navcam.sol}</figcaption>
           </figure>
         )}
 
         <div className="abajo-izq">
           {alerta && mision && <AlertStrip alerta={alerta} zona={zona} mision={mision} />}
-          <p className="credito">Terreno DTM CTX 20 m · USGS SIM 3464 · marcha Tobler × {fmt(MARCHA.factor, 2)}</p>
+          <p className="credito">Terrain DTM CTX 20 m · USGS SIM 3464 · Tobler pace × {fmt(MARCHA.factor, 2)}</p>
         </div>
 
-        <nav className="controles eva-controles" aria-label="Controles del visor">
-          <button type="button" onClick={onSalir} title="Volver a la consola (Esc)">✕ Consola</button>
+        <nav className="controles eva-controles" aria-label="Visor controls">
+          <button type="button" onClick={onSalir} title="Back to the console (Esc)">✕ Console</button>
           {modo === 'partido' && eva.disponible && (
-            <button type="button" onClick={abrirVentana} title="Abrir el visor en otra ventana; la consola lo sigue en vivo">⧉ Ventana</button>
+            <button type="button" onClick={abrirVentana} title="Open the visor in another window; the console follows it live">⧉ Window</button>
           )}
-          <select aria-label="Cámara" value={cam} onChange={(e) => setCam(e.target.value)} className="eva-select">
+          <select aria-label="Camera" value={cam} onChange={(e) => setCam(e.target.value)} className="eva-select">
             {Object.entries(CAMARAS as Record<string, { nombre: string }>).map(([k, v]) => <option key={k} value={k}>{v.nombre}</option>)}
           </select>
           {tramos.length > 0 && !pil && (
-            <button type="button" className="primario" onClick={() => control.current?.seguirRuta(tramos, vel)}>Piloto: seguir ruta</button>
+            <button type="button" className="primario" onClick={() => control.current?.seguirRuta(tramos, vel)}>Autopilot: follow route</button>
           )}
           {pil && (
             <>
               <button type="button" onClick={() => control.current?.pilotoTramo(pil.idx - 1)} disabled={pil.idx === 0}>◀</button>
               <button type="button" className="primario" onClick={() => control.current?.pilotoPausa(!pil.enMarcha)}>{pil.enMarcha ? 'Pausa' : 'Seguir'}</button>
               <button type="button" onClick={() => control.current?.pilotoTramo(pil.idx + 1)} disabled={pil.idx >= tramos.length - 1}>▶</button>
-              <select aria-label="Velocidad del piloto" value={vel} onChange={(e) => setVel(Number(e.target.value))} className="eva-select">
+              <select aria-label="Autopilot speed" value={vel} onChange={(e) => setVel(Number(e.target.value))} className="eva-select">
                 {VELOCIDADES.map((v) => <option key={v} value={v}>×{v}</option>)}
               </select>
             </>
           )}
           {alerta ? (
-            <button type="button" onClick={onQuitarAlerta} disabled={cargando}>Quitar alerta</button>
+            <button type="button" onClick={onQuitarAlerta} disabled={cargando}>Clear alert</button>
           ) : (
             <>
-              <select aria-label="Zona de la alerta" value={zonaElegida} onChange={(e) => setZonaElegida(e.target.value)} className="eva-select">
+              <select aria-label="Alert zone" value={zonaElegida} onChange={(e) => setZonaElegida(e.target.value)} className="eva-select">
                 {(zonas.length ? zonas : [{ id: 'Z2', nombre: '' }]).map((z) => <option key={z.id} value={z.id}>{z.id}</option>)}
               </select>
-              <button type="button" className="alerta" onClick={() => onAlerta(zonaElegida)} disabled={cargando || !mision}>Alerta polvo</button>
+              <button type="button" className="alerta" onClick={() => onAlerta(zonaElegida)} disabled={cargando || !mision}>Dust alert</button>
             </>
           )}
         </nav>
       </div>
 
       {modo === 'partido' && (
-        <aside className="eva-tablero" aria-label="Mapa del tablero en vivo">
+        <aside className="eva-tablero" aria-label="Live dashboard map">
           <header className="eva-tablero-cab">
-            <span className="label-caps">Mapa del tablero · en vivo</span>
-            <span className="eva-tablero-ayuda">Clic en el mapa para mover al astronauta</span>
+            <span className="label-caps">Dashboard map · live</span>
+            <span className="eva-tablero-ayuda">Click the map to move the astronaut</span>
           </header>
           <MapaMision
             className="eva-tablero-mapa"
