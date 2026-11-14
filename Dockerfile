@@ -19,13 +19,13 @@ COPY params.yaml ./
 COPY contracts/ contracts/
 COPY engine/ engine/
 COPY llm/ llm/
-# data/out/graph.json llega el sábado 22:00; mientras tanto se usa el grafo falso
 COPY data/ data/
 
-# El grafo se elige sin tocar código (contracts/README.md)
-ENV GRAPH_PATH=contracts/graph_fake.json \
-    # /chat llama a la API desde el mismo contenedor
-    API_URL=http://localhost:8000 \
+# Grafo: sin GRAPH_PATH el motor usa data/out/graph.json (el real de Pedro) si existe, y si no
+# contracts/graph_fake.json. La demo de 8° → 12° solo funciona con el real.
+# GRAPH_PATH=contracts/graph_fake.json fuerza el falso.
+# /chat llama a la API desde el mismo contenedor (127.0.0.1: localhost puede probar IPv6 primero)
+ENV API_URL=http://127.0.0.1:8000 \
     # Ollama corre fuera del contenedor (laptop, GPU o Colab): se cambia con la variable
     OLLAMA_URL=http://host.docker.internal:11434
 
