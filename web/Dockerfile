@@ -4,10 +4,12 @@
 # ---- 1) compilar ----
 FROM node:22-slim AS build
 WORKDIR /repo
-# web/ui importa el mapa (web/map/src), los datos de prueba (contracts/) y web/shared
+# web/ui importa el mapa (web/map/src), los datos de prueba (contracts/), web/shared y params.yaml
 COPY web/ui/package.json web/ui/package-lock.json web/ui/
 RUN cd web/ui && npm ci --no-audit --no-fund
 COPY contracts/ contracts/
+# el visor 3D (web/map/src/visor3d.js) lee la función de marcha de params.yaml
+COPY params.yaml ./
 COPY web/ web/
 # El navegador llama a la API por el mismo dominio: nginx reenvía /api/* al contenedor api
 ARG VITE_API_BASE=/api
