@@ -11,7 +11,7 @@ import time
 
 from ollama import Client
 
-from config import MAX_PASOS, MODELO, OLLAMA_URL
+from config import KEEP_ALIVE, MAX_PASOS, MODELO, OLLAMA_URL, PENDIENTE_DEFAULT, TIEMPO_DEFAULT
 from tools import TOOLS, _estaciones, _norm, _zonas, ejecutar
 
 SYSTEM = """Eres MarsWalk Copilot, el asistente de planificación de caminatas (EVA) en el cráter Jezero, Marte.
@@ -34,6 +34,8 @@ Reglas:
 9. Responde en el idioma del usuario (español o inglés), breve y claro: orden de la ruta con nombres, tiempo total, margen y omisiones. Sin tablas ni markdown pesado."""
 
 _client = Client(host=OLLAMA_URL)
+# Mismas opciones en el chat y en el precalentamiento: si num_ctx cambia, Ollama recarga el modelo.
+_OPCIONES = {"temperature": 0, "num_ctx": 8192}
 _CAMPOS_TRAMO = ("origen", "destino", "distancia_m", "tiempo_min", "pendiente_max_deg", "cobertura_com_pct", "zonas")
 _NOMBRES_HERRAMIENTAS = {t["function"]["name"] for t in TOOLS}
 
@@ -43,6 +45,31 @@ _ESTADO = {"mision": None, "resultado": None}
 
 def reiniciar():
     _ESTADO.update(mision=None, resultado=None)
+
+
+def _motivo_error(contenido):
+    """Texto legible del error de una herramienta: {"error": [{"msg": "zona Z9 no existe"}]} -> 'zona Z9 no existe'."""
+    try:
+        err = json.loads(contenido).get("error", contenido)
+    except (ValueError, AttributeError):
+        return str(contenido)[:200]
+    if isinstance(err, list):
+        return "; ".join(str(e.get("msg", e)) if isinstance(e, dict) else str(e) for e in err)[:200]
+    if isinstance(err, dict):
+        return str(err.get("detail") or err.get("msg") or err)[:200]
+    return str(err)[:200]
+
+
+def precalentar(modelo=None):
+    """Carga el modelo en la GPU sin generar nada (prompt vacío), para que la primera pregunta de la
+    demo no espere la carga. Lo deja cargado KEEP_ALIVE. Devuelve {modelo, segundos} o {error}."""
+    modelo = modelo or MODELO
+    t0 = time.time()
+    try:
+        _client.generate(model=modelo, prompt="", options=_OPCIONES, keep_alive=KEEP_ALIVE)
+    except Exception as e:  # Ollama apagado o modelo sin descargar
+        return {"modelo": modelo, "error": f"{type(e).__name__}: {e}"}
+    return {"modelo": modelo, "segundos": round(time.time() - t0, 1), "keep_alive": KEEP_ALIVE}
 
 
 # ---------------------------------------------------------------- ayudas para el modelo
@@ -270,6 +297,52 @@ def detectar_cambio(mensaje, nombres):
 
 
 # ---------------------------------------------------------------- historial
+# Palabras de los nombres del catálogo que no sirven para reconocer una estación (se repiten o son genéricas)
+_PALABRAS_COMUNES = {"delta", "muestras", "afloramiento", "base", "fondo", "llanura", "norte", "apoyo",
+                     "habitat", "octavia", "butler", "deposito", "refugio", "frente"}
+_RE_PEDIDO = re.compile(r"\b(visitar|visita|quiero|ir a|pasar por|recorrer|mision|caminata|visit|go to|mission|plan)\b")
+_RE_MUESTREO = re.compile(r"\b(puntos?|sitios?|estaciones?|lugares?) de muestreo\b|\bsampling (points?|sites?|stations?)\b")
+
+
+def _alias(nombre):
+    """Frases y palabras con que se puede nombrar una estación: 'Cima del delta (Upper Fan)' ->
+    {'cima del delta', 'upper fan'}; 'Séítah sur, afloramiento Brac' -> {'seitah sur', 'seitah', 'brac', ...}."""
+    # cortar antes de normalizar: _norm borra las comas
+    partes = nombre.replace("(", ",").replace(")", ",").split(",")
+    frases = {_norm(f) for f in partes if _norm(f)}
+    palabras = {p for f in frases for p in f.split() if len(p) >= 5 and p not in _PALABRAS_COMUNES}
+    return frases | palabras
+
+
+def detectar_mision(mensaje, nombres):
+    """'Quiero visitar el frente del delta, los dos puntos de muestreo y la cima del delta, volver en menos de
+    4 horas, sin pendientes de más de 8°' -> argumentos de optimizar_mision (sin LLM).
+
+    Solo si es un pedido de misión que nombra al menos 2 estaciones y da tiempo o pendiente; si no, lo resuelve
+    el modelo. Con qwen2.5:3b esta pregunta salía mal 3 de cada 4 veces (estaciones o minutos inventados)."""
+    texto = _norm(mensaje)
+    if not _RE_PEDIDO.search(texto):
+        return None
+    try:
+        estaciones = [e for e in _estaciones() if e.get("tipo") != "habitat"]
+    except Exception:
+        return None
+    ids = []
+    for e in estaciones:
+        if re.search(rf"\b{re.escape(e['id'].lower())}\b", texto) or \
+                any(re.search(rf"\b{re.escape(a)}\b", texto) for a in _alias(e["nombre"])):
+            ids.append(e["id"])
+    if _RE_MUESTREO.search(texto):
+        ids += [e["id"] for e in estaciones if e.get("tipo") == "muestreo"]
+    ids = list(dict.fromkeys(ids))
+    p, h, mi = _RE_PENDIENTE.search(mensaje), _RE_HORAS.search(mensaje), _RE_MINUTOS.search(mensaje)
+    if len(ids) < 2 or not (p or h or mi):
+        return None
+    tiempo = float(h.group(1).replace(",", ".")) * 60 if h else float(mi.group(1)) if mi else TIEMPO_DEFAULT
+    pendiente = float(p.group(1).replace(",", ".")) if p else PENDIENTE_DEFAULT
+    return {"estaciones": ids, "tiempo_max_min": tiempo, "pendiente_max": pendiente, "modo": "orientacion"}
+
+
 def normalizar_historial(historial):
     """Acepta el formato del contrato {rol, contenido} o el de Ollama {role, content}."""
     out = []
@@ -342,9 +415,13 @@ def responder(mensaje, historial=None, modelo=None):
             ruta = nueva_ruta or ruta
             mensajes.append({"role": "tool", "content": contenido, "tool_name": nombre})
 
-    # Alertas y cambios de condición: la herramienta se llama siempre, no depende de que el modelo se acuerde.
+    # Alertas, pedidos de misión y cambios de condición: la herramienta se llama siempre, no depende de que
+    # el modelo se acuerde ni de que elija bien los argumentos.
     alerta = detectar_alerta(mensaje)
     forzada = ("recalcular_por_alerta", alerta) if alerta else None
+    if not forzada:
+        pedido = detectar_mision(mensaje, nombres)
+        forzada = ("optimizar_mision", pedido) if pedido else None
     if not forzada and historial:
         cambio = detectar_cambio(mensaje, nombres)
         forzada = ("optimizar_mision", cambio) if cambio else None
@@ -352,11 +429,18 @@ def responder(mensaje, historial=None, modelo=None):
         mensajes.append({"role": "assistant", "content": "",
                          "tool_calls": [{"function": {"name": forzada[0], "arguments": forzada[1]}}]})
         ejecutar_lote([forzada])
+        if llamadas and not llamadas[-1]["ok"]:
+            # Si falla, que el modelo no redacte: tendería a repetir la ruta anterior como si fuera la nueva.
+            return salida(f"No pude recalcular: {_motivo_error(mensajes[-1]['content'])}. "
+                          "La ruta anterior sigue vigente; usa el formulario de misión si hace falta.")
 
+    # Con la herramienta ya llamada por código, el modelo solo redacta: sin herramientas, para que no pida
+    # otras (p. ej. ruta_punto_a_punto) que pisen la ruta de la misión.
+    herramientas = None if forzada else TOOLS
     for _ in range(MAX_PASOS):
         try:
-            r = _client.chat(model=modelo, messages=mensajes, tools=TOOLS,
-                             options={"temperature": 0, "num_ctx": 8192})
+            r = _client.chat(model=modelo, messages=mensajes, tools=herramientas,
+                             options=_OPCIONES, keep_alive=KEEP_ALIVE)
         except Exception as e:  # Ollama apagado, modelo no descargado, etc.
             return salida(f"El copiloto no está disponible ({type(e).__name__}). Usa el formulario de misión.", str(e))
         msg = r.message

@@ -1,0 +1,45 @@
+{
+  "celda_m": 20.0,
+  "formula": "c = Δx / (v(θ)·factor_traje) · f_terreno, en minutos",
+  "tobler": {
+    "a": 6.0,
+    "b": 3.5,
+    "c": 0.05
+  },
+  "factor_traje": 0.8,
+  "theta_max_fisico_deg": 30.0,
+  "costo_min_por_celda": {
+    "min": 0.2987,
+    "mediana": 0.4166,
+    "max": 6.8067
+  },
+  "f_terreno": {
+    "roca": 1.2,
+    "arena": 1.3,
+    "normal": 1.0,
+    "pct_roca": 28.4,
+    "pct_arena": 39.5
+  },
+  "calibracion_themis": {
+    "origen": "DN de 8 bits del mosaico USGS",
+    "dn_min_k": 150.0,
+    "dn_max_k": 300.0,
+    "motivo": "el mosaico no trae tabla de calibración; el rango se eligió para reproducir los 205-230 K del grafo falso",
+    "supuesto_dn_roca": 119.0,
+    "supuesto_dn_arena": 85.0
+  },
+  "versiones": {
+    "15": {
+      "bloqueadas_pct": 2.57,
+      "maximo_min_por_celda": 0.9887
+    },
+    "20": {
+      "bloqueadas_pct": 1.37,
+      "maximo_min_por_celda": 1.379
+    },
+    "25": {
+      "bloqueadas_pct": 0.59,
+      "maximo_min_por_celda": 1.9192
+    }
+  }
+}

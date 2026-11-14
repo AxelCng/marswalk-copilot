@@ -20,7 +20,8 @@ npm run dev        # http://localhost:5174
 | Retícula central | Escalera de pitch (escala del visor) y marca `PEND` | `tramos[i].pendiente_max_deg` |
 | Arriba a la izquierda | Tramo N de M, tiempo total, margen, distancia, ruta, omitidas | `RespuestaMision.totales`, `ruta`, `omitidas` |
 | Abajo a la izquierda | Franja roja de alerta | Request de `/alerta` (`zona`, `tipo`) + `aristas_afectadas` y nuevos `totales` |
-| Abajo a la derecha | Minimapa táctico en SVG | `tramos[].geometria`; con alerta, polígono de la zona y tramos evitados de la misión anterior |
+| Abajo a la derecha | Minimapa táctico en SVG | `tramos[].geometria`; con alerta, polígono de la zona y tramos evitados de la misión anterior; debajo, unidades geológicas del USGS SIM 3464 |
+| Objetivo fijado (terreno) | Unidad geológica, elevación DTM, THEMIS noche y unidades que cruza el tramo | `web/shared/sim3464/` (ver `web/scripts/sim3464/README.md`) |
 
 Los datos del traje (O2, presión, pulso) **no** vienen de la API y no se muestran.
 

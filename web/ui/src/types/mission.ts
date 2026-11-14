@@ -29,6 +29,8 @@ export interface EstacionDetalle extends EstacionResumen {
   zona: string;
   capas: CapasEstacion;
   fotos: FotoEstacion[];
+  /** Solo en la UI: unidad USGS SIM 3464 bajo la estación (services/geologia.ts), si hay capa geológica. */
+  unidad_sim?: { simbolo: string; nombre: string; edad: string; color: string };
 }
 
 export interface Tramo {
@@ -70,6 +72,16 @@ export interface RespuestaMision {
   omitidas: Omitida[];
   totales: TotalesMision;
   aristas_afectadas?: string[];
+  /** Agregado por /chat (llm/agent.py) cuando la misión sigue a otra: diferencias calculadas por código. */
+  comparacion_con_anterior?: ComparacionMision | null;
+}
+
+export interface ComparacionMision {
+  tiempo_anterior_min: number;
+  tiempo_nuevo_min: number;
+  diferencia_tiempo_min: number;
+  estaciones_agregadas: string[];
+  estaciones_quitadas: string[];
 }
 
 export interface LlamadaHerramienta {
@@ -82,6 +94,12 @@ export interface ChatResponse {
   respuesta: string;
   llamadas: LlamadaHerramienta[];
   ruta: RespuestaMision | null;
+  // Agregados de llm/ (aditivos, ver llm/README.md)
+  historial?: { rol: string; contenido: string }[];
+  segundos?: number;
+  numeros_sin_fuente?: string[];
+  /** Si viene, el copiloto no está disponible (Ollama caído, modelo sin descargar): ofrecer el Plan B. */
+  error?: string;
 }
 
 export interface MensajeHistorial {
@@ -91,6 +109,11 @@ export interface MensajeHistorial {
   timestamp: string;
   llamadas?: LlamadaHerramienta[];
   ruta?: RespuestaMision | null;
+  segundos?: number;
+  numeros_sin_fuente?: string[];
+  /** Mensaje que no se manda como historial a /chat (saludo, avisos y errores de la UI). */
+  local?: boolean;
+  error?: boolean;
 }
 
 export interface PlanBParams {

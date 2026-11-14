@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RespuestaMision } from '../types/mission';
-import { Route, Clock, ShieldAlert, AlertTriangle, CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
+import { Route, Clock, ShieldAlert, AlertTriangle, ArrowRight } from 'lucide-react';
 
 interface MissionSummaryProps {
   mission: RespuestaMision | null;
@@ -10,8 +10,8 @@ interface MissionSummaryProps {
 export const MissionSummary: React.FC<MissionSummaryProps> = ({ mission, onSelectStation }) => {
   if (!mission) {
     return (
-      <div className="rounded-xl border border-slate-800/80 bg-[#0b111e]/80 p-4 text-center text-slate-500 font-mono text-xs">
-        <Route className="h-6 w-6 mx-auto mb-1.5 text-slate-600" />
+      <div className="panel p-4 text-center text-ink-mute font-mono text-xs">
+        <Route className="h-6 w-6 mx-auto mb-1.5 text-ink-mute" />
         No hay misión activa cargada en telemetría.
       </div>
     );
@@ -20,51 +20,43 @@ export const MissionSummary: React.FC<MissionSummaryProps> = ({ mission, onSelec
   const { factible, ruta, tramos, omitidas, totales, aristas_afectadas } = mission;
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-[#0c121e]/90 p-4 space-y-3.5 shadow-lg">
+    <div className="panel p-4 space-y-3.5">
       {/* Feasibility Header */}
-      <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+      <div className="flex items-center justify-between border-b border-hud-subtle pb-2.5">
         <div className="flex items-center gap-2">
           {factible ? (
-            <span className="flex items-center gap-1.5 text-emerald-400 font-mono font-bold text-xs bg-emerald-950/60 border border-emerald-500/40 px-2 py-0.5 rounded-full">
-              <CheckCircle2 className="h-3.5 w-3.5" /> MISIÓN FACTIBLE
-            </span>
+            <span className="chip nominal">Misión factible</span>
           ) : (
-            <span className="flex items-center gap-1.5 text-red-400 font-mono font-bold text-xs bg-red-950/60 border border-red-500/40 px-2 py-0.5 rounded-full">
-              <XCircle className="h-3.5 w-3.5" /> RESTRINGIDA / NO FACTIBLE
-            </span>
+            <span className="chip critical">No factible</span>
           )}
-          <span className="text-xs font-mono text-slate-400">
-            {tramos.length} TRAMOS CALCULADOS
-          </span>
+          <span className="label-caps">{tramos.length} tramos</span>
         </div>
 
         {aristas_afectadas && aristas_afectadas.length > 0 && (
-          <span className="flex items-center gap-1 text-[11px] font-mono text-amber-400 bg-amber-950/60 border border-amber-500/50 px-2 py-0.5 rounded">
-            <AlertTriangle className="h-3 w-3" /> ALERTA DE POLVO ACTIVA
-          </span>
+          <span className="chip critical">Alerta de polvo activa</span>
         )}
       </div>
 
       {/* Waypoint Sequence Trail */}
       <div>
-        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-semibold block mb-1.5">
-          Secuencia Óptima de Estaciones (TSP / Orientación)
+        <span className="label-caps block mb-1.5">
+          Secuencia óptima de estaciones
         </span>
         <div className="flex flex-wrap items-center gap-1.5 font-mono text-xs">
           {ruta.map((nodeId, idx) => (
             <React.Fragment key={idx}>
               <button
                 onClick={() => onSelectStation?.(nodeId)}
-                className={`px-2.5 py-1 rounded-md border font-bold transition-colors ${
+                className={`px-2.5 py-1 rounded border font-bold transition-colors ${
                   nodeId === 'HAB'
-                    ? 'bg-orange-950/60 border-orange-500/50 text-orange-300 hover:bg-orange-900/60'
-                    : 'bg-slate-800/80 border-slate-700 text-cyan-300 hover:border-cyan-400 hover:bg-slate-700'
+                    ? 'bg-rust/10 border-rust/50 text-rust hover:bg-rust/10'
+                    : 'bg-hud-glass/80 border-hud-border text-hud-cyan hover:border-hud-cyan hover:bg-hud-glass'
                 }`}
               >
                 {nodeId}
               </button>
               {idx < ruta.length - 1 && (
-                <ArrowRight className="h-3 w-3 text-slate-600 flex-shrink-0" />
+                <ArrowRight className="h-3 w-3 text-ink-mute flex-shrink-0" />
               )}
             </React.Fragment>
           ))}
@@ -73,50 +65,50 @@ export const MissionSummary: React.FC<MissionSummaryProps> = ({ mission, onSelec
 
       {/* Telemetry Metrics Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-xs">
-        <div className="bg-slate-900/70 border border-slate-800/80 p-2.5 rounded-lg">
-          <span className="text-[10px] text-slate-500 flex items-center gap-1">
-            <Clock className="h-3 w-3 text-cyan-400" /> TIEMPO TOTAL
+        <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
+          <span className="label-caps flex items-center gap-1">
+            <Clock className="h-3 w-3 text-hud-cyan" /> TIEMPO TOTAL
           </span>
-          <span className="text-sm font-bold text-white">
+          <span className="block text-lg font-semibold text-ink dato-num">
             {totales.tiempo_min.toFixed(1)} min
           </span>
-          <span className="text-[9px] text-slate-500 block">
+          <span className="text-[9px] text-ink-mute block">
             {(totales.tiempo_min / 60).toFixed(2)} h caminata + permanencia
           </span>
         </div>
 
-        <div className="bg-slate-900/70 border border-slate-800/80 p-2.5 rounded-lg">
-          <span className="text-[10px] text-slate-500 flex items-center gap-1">
-            <Route className="h-3 w-3 text-emerald-400" /> DISTANCIA
+        <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
+          <span className="label-caps flex items-center gap-1">
+            <Route className="h-3 w-3 text-nominal" /> DISTANCIA
           </span>
-          <span className="text-sm font-bold text-white">
+          <span className="block text-lg font-semibold text-ink dato-num">
             {(totales.distancia_m / 1000).toFixed(2)} km
           </span>
-          <span className="text-[9px] text-slate-500 block">
+          <span className="text-[9px] text-ink-mute block">
             {totales.distancia_m} metros reales
           </span>
         </div>
 
-        <div className="bg-slate-900/70 border border-slate-800/80 p-2.5 rounded-lg">
-          <span className="text-[10px] text-slate-500 flex items-center gap-1">
-            <Clock className="h-3 w-3 text-amber-400" /> MARGEN SEGURIDAD
+        <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
+          <span className="label-caps flex items-center gap-1">
+            <Clock className="h-3 w-3 text-warning" /> MARGEN SEGURIDAD
           </span>
-          <span className={`text-sm font-bold ${totales.margen_min !== null && totales.margen_min < 10 ? 'text-amber-400' : 'text-emerald-400'}`}>
+          <span className={`block text-lg font-semibold dato-num ${totales.margen_min !== null && totales.margen_min < 10 ? 'text-warning' : 'text-nominal'}`}>
             {totales.margen_min !== null ? `${totales.margen_min.toFixed(1)} min` : 'Sin tope'}
           </span>
-          <span className="text-[9px] text-slate-500 block">
+          <span className="text-[9px] text-ink-mute block">
             Remanente de soporte vital
           </span>
         </div>
 
-        <div className="bg-slate-900/70 border border-slate-800/80 p-2.5 rounded-lg">
-          <span className="text-[10px] text-slate-500 flex items-center gap-1">
-            <ShieldAlert className="h-3 w-3 text-purple-400" /> DOSIS RELATIVA
+        <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
+          <span className="label-caps flex items-center gap-1">
+            <ShieldAlert className="h-3 w-3 text-rust" /> DOSIS RELATIVA
           </span>
-          <span className="text-sm font-bold text-purple-300">
+          <span className="block text-lg font-semibold text-ink dato-num">
             {totales.dosis_rel.toFixed(1)}
           </span>
-          <span className="text-[9px] text-slate-500 block">
+          <span className="text-[9px] text-ink-mute block">
             Exposición cósmica ajustada
           </span>
         </div>
@@ -124,16 +116,16 @@ export const MissionSummary: React.FC<MissionSummaryProps> = ({ mission, onSelec
 
       {/* Omitted Stations Accordion/Callout */}
       {omitidas.length > 0 && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-950/20 p-2.5 text-xs font-mono">
-          <div className="flex items-center gap-1.5 text-amber-400 font-semibold mb-1">
+        <div className="rounded border border-warning/40 bg-warning/10 p-2.5 text-xs font-mono">
+          <div className="flex items-center gap-1.5 text-warning font-semibold mb-1">
             <AlertTriangle className="h-3.5 w-3.5" />
-            <span>ESTACIONES DESCARTADAS CON MOTIVO FÍSICO:</span>
+            <span className="label-caps text-warning">Estaciones omitidas y motivo</span>
           </div>
           <div className="space-y-1">
             {omitidas.map((om, i) => (
-              <div key={i} className="text-slate-300 flex items-center justify-between bg-black/40 px-2 py-1 rounded">
-                <span className="font-bold text-amber-300">Estación {om.id}:</span>
-                <span className="text-slate-400">
+              <div key={i} className="text-ink-dim flex items-center justify-between bg-hud-deep/60 px-2 py-1 rounded">
+                <span className="font-bold text-warning">Estación {om.id}:</span>
+                <span className="text-ink-dim">
                   {om.motivo === 'pendiente' &&
                     `Pendiente mínima requerida ${om.detalle.pendiente_max_deg}° > límite ${om.detalle.limite}°`}
                   {om.motivo === 'tiempo' &&
