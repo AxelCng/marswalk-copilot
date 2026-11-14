@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import { HUD, COLOR_TIPO } from './tokens.js';
+import './MarsMap.css';
 
 // ---------------------------------------------------------------------------
 // MarsMap: el mapa de la demo.
