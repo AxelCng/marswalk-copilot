@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { EstacionDetalle, RespuestaMision } from './types/mission';
-import { api } from './services/api';
+import { api, ApiError } from './services/api';
+import { VisorHud } from './components/VisorHud';
 import { unidadesPorEstacion } from './services/geologia';
 import { HudHeader } from './components/HudHeader';
 import { ChatPanel } from './components/ChatPanel';
@@ -9,7 +10,7 @@ import { StationModal } from './components/StationModal';
 import { MissionSummary } from './components/MissionSummary';
 import { PlanBForm } from './components/PlanBForm';
 import { MapaMision } from './components/MapaMision';
-import { MOCK_ESTACIONES, MOCK_GRAFO } from './mocks/mockData';
+import { MOCK_ALERTA_Z2, MOCK_ESTACIONES, MOCK_GRAFO } from './mocks/mockData';
 import type { Grafo } from './types/mission';
 import type { ChatResponse } from './types/mission';
 import { MapPin, Compass, Route, Info, Wind, RadioTower, RotateCcw } from 'lucide-react';
@@ -23,6 +24,10 @@ export const App: React.FC = () => {
   const [avisoAlerta, setAvisoAlerta] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'chat' | 'planb' | 'stations'>('chat');
   const [filterTipo, setFilterTipo] = useState<string>('all');
+  const [vista, setVista] = useState<'consola' | 'visor'>('consola');
+  const [misionPrevia, setMisionPrevia] = useState<RespuestaMision | null>(null);
+  const [ejemplo, setEjemplo] = useState(false);
+  const [alertaCargando, setAlertaCargando] = useState(false);
 
   useEffect(() => {
     // Estaciones: la lista sale de GET /estaciones (las del graph.json real, no solo las de prueba)
@@ -53,33 +58,59 @@ export const App: React.FC = () => {
       .catch((e) => { console.warn('Sin /grafo, se usa contracts/graph_fake.json:', e); setGrafo(MOCK_GRAFO); });
   }, []);
 
-  /** Misión nueva (chat o plan B): sin alerta activa. */
-  const mostrarMision = (m: RespuestaMision) => { setZonaAlerta(null); setAvisoAlerta(null); setActiveMission(m); };
+  /** Misión nueva (chat o plan B): sin alerta activa. `ejemplo`: salió de contracts/ porque no había motor. */
+  const mostrarMision = (m: RespuestaMision, ejemplo = false) => {
+    setZonaAlerta(null); setAvisoAlerta(null); setMisionPrevia(null);
+    setEjemplo(ejemplo); setActiveMission(m);
+  };
+
+  /** Misión recalculada por una alerta: se guarda la anterior para dibujar los tramos evitados (visor). */
+  const aplicarAlerta = (r: RespuestaMision, zona: string | null, ejemplo = false) => {
+    if (!zonaAlerta) setMisionPrevia(activeMission);
+    setZonaAlerta(zona); setEjemplo(ejemplo); setActiveMission(r);
+  };
 
   /** Respuesta del chat: si el copiloto llamó a recalcular_por_alerta, se muestra como alerta. */
   const onRutaDelChat = (ruta: RespuestaMision, res?: ChatResponse) => {
     const alerta = res?.llamadas.find((l) => l.herramienta === 'recalcular_por_alerta');
-    if (alerta) { setZonaAlerta(String(alerta.argumentos.zona ?? '')); setActiveMission(ruta); }
+    if (alerta) aplicarAlerta(ruta, String(alerta.argumentos.zona ?? '') || null);
     else mostrarMision(ruta);
   };
 
   const lanzarAlerta = async (zona: string, tipo: 'polvo' | 'comms') => {
     if (!activeMission) { setAvisoAlerta('Primero pide una misión (chat o Plan B).'); return; }
+    setAlertaCargando(true);
     try {
       const r = await api.postAlerta(zona, tipo);
-      setZonaAlerta(tipo === 'polvo' ? zona : null);
-      setActiveMission(r);
+      aplicarAlerta(r, tipo === 'polvo' ? zona : null);
       const evitados = r.aristas_afectadas ?? [];
       setAvisoAlerta(`${tipo === 'polvo' ? `Polvo en ${zona}` : 'Pérdida de comunicación'}: ` +
         (evitados.length ? `evitados ${evitados.join(', ')}` : 'la ruta no cruzaba la zona') + ` · ${r.totales.tiempo_min} min`);
     } catch (e) {
-      setAvisoAlerta(`No se pudo recalcular: ${e instanceof Error ? e.message : e}`);
+      if (!(e instanceof ApiError) && tipo === 'polvo' && zona === 'Z2') {
+        // Sin motor: el ejemplo oficial de contracts/ (igual que el Plan B y web/map)
+        aplicarAlerta(MOCK_ALERTA_Z2, 'Z2', true);
+        setAvisoAlerta('Sin conexión con el motor: se muestra el ejemplo de alerta en Z2 de contracts/.');
+      } else {
+        setAvisoAlerta(`No se pudo recalcular: ${e instanceof Error ? e.message : e}`);
+      }
+    } finally {
+      setAlertaCargando(false);
     }
   };
 
   const resetear = async () => {
     try { await api.resetAlerta(); } catch (e) { console.warn(e); }
-    setZonaAlerta(null); setAvisoAlerta(null); setActiveMission(null);
+    setZonaAlerta(null); setAvisoAlerta(null); setActiveMission(null); setMisionPrevia(null);
+  };
+
+  /** Quita la alerta y vuelve a la misión de antes (la que la alerta había recalculado). */
+  const quitarAlerta = async () => {
+    setAlertaCargando(true);
+    try { await api.resetAlerta(); } catch (e) { console.warn(e); }
+    if (misionPrevia) setActiveMission(misionPrevia);
+    setZonaAlerta(null); setAvisoAlerta(null); setMisionPrevia(null);
+    setAlertaCargando(false);
   };
 
   const handleSelectStationById = async (id: string) => {
@@ -101,7 +132,24 @@ export const App: React.FC = () => {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         stationsCount={stations.length}
+        onAbrirVisor={() => setVista('visor')}
       />
+
+      {/* Modo visor en primera persona (HUD de casco, web/ui/hud) sobre la consola */}
+      {vista === 'visor' && (
+        <VisorHud
+          mision={activeMission}
+          misionPrevia={misionPrevia}
+          zonaAlerta={zonaAlerta}
+          estaciones={stations}
+          zonas={grafo?.zonas ?? []}
+          fuente={api.useMock || ejemplo ? 'ejemplo' : 'api'}
+          cargando={alertaCargando}
+          onSalir={() => setVista('consola')}
+          onAlerta={(z) => lanzarAlerta(z, 'polvo')}
+          onQuitarAlerta={quitarAlerta}
+        />
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
@@ -229,8 +277,8 @@ export const App: React.FC = () => {
                 stations={stations}
                 onMissionCalculated={mostrarMision}
                 zonas={grafo?.zonas ?? []}
-                onAlertaCalculada={(r, z) => { setZonaAlerta(z); setAvisoAlerta(null); setActiveMission(r); }}
-                onReset={() => { setZonaAlerta(null); setAvisoAlerta(null); setActiveMission(null); }}
+                onAlertaCalculada={(r, z, ej) => { setAvisoAlerta(null); aplicarAlerta(r, z, ej); }}
+                onReset={() => { setZonaAlerta(null); setAvisoAlerta(null); setActiveMission(null); setMisionPrevia(null); }}
               />
             </div>
 
