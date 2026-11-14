@@ -9,7 +9,7 @@ import { MissionSummary } from './components/MissionSummary';
 import { PlanBForm } from './components/PlanBForm';
 import { MapaMision } from './components/MapaMision';
 import { MOCK_ESTACIONES, MOCK_GRAFO } from './mocks/mockData';
-import type { Grafo } from '../../map/src/mapa';
+import type { Grafo } from './types/mission';
 import type { ChatResponse } from './types/mission';
 import { MapPin, Compass, Route, Info, Wind, RadioTower, RotateCcw } from 'lucide-react';
 

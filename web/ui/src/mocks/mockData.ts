@@ -8,7 +8,7 @@ import mision15 from '../../../../contracts/ejemplos/post_mision.demo1_mision_15
 import mision20 from '../../../../contracts/ejemplos/post_mision.demo2_mision_20deg.response.json';
 import alertaZ2 from '../../../../contracts/ejemplos/post_alerta.response.json';
 import type { ChatResponse, EstacionDetalle, RespuestaMision } from '../types/mission';
-import type { Grafo } from '../../../map/src/mapa';
+import type { Grafo } from '../types/mission';
 
 export const MOCK_GRAFO = grafo as unknown as Grafo;
 export const MOCK_ESTACIONES = grafo.nodes as unknown as EstacionDetalle[];
