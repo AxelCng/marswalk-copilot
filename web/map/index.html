@@ -3,27 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MarsWalk · Mapa</title>
-    <style>
-      html, body { margin: 0; height: 100%; background: #070b12; color: #e2e8f0; font: 13px/1.4 ui-monospace, monospace; }
-      #barra { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-bottom: 1px solid #1e293b; }
-      #barra button { background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 6px; padding: 6px 10px; cursor: pointer; font: inherit; }
-      #barra button:hover { border-color: #22d3ee; }
-      #barra label { display: flex; gap: 6px; align-items: center; }
-      #estado { margin-left: auto; color: #94a3b8; }
-      #mapa { position: absolute; top: 52px; bottom: 0; left: 0; right: 0; }
-    </style>
+    <title>MarsWalk Copilot — Mapa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500;600;700&display=swap" />
   </head>
   <body>
-    <div id="barra">
-      <label><input type="checkbox" id="vivo" /> API en vivo (localhost:8000)</label>
-      <button data-accion="m15">1 · Misión 15°</button>
-      <button data-accion="m20">2 · Misión 20°</button>
-      <button data-accion="alerta">3 · Alerta polvo Z2</button>
-      <button data-accion="limpiar">Limpiar</button>
-      <span id="estado">datos: contracts/</span>
-    </div>
-    <div id="mapa"></div>
-    <script type="module" src="/src/demo.ts"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

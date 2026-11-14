@@ -1,6 +1,6 @@
 import type { EstacionResumen, EstacionDetalle, RespuestaMision, ChatResponse, PlanBParams } from '../types/mission';
 import { MOCK_ESTACIONES, MOCK_MISION_15DEG, MOCK_MISION_20DEG, MOCK_ALERTA_Z2, MOCK_CHAT_FLOW, MOCK_GRAFO } from '../mocks/mockData';
-import type { Grafo } from '../../../map/src/mapa';
+import type { Grafo } from '../types/mission';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 

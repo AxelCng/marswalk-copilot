@@ -1,50 +1,66 @@
-# web/map — mapa de la misión (Añe)
+# web/map — mapa de la demo (Añe)
 
-Mapa MapLibre con el mosaico HiRISE real de Jezero, las 8 estaciones, las aristas, la ruta resaltada y la animación de alerta.
+React + Vite + MapLibre con el estilo **AeroHUD Jezero** ([design system](https://claude.ai/artifact/TDBvRbN9wBCZ4PCoCyV3Yh)). Dibuja el mosaico CTX de Jezero, la geología del SIM 3464, las estaciones, las aristas, las zonas de alerta, la ruta tramo por tramo y la animación de alerta.
 
-## Correr la página de prueba
+## Correr
 
-```powershell
+```bash
 cd web/map
-npm install
-npm run dev          # http://localhost:5174
+npm install          # si registry.npmjs.org no responde: npm install --registry=https://registry.yarnpkg.com
+npm run dev          # http://localhost:5173
 ```
 
-- Sin el motor: usa los archivos de `contracts/` (grafo falso y ejemplos de la demo).
-- Con el motor de Said corriendo en :8000: marca **API en vivo**.
-- Atajos por URL: `?accion=m15`, `?accion=m20`, `?accion=alerta` (agrega `&vivo=1` para usar la API).
+Si la API de Said está en `http://localhost:8000` la usa (`GET /grafo`, `POST /mision`, `/alerta`, `/reset`, `GET /geologia`). Si no responde, cae sola a `contracts/graph_fake.json` y `contracts/ejemplos/`. Para otra URL: `VITE_API_URL=http://... npm run dev`.
 
 ## Archivos
 
-| Archivo | Qué es |
+| Archivo | Qué hace |
 | --- | --- |
-| `src/mapa.ts` | **El mapa.** Módulo sin React: `crearMapa(div)` → `cargarGrafo`, `mostrarMision`, `mostrarAlerta`, `limpiar` |
-| `src/demo.ts` | Página de prueba con las 3 preguntas de la demo |
-| `src/assets/jezero_hirise.jpg` | Mapa base (ver abajo) |
+| `src/MarsMap.jsx` | Componente del mapa. Es lo que se integra con `web/ui/`. |
+| `src/api.js` | Llamadas a la API, con fallback a los JSON de `contracts/`. |
+| `src/geologia.js` | Carga y prepara la capa geológica (modelo estrella SIM 3464). |
+| `src/tokens.js` | Colores AeroHUD para MapLibre (no lee variables CSS) y color por tipo de nodo. |
+| `src/App.jsx` | Banco de pruebas con las 3 preguntas de la demo (misión a 15°, a 20° y polvo en Z2). |
+| `scripts/descargar_base.mjs` | Baja el mosaico CTX del recorte a `public/base/`. |
+| `public/base/` | 6 teselas CTX (~5 m/px) y su índice `teselas.json`. |
 
-La pantalla de Axl (`web/ui`) usa este mismo módulo a través de `web/ui/src/components/MapaMision.tsx`. **Si cambias `mapa.ts`, el cambio aparece en las dos.** Por eso `web/ui` necesita que `web/map` tenga hecho `npm install`.
+## Props de `MarsMap` (para Axl)
 
-## Qué dibuja
+```jsx
+<MarsMap
+  grafo={grafo}               // {zonas, nodes, edges} de GET /grafo
+  mision={respuesta}          // RespuestaMision de /mision, /ruta, /alerta o /chat.ruta (o null)
+  alerta={{ zona: 'Z2', aristas_afectadas: ['HAB->M2'] }}  // o null
+  geologia={geo}              // resultado de getGeologia() (o null)
+  mostrarGeologia={true}
+  onSelectEstacion={(id) => abrirFicha(id)}
+/>
+```
 
-| Capa | De dónde sale | Cómo se ve |
-| --- | --- | --- |
-| Estaciones | `nodes` del grafo | Punto con color por tipo y etiqueta; número de orden si está en la ruta; tachada si fue omitida |
-| Aristas | `edges` (la versión de 25°, un trazo por par) | Líneas finas grises |
-| Zonas | `zonas` | Rectángulos amarillos punteados; la zona en alerta, roja y latiendo |
-| Ruta | `tramos[].geometria` | Línea cian con "hormigas" que avanzan |
-| Tramos evitados | `aristas_afectadas` de `/alerta` | Línea roja punteada |
+## Mapa base (plan B ya activo)
 
-## Mapa base: de dónde sale
+El servicio `OnMars/CTX` de Esri usa una grilla geográfica (GCS Mars 2000, teselas de 512 px) que MapLibre no lee como teselas, y además no manda cabeceras CORS. Por eso `scripts/descargar_base.mjs` baja el recorte y cada tesela se monta como `image source` con sus 4 esquinas. En un área de ~5 km la diferencia entre equirectangular y Mercator es despreciable. El nivel 12 (~5 m/px) es el máximo con cobertura en Jezero.
 
-**Mosaico HiRISE de Jezero, 25 cm/píxel, controlado** (`JEZ_hirise_soc_006_orthoMosaic_25cm`), servido por [NASA Mars Trek](https://trek.nasa.gov/mars/). Se bajaron las 160 teselas de zoom 15 que cubren el área de las estaciones, se unieron y se redujeron a 2400 × 1500 px (790 KB).
+```bash
+node scripts/descargar_base.mjs 12
+```
 
-- **Límites:** 77.3822–77.4701 °E, 18.4241–18.4790 °N (en `LIMITES_IMAGEN`, dentro de `mapa.ts`).
-- **Por qué una imagen y no teselas en vivo:** es el plan B del spec ("ortoimagen recortada como fuente de imagen"). Además, la demo funciona **sin internet**.
-- **Proyección:** las teselas están en lon/lat (equirectangular) y MapLibre dibuja en Web Mercator. En un área de 5 km la diferencia es menor a un píxel.
-- **Crédito:** NASA/JPL-Caltech/University of Arizona (HiRISE), vía NASA Mars Trek. Aparece en el mapa.
+## Capa geológica (modelo estrella USGS SIM 3464)
 
-## Pendiente para Añe
+El mapa lee **un GeoJSON aplanado** desde `GET /geologia` o, si no hay API, desde `public/geologia.geojson`. Cada Feature es una fila de `fact_map_feature` con sus dimensiones ya unidas por `*_key`, y la geometría de `geom_wkt` reproyectada de MTM 77.5°E a lon/lat. La conversión desde el `.gdb` le toca a `data/` (Pedro).
 
-- [ ] Revisar colores y etiquetas con el equipo.
-- [ ] Animar la ruta nodo por nodo (domingo, según el cronograma).
-- [ ] Cuando llegue el `graph.json` real de Pedro, nada cambia: el mapa lee `GET /grafo`.
+| Tabla | Columnas que usa el mapa |
+| --- | --- |
+| `fact_map_feature` | `feature_key`, `unit_key`, `feature_type_key`, `source_layer`, `area_m2`, `length_m` |
+| `dim_geologic_unit` | `unit_symbol` (etiqueta), `unit_name`, `age_prefix`, `color_id` |
+| `dim_feature_type` | `feature_type`, `certainty` (contacto aproximado o inferido = punteado), `geometry_type` |
+| `dim_spatial_context` | `in_landing_ellipse`, `in_figure_area`, `on_cross_section` (se conservan, aún no se dibujan) |
+| `dim_map` | no hace falta en el GeoJSON |
+
+- Polígonos: unidades geológicas, relleno al 35 % debajo de rutas y nodos. Etiqueta `unit_symbol` desde zoom 12.
+- Líneas: contactos y rasgos lineales.
+- Color: `color_hex` si `data/` lo resuelve desde `color_id`; si no, una paleta tierra fija por unidad.
+- Hover: símbolo, nombre, edad y tipo de rasgo.
+- Leyenda: las 8 unidades con más área.
+
+Hasta que exista el archivo, el panel dice "Sin capa" y el resto del mapa funciona igual.
