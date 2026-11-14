@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import { HUD, COLOR_TIPO } from './tokens.js';
 import './MarsMap.css';
+
 
 // ---------------------------------------------------------------------------
 // MarsMap: el mapa de la demo.
@@ -74,7 +75,9 @@ async function agregarMapaBase(map, antesDe) {
   map.fire('marswalk:capas');
 }
 
+
 export { COLOR_TIPO };
+
 
 const PASO_MS = 700; // tiempo entre tramos al animar la ruta
 
@@ -205,14 +208,14 @@ function centroide(poligono) {
 }
 
 export default function MarsMap({
-  grafo, mision, alerta, geologia, capas, margen,
-  onSelectEstacion, onCursor, onPaso,
+  grafo, mision, alerta, geologia, capas, margen, astronauta = null,
+  onSelectEstacion, onCursor, onPaso, onMapa, onClickMapa,
 }) {
   const contenedor = useRef(null);
   const mapRef = useRef(null);
   const listo = useRef(false);
   const cb = useRef({});
-  cb.current = { onSelectEstacion, onCursor, onPaso };
+  cb.current = { onSelectEstacion, onCursor, onPaso, onClickMapa };
   const margenRef = useRef(margen);
   margenRef.current = margen;
   const nodosRef = useRef(null);
@@ -372,6 +375,7 @@ export default function MarsMap({
       });
 
       map.on('mousemove', (e) => cb.current.onCursor?.(e.lngLat));
+      map.on('click', (e) => cb.current.onClickMapa?.([e.lngLat.lng, e.lngLat.lat]));
 
       // Unidad geológica bajo el cursor (solo si no hay un nodo encima)
       const popupGeo = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 8 });
@@ -404,6 +408,7 @@ export default function MarsMap({
     });
 
     mapRef.current = map;
+    onMapa?.(map);
     if (import.meta.env.DEV) window.__marsMap = map; // depuración desde la consola
     return () => {
       listo.current = false;
@@ -563,5 +568,42 @@ export default function MarsMap({
     return () => { cancelAnimationFrame(raf); aviso?.remove(); };
   }), [grafo, alerta]);
 
-  return <div ref={contenedor} className="mapa" />;
+
+  // --- Astronauta en vivo (posición y rumbo que manda el visor 3D) -----------
+  const astro = useRef(null);
+  const [seguir, setSeguir] = useState(true);
+  const seguirRef = useRef(true);
+  seguirRef.current = seguir;
+  useEffect(() => cuandoListo((map) => {
+    const soltar = (e) => { if (e.originalEvent) setSeguir(false); };
+    map.on('dragstart', soltar);
+    return () => map.off('dragstart', soltar);
+  }), []);
+  useEffect(() => cuandoListo((map) => {
+    if (!astronauta?.pos) {
+      astro.current?.remove();
+      astro.current = null;
+      return;
+    }
+    if (!astro.current) {
+      const el = document.createElement('div');
+      el.className = 'astro';
+      el.innerHTML = '<span class="astro-cono"></span><span class="astro-punto"></span>';
+      astro.current = new maplibregl.Marker({ element: el, rotationAlignment: 'map' }).setLngLat(astronauta.pos).addTo(map);
+      setSeguir(true);
+      seguirRef.current = true;
+      map.easeTo({ center: astronauta.pos, zoom: Math.max(map.getZoom(), 15), duration: 600 });
+    }
+    astro.current.setLngLat(astronauta.pos).setRotation(astronauta.rumbo);
+    if (seguirRef.current && !map.isEasing()) map.jumpTo({ center: astronauta.pos });
+  }), [astronauta]);
+
+  return (
+    <>
+      <div ref={contenedor} className="mapa" />
+      {astronauta?.pos && !seguir && (
+        <button className="btn-seguir" onClick={() => setSeguir(true)}>Seguir al astronauta</button>
+      )}
+    </>
+  );
 }
