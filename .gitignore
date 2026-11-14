@@ -241,3 +241,6 @@ web/**/dist/
 
 # Ollama / modelos locales
 *.gguf
+
+# Configuración local de herramientas (no es del proyecto)
+.commandcode/
