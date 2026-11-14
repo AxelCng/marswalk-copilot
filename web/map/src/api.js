@@ -27,7 +27,12 @@ export async function getGrafo(pendienteMax = 15) {
   } catch {
     return {
       ...grafoFake,
-      edges: grafoFake.edges.filter((e) => e.limite_deg === pendienteMax),
+      // el grafo de ejemplo trae versiones 15/20/25: se usa la más grande que no supere lo pedido
+      edges: (() => {
+        const vers = [...new Set(grafoFake.edges.map((e) => e.limite_deg))].sort((p, q) => p - q);
+        const v = [...vers].reverse().find((l) => l <= pendienteMax) ?? vers[0];
+        return grafoFake.edges.filter((e) => e.limite_deg === v && e.pendiente_max_deg <= pendienteMax);
+      })(),
       fuente: 'fake',
     };
   }

@@ -15,10 +15,12 @@ from __future__ import annotations
 import csv
 import json
 
+import numpy as np
 import rasterio
 from shapely.geometry import Point, Polygon, shape
 
 from . import parametros, rutas
+from .costo import dn_a_k
 
 ELEV_CORREGIDA = "dtm"   # o "csv": ver nota de datum vertical en data/README.md
 
@@ -33,7 +35,9 @@ def _capas_de(nodo: dict) -> dict:
     return {
         "elev_m": round(elev, 1) if ELEV_CORREGIDA == "dtm" else nodo["elev_m"],
         "pendiente_deg": round(pend, 1),
-        "themis_noche": round(dn, 1),
+        # El contrato pide temperatura de brillo en K. El raster viene en DN de 8 bits:
+        # se usa la misma calibración que el mapa de costo (costo.dn_a_k), así ficha y costo coinciden.
+        "themis_noche": round(float(dn_a_k(np.array(dn))), 1),
     }
 
 

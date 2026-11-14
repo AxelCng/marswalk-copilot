@@ -8,7 +8,8 @@ Usage:
 
 Each case checks: the expected tool, the key arguments and that there are no unsourced numbers.
 Demo with the real graph.json (data/out/): at 8° the upper delta (E2) is skipped for slope and at 12° it is
-included (see data/HALLAZGO_pendiente_demo.md). With 3 hours E2 does not fit in time: the demo uses 4 hours.
+included (see data/HALLAZGO_pendiente_demo.md). Checked on the Sat 14 graph: 8° -> 164.8 min without E2,
+12° -> 200.6 min with E2, dust in Z2 -> 230.9 min.
 """
 import json
 import re
@@ -63,7 +64,7 @@ def check_alias_e1(r):
 
 
 def check_three_hours(r):
-    # With 3 hours the upper delta does not fit in time (data/HALLAZGO_pendiente_demo.md): it must give the reason
+    # Delta front + upper delta in 3 hours at 12°: it must plan it and give a route
     a = args_of(r, "optimize_mission")
     return bool(a) and set(a["stations"]) == {"E1", "E2"} and a["max_time_min"] == 180 \
         and a["max_slope_deg"] == 12 and bool(r["route"])
