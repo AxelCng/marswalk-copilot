@@ -54,7 +54,7 @@ Para que el frontend (Axl) use el mock con chat: `VITE_API_BASE=http://localhost
 
 ```json
 // entrada
-{"mensaje": "¿Y si acepto hasta 20°?",
+{"mensaje": "¿Y si acepto hasta 12°?",
  "historial": [{"rol": "usuario", "contenido": "..."}, {"rol": "asistente", "contenido": "..."}]}
 // salida
 {"respuesta": "texto",

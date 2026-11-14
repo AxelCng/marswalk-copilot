@@ -6,6 +6,7 @@ from typing import Annotated, Literal
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 import yaml
 
@@ -103,6 +104,12 @@ def create_app(graph_path=None):
 
     app = FastAPI(title="MarsWalk Copilot — Motor", lifespan=lifespan)
     app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+    @app.get("/geologia")
+    def geologia():
+        path = ROOT / "data" / "out" / "geologia.geojson"
+        if not path.is_file():
+            raise HTTPException(404, detail="capa geologica no disponible")
+        return FileResponse(path, media_type="application/geo+json")
 
     def require_station(store, station_id):
         if station_id not in store.nodes:

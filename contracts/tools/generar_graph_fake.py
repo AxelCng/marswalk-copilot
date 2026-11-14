@@ -274,8 +274,9 @@ def mision(grafo, estaciones, tiempo_max_min, pendiente_max, zonas_cerradas=(), 
                 omitidas.append({"id": s, "motivo": "alerta",
                                  "detalle": {"zonas": list(zonas_cerradas)}})
             else:
-                pend_min = min(e["pendiente_max_deg"] for e in grafo["edges"]
-                               if e["destino"] == s and e["limite_deg"] == LIMITES[-1])
+                # el camino más suave que existe, en cualquier versión (un desvío de la de 20° puede ser
+                # más suave que el camino directo de la de 25°)
+                pend_min = min(e["pendiente_max_deg"] for e in grafo["edges"] if e["destino"] == s)
                 omitidas.append({"id": s, "motivo": "pendiente",
                                  "detalle": {"pendiente_max_deg": pend_min,
                                              "limite": pendiente_max}})
