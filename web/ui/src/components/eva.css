@@ -1,0 +1,77 @@
+/* Visor del astronauta + mapa del tablero en vivo (VisorHud.tsx). Sólido, divisores de 1 px. */
+.eva { position: fixed; inset: 0; background: #0D1117; }
+
+/* el HUD de casco (visorHud.css) es de pantalla completa: acá ocupa su columna */
+.eva .hud.eva-visor { position: absolute; inset: 0; cursor: default; }
+.eva-partido .hud.eva-visor { right: 38%; }
+.eva-lienzo { position: absolute; inset: 0; cursor: grab; background: #5E4636; outline: none; }
+.eva-lienzo:active { cursor: grabbing; }
+.eva-lienzo:focus-visible { box-shadow: inset 0 0 0 2px #FFB000; }
+.eva-lienzo canvas { display: block; width: 100%; height: 100%; }
+.eva .hud .visor { pointer-events: none; }
+
+.eva-cargando {
+  position: absolute; top: 72px; left: 50%; transform: translateX(-50%); margin: 0; padding: 4px 10px;
+  background: #0E1117; border: 1px solid #2D333B; color: #E6EDF3;
+}
+.eva .hud .eva-sin-mision p { margin: 4px 0 0; font-size: 12px; line-height: 16px; color: #C9D1D9; max-width: 240px; }
+
+/* lecturas del terreno bajo los pies */
+.eva-lecturas {
+  position: absolute; z-index: 2; top: 76px; right: 16px; margin: 0;
+  display: grid; grid-auto-flow: column; background: #0E1117; border: 1px solid #2D333B; border-radius: 2px;
+}
+.eva-lecturas div { display: flex; flex-direction: column; align-items: flex-end; padding: 4px 10px; }
+.eva-lecturas div + div { border-left: 1px solid #21262D; }
+.eva-lecturas dt { align-self: stretch; font: 700 9px/12px 'JetBrains Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; color: #8B949E; }
+.eva-lecturas dd { margin: 0; font: 600 13px/18px 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; color: #E6EDF3; white-space: nowrap; }
+.eva-lecturas.aviso div:nth-child(2) dd { color: #D29922; }
+.eva-lecturas.critico div:nth-child(2) dd { color: #DA3633; }
+.eva-aviso {
+  position: absolute; z-index: 2; top: 148px; right: 16px; margin: 0; padding: 4px 8px;
+  background: #0E1117; border: 1px solid #D29922; border-left-width: 3px; color: #D29922;
+  font: 600 11px/14px 'JetBrains Mono', monospace;
+}
+.eva-aviso.critico { border-color: #DA3633; color: #DA3633; }
+
+/* Navcam de la estación cercana */
+.eva-navcam {
+  position: absolute; z-index: 2; bottom: 76px; right: 16px; margin: 0; width: 220px;
+  background: #0E1117; border: 1px solid #2D333B; border-radius: 2px;
+}
+.eva-navcam img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+.eva-navcam figcaption { padding: 3px 6px; font: 500 10px/13px 'JetBrains Mono', monospace; color: #8B949E; }
+
+/* controles */
+.eva .hud .eva-controles { flex-wrap: wrap; justify-content: center; max-width: calc(100% - 32px); }
+.eva .hud .eva-select {
+  min-height: 40px; padding: 0 6px; border-radius: 2px; border: 1px solid #2D333B;
+  background: #161B22; color: #E6EDF3; font: 600 12px/16px 'JetBrains Mono', monospace;
+}
+.eva-ayuda {
+  position: absolute; z-index: 2; top: 120px; right: 16px; margin: 0; white-space: nowrap;
+  font: 500 11px/16px 'JetBrains Mono', monospace; color: #E6EDF3; text-shadow: 0 0 2px #000, 0 0 1px #000;
+}
+.eva-ayuda kbd {
+  display: inline-block; min-width: 16px; padding: 0 3px; margin-right: 2px; text-align: center;
+  border: 1px solid #2D333B; border-radius: 2px; background: #161B22; font: 600 10px/14px 'JetBrains Mono', monospace;
+}
+
+/* mapa del tablero en vivo */
+.eva-tablero {
+  position: absolute; top: 0; bottom: 0; right: 0; width: 38%;
+  display: flex; flex-direction: column; background: #0E1117; border-left: 1px solid #2D333B;
+}
+.eva-tablero-cab {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px;
+  border-bottom: 1px solid #2D333B; background: #161B22;
+}
+.eva-tablero-ayuda { font: 500 11px/14px 'JetBrains Mono', monospace; color: #8B949E; }
+.eva-tablero-mapa { flex: 1; min-height: 0; }
+
+@media (max-width: 959px) {
+  .eva-partido .hud.eva-visor { right: 0; bottom: 42%; }
+  .eva-tablero { top: 58%; width: 100%; border-left: 0; border-top: 1px solid #2D333B; }
+  .eva-lecturas { top: 64px; right: 8px; }
+  .eva-navcam, .eva-ayuda { display: none; }
+}

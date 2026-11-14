@@ -6,11 +6,12 @@ import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs'
 import { extname, join, relative, resolve, sep } from 'node:path'
 
 // El mapa (web/map/src/MarsMap.jsx, de Axl) pide sus datos con rutas absolutas:
-// /base/* (mapa base), /capas/* (DTM, pendiente, THEMIS) y /geologia.geojson (SIM 3464).
+// /base/* (mapa base), /capas/* (DTM, pendiente, THEMIS), /geologia.geojson (SIM 3464) y
+// /dem/* (teselas de elevación de la DTM que usa el visor 3D del astronauta).
 // Todo eso vive en web/map/public: este plugin lo sirve en desarrollo y lo copia al build,
 // así la pantalla principal ve exactamente lo mismo que la página de prueba de web/map.
 const PUBLICO_MAPA = resolve(__dirname, '../map/public')
-const RUTAS_DEL_MAPA = ['/base/', '/capas/', '/geologia.geojson']
+const RUTAS_DEL_MAPA = ['/base/', '/capas/', '/geologia.geojson', '/dem/']
 const TIPOS: Record<string, string> = {
   '.json': 'application/json', '.geojson': 'application/geo+json',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp',
@@ -57,9 +58,10 @@ export default defineConfig({
   ],
   resolve: {
     // MarsMap está fuera de web/ui: sin esto usaría otra copia de React o MapLibre y se rompe.
-    dedupe: ['react', 'react-dom', 'maplibre-gl'],
+    dedupe: ['react', 'react-dom', 'maplibre-gl', 'three'],
     // Datos del SIM 3464 que usan los componentes del visor (web/ui/hud/src/sim.js).
-    alias: { '@shared': resolve(__dirname, '../shared') },
+    // @repo: params.yaml (función de marcha del visor 3D, web/map/src/visor3d.js)
+    alias: { '@shared': resolve(__dirname, '../shared'), '@repo': resolve(__dirname, '../..') },
   },
   // El mapa (web/map) y los datos de prueba (contracts/) están fuera de web/ui.
   // Las rutas relativas se resuelven desde web/ui.

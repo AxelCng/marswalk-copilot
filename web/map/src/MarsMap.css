@@ -48,3 +48,19 @@
 }
 .aviso-titulo { font-weight: 700; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #DA3633; }
 .aviso-dato { color: #C9D1D9; }
+
+/* Astronauta en vivo (visor 3D): punto ámbar con borde negro y cono de visión hacia su rumbo */
+.astro { position: relative; width: 0; height: 0; pointer-events: none; }
+.astro-punto {
+  position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; border-radius: 50%;
+  background: #FFB000; border: 2px solid #000;
+}
+.astro-cono {
+  position: absolute; left: -22px; top: -46px; width: 0; height: 0;
+  border-left: 22px solid transparent; border-right: 22px solid transparent; border-top: 46px solid rgba(255, 176, 0, 0.35);
+}
+.btn-seguir {
+  position: absolute; z-index: 3; top: 8px; right: 56px; min-height: 30px; padding: 0 10px;
+  background: #0E1117; border: 1px solid #FFB000; border-radius: 2px; color: #FFB000;
+  font: 600 12px/16px 'JetBrains Mono', ui-monospace, monospace; cursor: pointer;
+}
