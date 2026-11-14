@@ -107,7 +107,7 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-xs">
             <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
               <span className="label-caps flex items-center gap-1">
-                <Mountain className="h-3 w-3" /> Pendiente
+                <Mountain className="h-3 w-3" /> Slope
               </span>
               <span className={`block text-base font-semibold dato-num ${station.capas.pendiente_deg > 15 ? 'text-warning' : 'text-ink'}`}>
                 {station.capas.pendiente_deg}°
@@ -127,7 +127,7 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
 
             <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
               <span className="label-caps flex items-center gap-1">
-                <Thermometer className="h-3 w-3" /> THEMIS noche
+                <Thermometer className="h-3 w-3" /> THEMIS night
               </span>
               <span className="block text-base font-semibold dato-num text-hud-cyan">
                 {station.capas.themis_noche} K
@@ -137,7 +137,7 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
 
             <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
               <span className="label-caps flex items-center gap-1">
-                <Clock className="h-3 w-3" /> Permanencia
+                <Clock className="h-3 w-3" /> Stay
               </span>
               <span className="block text-base font-semibold dato-num text-nominal">
                 {station.permanencia_min} min
@@ -152,7 +152,7 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
             <span>
               {photo
                 ? `${nombreCamara(photo.camara)} · sol ${photo.sol} · ${photo.credito ?? 'NASA/JPL-Caltech'}`
-                : 'Sin foto'}
+                : 'No photo'}
             </span>
           </div>
         </div>

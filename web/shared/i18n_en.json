@@ -1,0 +1,50 @@
+{
+  "_nota": "Nombres en inglés para mostrar en la interfaz. Generado desde llm/tools.py (STATION_NAMES_EN, STATION_TASKS_EN, ZONES_EN, TYPES_EN, REASONS_EN) para que pantalla y copiloto digan lo mismo. Las zonas van por nombre en español normalizado (minúsculas, sin tildes).",
+  "estaciones": {
+    "HAB": "Octavia E. Butler habitat",
+    "ROV": "Support rover, south floor",
+    "E1": "Delta front, Amalik outcrop",
+    "M1": "South Séítah, Brac outcrop",
+    "M2": "Three Forks sample depot",
+    "E2": "Upper delta (Upper Fan)",
+    "REF": "Shelter at the base of Hawksbill Gap",
+    "COM": "Relay antenna, northern plain"
+  },
+  "tareas": {
+    "HAB": "Mission base",
+    "ROV": "Battery swap and sample handoff",
+    "E1": "Stratigraphy of sedimentary layers",
+    "M1": "Core sample of olivine-rich igneous rock",
+    "M2": "Check the depot sample tubes",
+    "E2": "Stratigraphy and panorama of the fan",
+    "REF": "Shelter from dust storms",
+    "COM": "Antenna inspection"
+  },
+  "zonas": {
+    "delta": "Delta",
+    "campo de dunas": "Dune field",
+    "seitah": "Séítah",
+    "llanura norte": "Northern plain",
+    "frente del delta": "Delta front",
+    "campo de dunas seitah": "Séítah dune field",
+    "corredor de acceso": "Access corridor",
+    "entrada al delta": "Delta entrance",
+    "borde norte de seitah": "North edge of Séítah",
+    "corredor del habitat": "Habitat corridor"
+  },
+  "tipos": {
+    "habitat": "habitat",
+    "rover": "rover",
+    "ciencia": "science",
+    "muestreo": "sampling",
+    "refugio": "shelter",
+    "comms": "comms"
+  },
+  "motivos": {
+    "pendiente": "slope",
+    "tiempo": "time",
+    "alerta": "alert",
+    "comms": "comms",
+    "no_existe": "not_found"
+  }
+}

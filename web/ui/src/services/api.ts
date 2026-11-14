@@ -1,4 +1,5 @@
 import type { EstacionResumen, EstacionDetalle, RespuestaMision, ChatResponse, PlanBParams } from '../types/mission';
+import { estacionEn, grafoEn } from '../i18n';
 import { MOCK_ESTACIONES, MOCK_MISION_15DEG, MOCK_MISION_20DEG, MOCK_ALERTA_Z2, MOCK_CHAT_FLOW, MOCK_GRAFO } from '../mocks/mockData';
 import type { Grafo } from '../types/mission';
 
@@ -44,7 +45,7 @@ class ApiService {
     if (this.useMock) return MOCK_GRAFO;
     const res = await fetch(`${API_BASE}/grafo`);
     if (!res.ok) throw await errorDe(res);
-    return await res.json();
+    return grafoEn(await res.json());
   }
 
   async getEstaciones(): Promise<EstacionResumen[]> {
@@ -57,7 +58,7 @@ class ApiService {
     try {
       const res = await fetch(`${API_BASE}/estaciones`);
       if (!res.ok) throw await errorDe(res);
-      return await res.json();
+      return (await res.json() as EstacionResumen[]).map(estacionEn);
     } catch (err) {
       console.warn('Backend unavailable, falling back to mock:', err);
       return MOCK_ESTACIONES;
@@ -74,7 +75,7 @@ class ApiService {
     try {
       const res = await fetch(`${API_BASE}/estaciones/${id}`);
       if (!res.ok) throw await errorDe(res);
-      return await res.json();
+      return estacionEn(await res.json() as EstacionDetalle);
     } catch (err) {
       console.warn('Backend unavailable, falling back to mock:', err);
       const found = MOCK_ESTACIONES.find(e => e.id === id);
