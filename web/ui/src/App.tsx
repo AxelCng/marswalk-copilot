@@ -156,12 +156,14 @@ export const App: React.FC = () => {
         </div>
 
         {/* View Switcher Content */}
-        {activeTab === 'chat' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* El chat queda montado aunque se cambie de pestaña: así no se pierde la conversación al ir al Plan B */}
+        {(
+          <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 items-start ${activeTab === 'chat' ? '' : 'hidden'}`}>
             {/* Left: Chat Copilot (takes 7 cols) */}
             <div className="lg:col-span-7 h-[680px]">
               <ChatPanel
                 onRouteGenerated={onRutaDelChat}
+                onIrPlanB={() => setActiveTab('planb')}
                 onViewRoute={() => {
                   const el = document.getElementById('mission-summary-anchor');
                   el?.scrollIntoView({ behavior: 'smooth' });
