@@ -12,31 +12,33 @@ indicada en el contrato y descarta tramos que exceden la pendiente solicitada.
 CORS está abierto para desarrollo.
 
 Las misiones usan OR-Tools y tienen pruebas contra fuerza bruta.
-Las alertas se acumulan y recalculan la última misión. El router de Manuel
-está incluido: `/chat`, `/chat/reset` y `/chat/estado`. `GET /geologia` entrega
+Las alertas se acumulan y recalculan la última misión. `GET /geologia` entrega
 `data/out/geologia.geojson` para el mapa, o 404 si todavía no existe.
 
 ## Integración con datos y chat
 
-Para arrancar el backend con el grafo de Pedro desde Git Bash:
+El motor carga `data/out/graph.json` (grafo real de Pedro) si existe; si no,
+`contracts/graph_fake.json`. `GRAPH_PATH` fuerza otro archivo.
+
+`/chat` (copiloto de Manuel, `llm/router.py`) se monta en esta misma API, junto con
+`/chat/reset`, `/chat/estado` y `/chat/precalentar`. Necesita Ollama corriendo con el
+modelo de `llm/.env`; sin el paquete `ollama`, o con `CHAT=0`, el motor arranca igual
+sin `/chat` y la UI ofrece el formulario Plan B.
 
 ```bash
 ./.venv/Scripts/python.exe -m pip install -r engine/requirements-dev.txt
-GRAPH_PATH=data/out/graph.json API_URL=http://localhost:8000 ./.venv/Scripts/python.exe -m uvicorn engine.main:app --port 8000 --reload
+./.venv/Scripts/python.exe -m uvicorn engine.main:app --host 127.0.0.1 --port 8000
 ```
 
-`API_URL` indica al chat a qué API llamar; debe coincidir con la dirección y
-puerto del backend. Una configuración explícita de `llm/.env` o del entorno
-puede cambiarla: comprobar `GET /chat/estado`. No usar el puerto 8001 del mock
-para una demo con el motor real. El chat requiere además Ollama en ejecución y
-el modelo configurado por Manuel; sin ellos se puede usar el formulario Plan B.
+`API_URL` indica al chat a qué API llamar (por defecto `http://127.0.0.1:8000`, no
+`localhost`: en Windows `localhost` prueba IPv6 primero y cada herramienta se demora).
+Una configuración explícita de `llm/.env` o del entorno tiene prioridad: comprobar
+`GET /chat/estado`. No usar el puerto 8001 del mock para una demo con el motor real.
 
-Con el grafo real, la misión E1/M1/M2/E2 a 15° y 240 min tarda 200.6 min y no
-omite estaciones. La demo de 15° frente a 20° no añade E2 con estos datos;
-ver `data/HALLAZGO_pendiente_demo.md` y acordar el guion con el equipo. Los
-ejemplos y tiempos de las secciones siguientes corresponden al grafo **falso**.
-La integración HTTP de estaciones, grafo, geología, misión y alerta fue probada
-con el grafo real; falta probar el modelo Ollama y la interfaz de extremo a extremo.
+Con el grafo real, la demo de pendiente usa 8° y 12° con tope de 4 horas
+(`data/HALLAZGO_pendiente_demo.md`): a 8° la cima del delta (E2) queda omitida por
+pendiente (230.7 min); a 12° entra (200.6 min); polvo en Z2 → 175.2 min. Los ejemplos
+y tiempos de las secciones siguientes corresponden al grafo **falso**.
 
 ### Ejecutar en Windows (Git Bash / Antigravity)
 

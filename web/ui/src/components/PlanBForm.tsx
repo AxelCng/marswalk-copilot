@@ -3,6 +3,7 @@ import type { EstacionDetalle, PlanBParams, RespuestaMision } from '../types/mis
 import { api, ApiError } from '../services/api';
 import { MOCK_ALERTA_Z2, MOCK_MISION_15DEG, MOCK_MISION_20DEG } from '../mocks/mockData';
 import { ShieldCheck, Send, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
+import { DEMO, FRASES, PENDIENTES } from '../demo';
 
 interface PlanBFormProps {
   stations: EstacionDetalle[];
@@ -18,10 +19,14 @@ interface PlanBFormProps {
 
 type Tono = 'info' | 'warning' | 'critical';
 
-const PENDIENTES = [15, 20, 25] as const;
-// Las 3 preguntas de la demo (spec), para hacerlas sin LLM. Son las de contracts/ejemplos.
-const MISION_DEMO = { estaciones: ['E1', 'M1', 'M2', 'E2'], tiempo_max_min: 240, modo: 'orientacion' as const };
-const EJEMPLO_POR_PENDIENTE: Record<number, RespuestaMision> = { 15: MOCK_MISION_15DEG, 20: MOCK_MISION_20DEG };
+// Las 3 preguntas de la demo (src/demo.ts), para hacerlas sin LLM.
+const MISION_DEMO = { estaciones: DEMO.estaciones, tiempo_max_min: DEMO.tiempo_max_min, modo: DEMO.modo };
+// Sin motor: los ejemplos de contracts/ son del grafo de prueba (15° y 20°), no del grafo real.
+// Se usan por paso de la demo (el 1 y el 2), avisando de qué pendiente son.
+const EJEMPLO_POR_PENDIENTE: Record<number, { mision: RespuestaMision; pendiente: number }> = {
+  [DEMO.pendiente_1]: { mision: MOCK_MISION_15DEG, pendiente: 15 },
+  [DEMO.pendiente_2]: { mision: MOCK_MISION_20DEG, pendiente: 20 },
+};
 
 /** Sin conexión (fetch rechazado), a diferencia de un error que la API sí respondió. */
 const sinConexion = (e: unknown) => !(e instanceof ApiError);
@@ -29,7 +34,7 @@ const mensaje = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMissionCalculated, onAlertaCalculada, onReset }) => {
   const [selectedStations, setSelectedStations] = useState<string[]>(MISION_DEMO.estaciones);
-  const [pendienteMax, setPendienteMax] = useState<number>(15);
+  const [pendienteMax, setPendienteMax] = useState<number>(DEMO.pendiente_1);
   const [tiempoMax, setTiempoMax] = useState<number>(MISION_DEMO.tiempo_max_min); // params.yaml: tiempo_max_min_default
   const [sinTope, setSinTope] = useState(false);
   const [modo, setModo] = useState<'orientacion' | 'tsp'>('orientacion');
@@ -62,9 +67,9 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
       const ejemplo = EJEMPLO_POR_PENDIENTE[params.pendiente_max];
       if (sinConexion(err) && ejemplo) {
         // Igual que la consola de Añe: sin motor, se muestra el ejemplo oficial de contracts/ y se dice.
-        onMissionCalculated(ejemplo, true);
+        onMissionCalculated(ejemplo.mision, true);
         setEstado({
-          texto: `Sin conexión con el motor. Se muestra el ejemplo de contracts/ para ≤ ${params.pendiente_max}° (E1, M1, M2, E2 · 240 min), no tu selección.`,
+          texto: `Sin conexión con el motor. Se muestra el ejemplo de contracts/ (grafo de prueba, ≤ ${ejemplo.pendiente}°), no el cálculo real.`,
           tono: 'warning',
         });
       } else {
@@ -110,7 +115,7 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
       } else if (sinConexion(err) && z === 'Z2') {
         if (onAlertaCalculada) onAlertaCalculada(MOCK_ALERTA_Z2, 'Z2', true);
         else onMissionCalculated(MOCK_ALERTA_Z2, true);
-        setEstado({ texto: 'Sin conexión con el motor. Se muestra el ejemplo de alerta en Z2 de contracts/ (sobre la misión a 15°).', tono: 'warning' });
+        setEstado({ texto: 'Sin conexión con el motor. Se muestra el ejemplo de alerta en Z2 de contracts/ (grafo de prueba), no el cálculo real.', tono: 'warning' });
       } else {
         setEstado({ texto: `No se pudo recalcular: ${mensaje(err)}`, tono: 'critical' });
       }
@@ -150,14 +155,14 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
       <section className="bloque">
         <h4 className="label-caps m-0">Preguntas de la demo</h4>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <button type="button" className="btn !justify-start" disabled={ocupado} onClick={() => pregunta(15)}>
-            1 · Delta + 2 muestreos, ≤ 15°
+          <button type="button" className="btn !justify-start" disabled={ocupado} onClick={() => pregunta(DEMO.pendiente_1)} title={FRASES.paso1}>
+            1 · Delta, muestreos y cima, ≤ {DEMO.pendiente_1}°
           </button>
-          <button type="button" className="btn !justify-start" disabled={ocupado} onClick={() => pregunta(20)}>
-            2 · ¿Y si acepto 20°?
+          <button type="button" className="btn !justify-start" disabled={ocupado} onClick={() => pregunta(DEMO.pendiente_2)} title={FRASES.paso2}>
+            2 · ¿Y si acepto {DEMO.pendiente_2}°?
           </button>
-          <button type="button" className="btn alerta !justify-start" disabled={ocupado} onClick={() => { setZona('Z2'); handleTriggerAlert('Z2'); }}>
-            3 · Alerta de polvo en Z2
+          <button type="button" className="btn alerta !justify-start" disabled={ocupado} onClick={() => { setZona(DEMO.zona); handleTriggerAlert(DEMO.zona); }}>
+            3 · Alerta de polvo en {DEMO.zona}
           </button>
         </div>
       </section>

@@ -53,6 +53,8 @@ export const App: React.FC = () => {
       }
     };
     loadData();
+    // El modelo tarda en cargarse en la GPU la primera vez: se carga ya, antes de la primera pregunta
+    api.precalentarChat().then((r) => { if (r) console.info('Copiloto precalentado:', r); });
     api.getGrafo()
       .then(setGrafo)
       .catch((e) => { console.warn('Sin /grafo, se usa contracts/graph_fake.json:', e); setGrafo(MOCK_GRAFO); });
