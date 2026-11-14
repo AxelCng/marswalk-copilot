@@ -3,6 +3,7 @@ import type { ChatResponse, MensajeHistorial, RespuestaMision } from '../types/m
 import { ChatMessage } from './ChatMessage';
 import { api } from '../services/api';
 import { Send, Sparkles, Loader2, RefreshCw, Radio } from 'lucide-react';
+import { DEMO, FRASES } from '../demo';
 
 interface ChatPanelProps {
   onRouteGenerated?: (ruta: RespuestaMision, respuesta?: ChatResponse) => void;
@@ -12,18 +13,9 @@ interface ChatPanelProps {
 }
 
 const DEMO_PRESETS = [
-  {
-    label: "Paso 1: Misión 15° (<3h)",
-    text: "Quiero visitar el frente del delta y dos puntos de muestreo, volver en menos de 3 horas, sin pendientes de más de 15°"
-  },
-  {
-    label: "Paso 2: ¿Y si acepto 20°?",
-    text: "¿Y si acepto hasta 20°?"
-  },
-  {
-    label: "Paso 3: Alerta Polvo Z2",
-    text: "Alerta de polvo en la zona Z2"
-  }
+  { label: `Paso 1: Misión ${DEMO.pendiente_1}° (<4h)`, text: FRASES.paso1 },
+  { label: `Paso 2: ¿Y si acepto ${DEMO.pendiente_2}°?`, text: FRASES.paso2 },
+  { label: `Paso 3: Alerta Polvo ${DEMO.zona}`, text: FRASES.paso3 },
 ];
 
 const hora = () => `SOL 415 ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
@@ -200,7 +192,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ej: Quiero visitar E1 y M1 con máx 15° de pendiente..."
+            placeholder={`Ej: Quiero visitar E1 y M1 con máx ${DEMO.pendiente_2}° de pendiente...`}
             disabled={loading}
             aria-label="Mensaje al copiloto"
             className="flex-1 min-w-0 bg-hud-deep/90 border border-hud-border rounded px-4 py-2.5 text-sm text-ink placeholder-ink-mute focus:outline-none focus:border-hud-cyan focus:shadow-glow-focus transition-all font-mono"
