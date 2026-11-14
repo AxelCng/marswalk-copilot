@@ -101,39 +101,6 @@
 .tabla-tramos tfoot td { border-top: 1px solid var(--hud-border); border-bottom: 0; color: var(--on-surface); font-weight: 600; }
 .ruta { color: var(--acento); }
 
-/* Waypoints cartográficos (marcadores HTML de MapLibre) */
-.wp {
-  position: relative; width: 22px; height: 22px; padding: 0; min-height: 0;
-  background: transparent; border: 0; border-radius: 0; cursor: pointer;
-}
-.wp:hover:not(:disabled), .wp:focus-visible { border: 0; outline: none; }
-.wp::before, .wp::after { content: ''; position: absolute; background: var(--c); }
-.wp::before { left: 50%; top: -3px; bottom: -3px; width: 1px; margin-left: -0.5px; }
-.wp::after { top: 50%; left: -3px; right: -3px; height: 1px; margin-top: -0.5px; }
-.wp-ret {
-  position: absolute; z-index: 1; inset: 3px; border: 2px solid #000; border-radius: 50%;
-  background: var(--hud-bg-deep); box-shadow: 0 0 0 1px var(--c);
-}
-.wp-ret::after {
-  content: ''; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px;
-  border-radius: 50%; background: var(--c);
-}
-.wp-guia {
-  position: absolute; left: 17px; bottom: 17px; width: 16px; height: 1px; background: var(--on-surface-variant);
-  transform-origin: left center; transform: rotate(-45deg);
-}
-.wp-tag {
-  position: absolute; left: 29px; bottom: 26px; display: flex; align-items: baseline; gap: 6px;
-  padding: 2px 5px; white-space: nowrap;
-  background: var(--hud-panel); border: 1px solid var(--hud-border); border-left: 2px solid var(--c);
-  font: 600 11px/13px var(--font-mono); color: var(--on-surface); text-align: left;
-}
-.wp-tag i { font-style: normal; font-weight: 500; font-size: 10px; color: var(--outline); }
-.wp.en-ruta .wp-ret { box-shadow: 0 0 0 2px var(--acento); }
-.wp.en-ruta .wp-tag { border-color: var(--acento); border-left-color: var(--acento); }
-.wp.omitida .wp-ret { box-shadow: 0 0 0 1px var(--status-warning); background: transparent; }
-.wp.omitida .wp-tag { color: var(--status-warning); text-decoration: line-through; }
-.wp:focus-visible .wp-tag, .wp:hover .wp-tag { border-color: var(--on-surface); }
 
 /* Aviso de alerta sobre el mapa: sólido, sin halo */
 .aviso-mapa { background: var(--hud-panel); border-left-width: 3px; }
@@ -159,9 +126,6 @@
 .ficha-foto img { border-radius: var(--radius-sm); }
 
 /* Reglas finales: sin sombras de color (bordes sólidos) y cifras tabulares que no saltan */
-.wp-ret { box-shadow: none; outline: 1px solid var(--c); outline-offset: 0; }
-.wp.en-ruta .wp-ret { box-shadow: none; outline: 2px solid var(--acento); }
-.wp.omitida .wp-ret { box-shadow: none; outline: 1px dashed var(--status-warning); }
 button, button.primario:hover:not(:disabled) { box-shadow: none; }
 button { transition: border-color 120ms; }
 .dato, .tile b, .tile .sub, .tabla-tramos, .ficha dd, .wp-tag, .capa-pct, .capa-nombre small, .franja, .leyenda-pend span, .maplibregl-ctrl-scale, .aviso-mapa, .ruta, .estado, input[type="number"] { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
