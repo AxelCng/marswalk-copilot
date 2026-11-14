@@ -115,21 +115,21 @@ export const App: React.FC = () => {
   };
 
   const lanzarAlerta = async (zona: string, tipo: 'polvo' | 'comms') => {
-    if (!activeMission) { setAvisoAlerta('Primero pide una misión (chat o Plan B).'); return; }
+    if (!activeMission) { setAvisoAlerta('Request a mission first (chat or Plan B).'); return; }
     setAlertaCargando(true);
     try {
       const r = await api.postAlerta(zona, tipo);
       aplicarAlerta(r, tipo === 'polvo' ? zona : null);
       const evitados = r.aristas_afectadas ?? [];
-      setAvisoAlerta(`${tipo === 'polvo' ? `Polvo en ${zona}` : 'Pérdida de comunicación'}: ` +
-        (evitados.length ? `evitados ${evitados.join(', ')}` : 'la ruta no cruzaba la zona') + ` · ${r.totales.tiempo_min} min`);
+      setAvisoAlerta(`${tipo === 'polvo' ? `Dust in ${zona}` : 'Comms loss'}: ` +
+        (evitados.length ? `avoided ${evitados.join(', ')}` : 'the route did not cross the zone') + ` · ${r.totales.tiempo_min} min`);
     } catch (e) {
       if (!(e instanceof ApiError) && tipo === 'polvo' && zona === 'Z2') {
         // Sin motor: el ejemplo oficial de contracts/ (igual que el Plan B y web/map)
         aplicarAlerta(MOCK_ALERTA_Z2, 'Z2', true);
-        setAvisoAlerta('Sin conexión con el motor: se muestra el ejemplo de alerta en Z2 de contracts/.');
+        setAvisoAlerta('No connection to the engine: showing the Z2 alert example from contracts/.');
       } else {
-        setAvisoAlerta(`No se pudo recalcular: ${e instanceof Error ? e.message : e}`);
+        setAvisoAlerta(`Could not recalculate: ${e instanceof Error ? e.message : e}`);
       }
     } finally {
       setAlertaCargando(false);
@@ -217,21 +217,21 @@ export const App: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="inline-flex items-center gap-1 chip sin-punto !text-rust !border-rust/40">
-                  <MapPin className="h-3 w-3" /> CRÁTER JEZERO · MARTE
+                  <MapPin className="h-3 w-3" /> JEZERO CRATER · MARS
                 </span>
                 <span className="text-xs font-mono text-ink-dim">
-                  Ruta Perseverance · Octavia E. Butler Landing
+                  Perseverance route · Octavia E. Butler Landing
                 </span>
               </div>
               <h2 className="m-0 font-display text-lg sm:text-xl font-semibold text-ink">
-                Planificador Inteligente de EVA y Geología de Superficie
+                Intelligent EVA and Surface Geology Planner
               </h2>
             </div>
 
             <div className="flex items-center gap-2 text-xs font-mono">
-              <span className="text-ink-dim">Fórmula de marcha:</span>
+              <span className="text-ink-dim">Walking model:</span>
               <span className="bg-black/60 border border-hud-border text-hud-cyan px-2.5 py-1 rounded">
-                Tobler v(θ) × factor_traje
+                Tobler v(θ) × suit factor
               </span>
             </div>
           </div>
@@ -240,7 +240,7 @@ export const App: React.FC = () => {
         {/* Mapa de la misión (web/map, Añe) + alertas */}
         <div className="panel overflow-hidden">
           <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-hud-border font-mono text-xs">
-            <span className="text-ink-dim mr-1 flex items-center gap-1"><Wind className="h-3.5 w-3.5 text-critical" /> Alerta de polvo:</span>
+            <span className="text-ink-dim mr-1 flex items-center gap-1"><Wind className="h-3.5 w-3.5 text-critical" /> Dust alert:</span>
             {(grafo?.zonas ?? []).map((z) => (
               <button key={z.id} onClick={() => lanzarAlerta(z.id, 'polvo')}
                 className={`px-2.5 py-1 rounded border transition-colors ${zonaAlerta === z.id
@@ -250,7 +250,7 @@ export const App: React.FC = () => {
             ))}
             <button onClick={() => lanzarAlerta('Z1', 'comms')}
               className="px-2.5 py-1 rounded border bg-hud-panel border-hud-border text-ink-dim hover:border-critical flex items-center gap-1">
-              <RadioTower className="h-3.5 w-3.5" /> Sin comunicación
+              <RadioTower className="h-3.5 w-3.5" /> Comms loss
             </button>
             <button onClick={resetear}
               className="px-2.5 py-1 rounded border bg-hud-panel border-hud-border text-ink-dim hover:border-hud-cyan flex items-center gap-1">
@@ -269,15 +269,15 @@ export const App: React.FC = () => {
           />
           {astronauta && (
             <div className="flex flex-wrap gap-x-4 gap-y-1 px-3 py-2 border-t border-hud-border font-mono text-xs tabular-nums text-ink-dim">
-              <span className="text-hud-cyan">● Astronauta en vivo</span>
+              <span className="text-hud-cyan">● Astronaut live</span>
               <span>{astronauta.pos[1].toFixed(5)}°N {astronauta.pos[0].toFixed(5)}°E</span>
               <span>elev {astronauta.elev_m != null ? Math.round(astronauta.elev_m) : '—'} m</span>
-              <span>pend {astronauta.pendiente_deg.toFixed(1)}°</span>
+              <span>slope {astronauta.pendiente_deg.toFixed(1)}°</span>
               <span>{astronauta.velocidad_kmh.toFixed(1)} km/h</span>
               {astronauta.tramo != null && activeMission?.tramos[astronauta.tramo] && (
-                <span>tramo {astronauta.tramo + 1}: {activeMission.tramos[astronauta.tramo].origen} → {activeMission.tramos[astronauta.tramo].destino}</span>
+                <span>leg {astronauta.tramo + 1}: {activeMission.tramos[astronauta.tramo].origen} → {activeMission.tramos[astronauta.tramo].destino}</span>
               )}
-              <span className="ml-auto">clic en el mapa para moverlo</span>
+              <span className="ml-auto">click the map to move the astronaut</span>
             </div>
           )}
         </div>
@@ -303,10 +303,10 @@ export const App: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="label-caps m-0 flex items-center gap-1.5">
-                    <Route className="h-3.5 w-3.5 text-hud-cyan" /> Telemetría de la Misión
+                    <Route className="h-3.5 w-3.5 text-hud-cyan" /> Mission Telemetry
                   </h3>
                   <span className="text-[10px] font-mono text-nominal">
-                    Sincronizado con Grafo
+                    Synced with graph
                   </span>
                 </div>
                 <MissionSummary
@@ -319,13 +319,13 @@ export const App: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-2.5">
                   <h3 className="label-caps m-0 flex items-center gap-1.5">
-                    <Compass className="h-3.5 w-3.5 text-warning" /> Estaciones Cercanas
+                    <Compass className="h-3.5 w-3.5 text-warning" /> Nearby Stations
                   </h3>
                   <button
                     onClick={() => setActiveTab('stations')}
                     className="text-[11px] font-mono text-hud-cyan hover:underline"
                   >
-                    Ver todas ({stations.length}) →
+                    View all ({stations.length}) →
                   </button>
                 </div>
 
@@ -358,7 +358,7 @@ export const App: React.FC = () => {
             <div className="lg:col-span-5 space-y-4">
               <div className="flex items-center justify-between mb-1">
                 <h3 className="label-caps m-0">
-                  Resultado de la Optimización
+                  Optimization Result
                 </h3>
               </div>
               <MissionSummary
@@ -368,10 +368,10 @@ export const App: React.FC = () => {
 
               <div className="panel p-4 text-xs text-ink-dim space-y-2">
                 <div className="flex items-center gap-1.5 text-hud-cyan font-semibold">
-                  <Info className="h-4 w-4" /> ¿Por qué existe el Modo Plan B?
+                  <Info className="h-4 w-4" /> Why a Plan B mode?
                 </div>
                 <p className="leading-relaxed">
-                  En la evaluación en vivo ante el jurado o en misiones reales con caída de enlace de satélite, este formulario garantiza que la misión se compute 100% matemáticamente mediante los algoritmos de <strong>OR-Tools / Dijkstra</strong> sin depender de la inferencia del LLM.
+                  During the live evaluation, or in a real mission with a satellite link outage, this form makes sure the mission is computed 100% by the <strong>OR-Tools / Dijkstra</strong> algorithms, without depending on LLM inference.
                 </p>
               </div>
             </div>
@@ -383,13 +383,13 @@ export const App: React.FC = () => {
             {/* Filter Pills */}
             <div className="flex flex-wrap items-center justify-between gap-3 bg-hud-panel/60 border border-hud-border p-3 rounded font-mono text-xs">
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-ink-mute mr-1">Filtrar por tipo:</span>
+                <span className="text-ink-mute mr-1">Filter by type:</span>
                 {[
-                  { id: 'all', label: 'TODAS' },
-                  { id: 'ciencia', label: 'CIENCIA' },
-                  { id: 'muestreo', label: 'MUESTREO' },
+                  { id: 'all', label: 'ALL' },
+                  { id: 'ciencia', label: 'SCIENCE' },
+                  { id: 'muestreo', label: 'SAMPLING' },
                   { id: 'habitat', label: 'BASE / ROVER' },
-                  { id: 'refugio', label: 'REFUGIO / COMMS' }
+                  { id: 'refugio', label: 'SHELTER / COMMS' }
                 ].map((f) => (
                   <button
                     key={f.id}
@@ -405,7 +405,7 @@ export const App: React.FC = () => {
               </div>
 
               <span className="text-ink-dim text-[11px]">
-                Mostrando {filteredStations.length} de {stations.length} puntos de interés
+                Showing {filteredStations.length} of {stations.length} points of interest
               </span>
             </div>
 
@@ -432,10 +432,10 @@ export const App: React.FC = () => {
       {/* Footer credits and NASA compliance note */}
       <footer className="mt-auto border-t border-hud-border/80 bg-hud-deep py-4 px-6 text-center text-xs font-mono text-ink-mute">
         <p>
-          NASA Space Apps Challenge 2026 · MarsWalk Copilot · Datos: NASA/JPL-Caltech (Perseverance), USGS SIM 3464, MSSS/ASU.
+          NASA Space Apps Challenge 2026 · MarsWalk Copilot · Data: NASA/JPL-Caltech (Perseverance), USGS SIM 3464, MSSS/ASU.
         </p>
         <p className="text-[10px] text-ink-mute mt-1">
-          Este proyecto es un prototipo desarrollado para propósitos educativos y de investigación aeroespacial. No implica aval oficial de NASA.
+          This project is a prototype built for educational and aerospace research purposes. It does not imply official NASA endorsement.
         </p>
       </footer>
     </div>

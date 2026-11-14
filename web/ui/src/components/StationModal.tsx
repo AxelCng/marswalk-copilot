@@ -37,7 +37,7 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={`Ficha de estación ${station.id}`}
+        aria-label={`Station card ${station.id}`}
         className="relative w-full max-w-xl max-h-[calc(100vh-2rem)] overflow-y-auto rounded border border-hud-border bg-hud-panel shadow-glow-focus"
         style={{ boxShadow: `inset 0 2px 0 var(--tipo-${station.tipo}), var(--glow-focus)` }}
         onClick={(e) => e.stopPropagation()}
@@ -51,9 +51,9 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
             <span className={`text-xs font-mono font-semibold px-2 py-0.5 rounded border ${badge.bg} ${badge.border} ${badge.text}`}>
               {badge.label}
             </span>
-            {station.zona && <span className="label-caps">Zona {station.zona}</span>}
+            {station.zona && <span className="label-caps">Zone {station.zona}</span>}
             {station.valor_cientifico > 0 && (
-              <span className="flex items-center gap-1 text-hud-cyan text-xs font-mono font-bold dato-num" title="Valor científico">
+              <span className="flex items-center gap-1 text-hud-cyan text-xs font-mono font-bold dato-num" title="Science value">
                 <Sparkles className="h-3.5 w-3.5" /> {station.valor_cientifico}/10
               </span>
             )}
@@ -61,7 +61,7 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
 
           <button
             onClick={onClose}
-            aria-label="Cerrar ficha"
+            aria-label="Close card"
             className="rounded p-1 text-ink-dim hover:bg-hud-glass hover:text-ink transition-colors"
           >
             <X className="h-5 w-5" />
@@ -79,7 +79,7 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
         </div>
 
         {fotos.length > 1 && (
-          <div className="segmentado mx-5 mt-3" aria-label="Fotos de la estación">
+          <div className="segmentado mx-5 mt-3" aria-label="Station photos">
             {fotos.map((f, i) => (
               <button key={i} type="button" onClick={() => setFotoIdx(i)} className={i === fotoIdx ? 'activo' : ''}>
                 {nombreCamara(f.camara)} · sol {f.sol}
@@ -91,13 +91,13 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
         <div className="p-5 space-y-4">
           {/* Geología */}
           <div className="bloque">
-            <span className="label-caps">Unidad geológica · USGS SIM 3464</span>
+            <span className="label-caps">Geologic unit · USGS SIM 3464</span>
             <div className="flex min-w-0"><UnidadGeo station={station} /></div>
           </div>
 
           {/* Tarea */}
           <div className="bloque">
-            <span className="label-caps">Tarea asignada</span>
+            <span className="label-caps">Assigned task</span>
             <p className="m-0 text-sm text-ink leading-relaxed bg-hud-deep/60 p-3 rounded border border-hud-border">
               {station.tarea}
             </p>
@@ -112,17 +112,17 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
               <span className={`block text-base font-semibold dato-num ${station.capas.pendiente_deg > 15 ? 'text-warning' : 'text-ink'}`}>
                 {station.capas.pendiente_deg}°
               </span>
-              <span className="text-[9px] text-ink-mute block">Local, en la estación</span>
+              <span className="text-[9px] text-ink-mute block">Local, at the station</span>
             </div>
 
             <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
               <span className="label-caps flex items-center gap-1">
-                <MapPin className="h-3 w-3" /> Elevación
+                <MapPin className="h-3 w-3" /> Elevation
               </span>
               <span className="block text-base font-semibold dato-num text-ink">
                 {station.capas.elev_m} m
               </span>
-              <span className="text-[9px] text-ink-mute block">Altura de la estación</span>
+              <span className="text-[9px] text-ink-mute block">Station height</span>
             </div>
 
             <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
@@ -132,7 +132,7 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
               <span className="block text-base font-semibold dato-num text-hud-cyan">
                 {station.capas.themis_noche} K
               </span>
-              <span className="text-[9px] text-ink-mute block">Temp. de brillo</span>
+              <span className="text-[9px] text-ink-mute block">Brightness temp.</span>
             </div>
 
             <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
@@ -142,7 +142,7 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
               <span className="block text-base font-semibold dato-num text-nominal">
                 {station.permanencia_min} min
               </span>
-              <span className="text-[9px] text-ink-mute block">Tiempo en sitio</span>
+              <span className="text-[9px] text-ink-mute block">Time on site</span>
             </div>
           </div>
 

@@ -42,7 +42,7 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
   const [loading, setLoading] = useState<boolean>(false);
   const [alertaLoading, setAlertaLoading] = useState<boolean>(false);
   const [estado, setEstado] = useState<{ texto: string; tono: Tono }>({
-    texto: 'Elige estaciones y restricciones, o usa una pregunta de la demo.',
+    texto: 'Choose stations and constraints, or use a demo question.',
     tono: 'info',
   });
 
@@ -57,9 +57,9 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
     try {
       const result = await api.postMision(params);
       onMissionCalculated(result);
-      const tope = params.tiempo_max_min == null ? 'sin tope' : `${params.tiempo_max_min} min`;
+      const tope = params.tiempo_max_min == null ? 'no limit' : `${params.tiempo_max_min} min`;
       setEstado({
-        texto: `${api.useMock ? 'Modo prueba' : 'Motor'}: ${params.estaciones.length} estaciones · ≤ ${params.pendiente_max}° · ${tope} · ${params.modo}.`,
+        texto: `${api.useMock ? 'Test mode' : 'Engine'}: ${params.estaciones.length} stations · ≤ ${params.pendiente_max}° · ${tope} · ${params.modo}.`,
         tono: 'info',
       });
     } catch (err) {
@@ -69,11 +69,11 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
         // Igual que la consola de Añe: sin motor, se muestra el ejemplo oficial de contracts/ y se dice.
         onMissionCalculated(ejemplo.mision, true);
         setEstado({
-          texto: `Sin conexión con el motor. Se muestra el ejemplo de contracts/ (grafo de prueba, ≤ ${ejemplo.pendiente}°), no el cálculo real.`,
+          texto: `No connection to the engine. Showing the example from contracts/ (test graph, ≤ ${ejemplo.pendiente}°), not the real calculation.`,
           tono: 'warning',
         });
       } else {
-        setEstado({ texto: `No se pudo calcular: ${mensaje(err)}`, tono: 'critical' });
+        setEstado({ texto: `Could not calculate: ${mensaje(err)}`, tono: 'critical' });
       }
     } finally {
       setLoading(false);
@@ -105,19 +105,19 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
       else onMissionCalculated(result);
       const ev = result.aristas_afectadas ?? [];
       setEstado({
-        texto: `Polvo en ${z}: ${ev.length ? `evitados ${ev.join(', ')}` : 'la ruta no cruzaba la zona'}.`,
+        texto: `Dust in ${z}: ${ev.length ? `avoided ${ev.join(', ')}` : 'the route did not cross the zone'}.`,
         tono: 'critical',
       });
     } catch (err) {
       console.error('Plan B /alerta:', err);
       if (err instanceof ApiError && err.status === 409) {
-        setEstado({ texto: 'Primero calcula una misión: la alerta recalcula la última.', tono: 'warning' });
+        setEstado({ texto: 'Calculate a mission first: the alert recalculates the last one.', tono: 'warning' });
       } else if (sinConexion(err) && z === 'Z2') {
         if (onAlertaCalculada) onAlertaCalculada(MOCK_ALERTA_Z2, 'Z2', true);
         else onMissionCalculated(MOCK_ALERTA_Z2, true);
-        setEstado({ texto: 'Sin conexión con el motor. Se muestra el ejemplo de alerta en Z2 de contracts/ (grafo de prueba), no el cálculo real.', tono: 'warning' });
+        setEstado({ texto: 'No connection to the engine. Showing the Z2 alert example from contracts/ (test graph), not the real calculation.', tono: 'warning' });
       } else {
-        setEstado({ texto: `No se pudo recalcular: ${mensaje(err)}`, tono: 'critical' });
+        setEstado({ texto: `Could not recalculate: ${mensaje(err)}`, tono: 'critical' });
       }
     } finally {
       setAlertaLoading(false);
@@ -127,9 +127,9 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
   const handleReset = async () => {
     try {
       await api.resetAlerta();
-      setEstado({ texto: 'Alertas borradas. Calcula de nuevo la misión.', tono: 'info' });
+      setEstado({ texto: 'Alerts cleared. Calculate the mission again.', tono: 'info' });
     } catch (err) {
-      setEstado({ texto: `Reset sin motor (${mensaje(err)}): solo se limpió la pantalla.`, tono: 'warning' });
+      setEstado({ texto: `Reset without engine (${mensaje(err)}): only the screen was cleared.`, tono: 'warning' });
     }
     onReset?.();
   };
@@ -144,25 +144,25 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-hud-cyan" />
           <div>
-            <h3 className="m-0 font-display text-base font-semibold text-ink">Plan B · Misión manual</h3>
-            <span className="label-caps">Cálculo directo por el motor de grafos, sin LLM</span>
+            <h3 className="m-0 font-display text-base font-semibold text-ink">Plan B · Manual mission</h3>
+            <span className="label-caps">Computed directly by the graph engine, no LLM</span>
           </div>
         </div>
-        <span className="chip warning">Respaldo demo</span>
+        <span className="chip warning">Demo backup</span>
       </div>
 
       {/* Preguntas de la demo */}
       <section className="bloque">
-        <h4 className="label-caps m-0">Preguntas de la demo</h4>
+        <h4 className="label-caps m-0">Demo questions</h4>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <button type="button" className="btn !justify-start" disabled={ocupado} onClick={() => pregunta(DEMO.pendiente_1)} title={FRASES.paso1}>
-            1 · Delta, muestreos y cima, ≤ {DEMO.pendiente_1}°
+            1 · Delta, samples and upper fan, ≤ {DEMO.pendiente_1}°
           </button>
           <button type="button" className="btn !justify-start" disabled={ocupado} onClick={() => pregunta(DEMO.pendiente_2)} title={FRASES.paso2}>
-            2 · ¿Y si acepto {DEMO.pendiente_2}°?
+            2 · What if I accept {DEMO.pendiente_2}°?
           </button>
           <button type="button" className="btn alerta !justify-start" disabled={ocupado} onClick={() => { setZona(DEMO.zona); handleTriggerAlert(DEMO.zona); }}>
-            3 · Alerta de polvo en {DEMO.zona}
+            3 · Dust alert in {DEMO.zona}
           </button>
         </div>
       </section>
@@ -170,12 +170,12 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
       {/* Estaciones */}
       <section className="bloque">
         <div className="flex items-center justify-between">
-          <h4 className="label-caps m-0">Estaciones a visitar</h4>
+          <h4 className="label-caps m-0">Stations to visit</h4>
           <span className="font-mono text-[11px] text-hud-cyan">{selectedStations.length} seleccionadas</span>
         </div>
 
         <fieldset className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-0.5 border-0 m-0 p-0">
-          <legend className="sr-only">Estaciones a visitar</legend>
+          <legend className="sr-only">Stations to visit</legend>
           {candidateStations.map((station) => {
             const isChecked = selectedStations.includes(station.id);
             return (
@@ -187,7 +187,7 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
                 <i className="h-2 w-2 rounded-full" style={{ background: `var(--tipo-${station.tipo})` }} aria-hidden />
                 <b className="font-mono text-xs font-semibold">{station.id}</b>
                 <span className="text-xs truncate">{station.nombre}</span>
-                <span className="font-mono text-[10px] text-ink-mute dato-num" title="Valor científico · pendiente local">
+                <span className="font-mono text-[10px] text-ink-mute dato-num" title="Science value · local slope">
                   {station.valor_cientifico > 0 ? `+${station.valor_cientifico}` : ''} · {station.capas.pendiente_deg}°
                 </span>
               </label>
@@ -200,7 +200,7 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
       <section className="bloque">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
-            <span className="label-caps" id="lbl-pend">Pendiente máxima del traje</span>
+            <span className="label-caps" id="lbl-pend">Suit maximum slope</span>
             <div className="segmentado" role="radiogroup" aria-labelledby="lbl-pend">
               {PENDIENTES.map((p) => (
                 <button
@@ -218,7 +218,7 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="label-caps" htmlFor="planb-tiempo">Tiempo máximo</label>
+            <label className="label-caps" htmlFor="planb-tiempo">Maximum time</label>
             <span className={`flex items-center bg-hud-glass/90 border border-hud-border rounded focus-within:border-hud-cyan ${modo === 'tsp' && sinTope ? 'opacity-45' : ''}`}>
               <input
                 id="planb-tiempo"
@@ -236,26 +236,26 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
             {modo === 'tsp' && (
               <label className="flex items-center gap-1.5 text-[11px] font-mono text-ink-dim cursor-pointer">
                 <input type="checkbox" checked={sinTope} onChange={(e) => setSinTope(e.target.checked)} className="h-3.5 w-3.5 m-0" />
-                Sin tope de tiempo
+                No time limit
               </label>
             )}
           </div>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <span className="label-caps" id="lbl-modo">Algoritmo</span>
+          <span className="label-caps" id="lbl-modo">Algorithm</span>
           <div className="segmentado" role="radiogroup" aria-labelledby="lbl-modo">
             <button type="button" role="radio" aria-checked={modo === 'orientacion'} onClick={() => setModo('orientacion')} className={modo === 'orientacion' ? 'activo' : ''}>
-              Orientación · máx. ciencia
+              Orienteering · max science
             </button>
             <button type="button" role="radio" aria-checked={modo === 'tsp'} onClick={() => setModo('tsp')} className={modo === 'tsp' ? 'activo' : ''}>
-              TSP · todas
+              TSP · all
             </button>
           </div>
           <span className="text-[11px] text-ink-mute">
             {modo === 'orientacion'
-              ? 'Maximiza el valor científico dentro del tiempo y omite las que no entran.'
-              : 'Visita todas en el mejor orden, o responde que no es factible.'}
+              ? 'Maximizes science value within the time limit and skips the stations that do not fit.'
+              : 'Visits all of them in the best order, or answers that it is not feasible.'}
           </span>
         </div>
       </section>
@@ -269,11 +269,11 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
           className="btn primario w-full"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          Calcular ruta óptima
+          Calculate optimal route
         </button>
         <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2">
           <select
-            aria-label="Zona de la alerta"
+            aria-label="Alert zone"
             value={zona}
             onChange={(e) => setZona(e.target.value)}
             className="min-w-0 min-h-[34px] px-1 bg-hud-glass/90 border border-hud-border rounded text-ink font-mono text-xs"
@@ -283,9 +283,9 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMi
             ))}
           </select>
           <button type="button" onClick={() => handleTriggerAlert()} disabled={ocupado} className="btn alerta">
-            {alertaLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <AlertTriangle className="h-3.5 w-3.5" />} Simular polvo
+            {alertaLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <AlertTriangle className="h-3.5 w-3.5" />} Simulate dust
           </button>
-          <button type="button" onClick={handleReset} disabled={ocupado} title="Quita las alertas (POST /reset)" className="btn">
+          <button type="button" onClick={handleReset} disabled={ocupado} title="Clears the alerts (POST /reset)" className="btn">
             <RefreshCw className="h-3.5 w-3.5" /> Reset
           </button>
         </div>

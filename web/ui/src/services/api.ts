@@ -67,7 +67,7 @@ class ApiService {
   async getEstacion(id: string): Promise<EstacionDetalle> {
     if (this.useMock) {
       const found = MOCK_ESTACIONES.find(e => e.id === id);
-      if (!found) throw new Error(`Estación ${id} no encontrada`);
+      if (!found) throw new Error(`Station ${id} not found`);
       return found;
     }
 
@@ -78,7 +78,7 @@ class ApiService {
     } catch (err) {
       console.warn('Backend unavailable, falling back to mock:', err);
       const found = MOCK_ESTACIONES.find(e => e.id === id);
-      if (!found) throw new Error(`Estación ${id} no encontrada`);
+      if (!found) throw new Error(`Station ${id} not found`);
       return found;
     }
   }
@@ -160,7 +160,7 @@ class ApiService {
       return await res.json();
     } catch (err) {
       // Nunca responder con datos de prueba si el copiloto real falla: el panel avisa y ofrece el plan B.
-      throw new Error(`El copiloto no respondió (${err instanceof Error ? err.message : err}). Usa el formulario Plan B.`);
+      throw new Error(`The copilot did not respond (${err instanceof Error ? err.message : err}). Use the Plan B form.`);
     }
   }
 }

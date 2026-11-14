@@ -6,9 +6,9 @@ export const R_MARTE = 3396190;
 
 // Cámaras: altura sobre el suelo en metros de Marte.
 export const CAMARAS = {
-  ojos: { nombre: 'Ojos 1,8 m', altura: 1.8 },
-  dron: { nombre: 'Dron 40 m', altura: 40 },
-  alta: { nombre: 'Alta 250 m', altura: 250 },
+  ojos: { nombre: 'Eyes 1.8 m', altura: 1.8 },
+  dron: { nombre: 'Drone 40 m', altura: 40 },
+  alta: { nombre: 'High 250 m', altura: 250 },
 };
 
 const rad = (d) => (d * Math.PI) / 180;

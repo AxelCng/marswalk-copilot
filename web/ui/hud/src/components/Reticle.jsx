@@ -29,7 +29,7 @@ export default function Reticle({ pendiente }) {
       })}
       <g className="ret-pend" transform={`translate(112 ${yPend})`}>
         <path d="M0 0 L8 -5 V5 Z" />
-        <text x="11" y="-2">PEND</text>
+        <text x="11" y="-2">SLOPE</text>
         <text x="11" y="9">{pendiente}°</text>
       </g>
     </svg>

@@ -19,7 +19,7 @@ export function rumboTramo(tramo) {
   return rumbo(g[0], g[g.length - 1]);
 }
 
-const PUNTOS = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
+const PUNTOS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
 export const cardinal = (d) => PUNTOS[Math.round(norm(d) / 45) % 8];
 
 export const norm = (d) => ((d % 360) + 360) % 360;

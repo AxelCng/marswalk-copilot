@@ -24,9 +24,9 @@ export default function MiniMap({ mision, misionPrevia, alerta, zona, idx, nodos
   const actual = mision.tramos[idx];
 
   return (
-    <figure className="minimapa" aria-label="Minimapa táctico de la ruta">
+    <figure className="minimapa" aria-label="Tactical route minimap">
       <figcaption className="label-caps">
-        Táctico <span>N ↑</span>
+        Tactical <span>N ↑</span>
       </figcaption>
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`}>
         <g className="mm-geo">

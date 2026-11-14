@@ -2,7 +2,7 @@ import React from 'react';
 import { cardinal, delta, norm } from '../geo.js';
 
 const SPAN = 90; // grados visibles en la cinta
-const LETRAS = { 0: 'N', 45: 'NE', 90: 'E', 135: 'SE', 180: 'S', 225: 'SO', 270: 'O', 315: 'NO' };
+const LETRAS = { 0: 'N', 45: 'NE', 90: 'E', 135: 'SE', 180: 'S', 225: 'SW', 270: 'W', 315: 'NW' };
 
 /** Cinta de rumbo: centrada en la vista; la marca cian es el rumbo a la próxima estación. */
 export default function HeadingTape({ vista, objetivo, idObjetivo }) {
@@ -21,7 +21,7 @@ export default function HeadingTape({ vista, objetivo, idObjetivo }) {
   const pObj = pos(objetivo);
   const fuera = pObj < 2 || pObj > 98;
   return (
-    <div className="cinta" role="img" aria-label={`Rumbo de vista ${Math.round(vista)}°, objetivo ${idObjetivo} a ${Math.round(objetivo)}°`}>
+    <div className="cinta" role="img" aria-label={`View heading ${Math.round(vista)}°, target ${idObjetivo} at ${Math.round(objetivo)}°`}>
       <div className="cinta-escala">
         {marcas}
         <div

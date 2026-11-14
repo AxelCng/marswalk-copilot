@@ -9,17 +9,17 @@ export default function AlertStrip({ alerta, zona, mision }) {
       <div className="alerta-titulo">
         <span className="alerta-icono" aria-hidden="true">!</span>
         <b>
-          Alerta de {alerta.tipo} · {alerta.zona}
+          {alerta.tipo === 'polvo' ? 'Dust' : 'Comms'} alert · {alerta.zona}
           {zona?.nombre ? ` ${zona.nombre}` : ''}
         </b>
       </div>
       {afectadas.length > 0 && (
         <p>
-          Ruta recalculada. Tramos evitados: <span className="mono">{afectadas.join(', ').replaceAll('->', '→')}</span>
+          Route recalculated. Legs avoided: <span className="mono">{afectadas.join(', ').replaceAll('->', '→')}</span>
         </p>
       )}
       <p className="mono">
-        Nuevo total {min(mision.totales.tiempo_min)} · margen {min(mision.totales.margen_min)}
+        New total {min(mision.totales.tiempo_min)} · margin {min(mision.totales.margen_min)}
       </p>
     </section>
   );

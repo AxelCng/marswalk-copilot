@@ -22,11 +22,11 @@ export default function TargetLock({ tramo, nodo, rumbo, dx, ancho, onCentrar })
       </div>
       {fuera ? (
         <button className="lock-centrar" onClick={onCentrar}>
-          {dx < 0 ? '◀ ' : ''}Centrar {tramo.destino}{dx > 0 ? ' ▶' : ''}
+          {dx < 0 ? '◀ ' : ''}Center {tramo.destino}{dx > 0 ? ' ▶' : ''}
         </button>
       ) : (
         <div className={`lock-ficha${derecha ? ' izq' : ''}`}>
-          <span className="label-caps lock-estado">Objetivo fijado</span>
+          <span className="label-caps lock-estado">Target locked</span>
           <b className="lock-nombre">
             {tramo.destino} · {nodo?.nombre ?? '—'}
           </b>
@@ -36,15 +36,15 @@ export default function TargetLock({ tramo, nodo, rumbo, dx, ancho, onCentrar })
               <dd>{tramo.distancia_m} m</dd>
             </div>
             <div>
-              <dt>Pend</dt>
+              <dt>Slope</dt>
               <dd>{tramo.pendiente_max_deg}°</dd>
             </div>
             <div>
-              <dt>Marcha</dt>
+              <dt>Walk</dt>
               <dd>{min(tramo.tiempo_min)}</dd>
             </div>
             <div>
-              <dt>Rumbo</dt>
+              <dt>Heading</dt>
               <dd>
                 {String(Math.round(rumbo)).padStart(3, '0')}° {cardinal(rumbo)}
               </dd>
@@ -65,11 +65,11 @@ export default function TargetLock({ tramo, nodo, rumbo, dx, ancho, onCentrar })
           {sim?.unidad && (
             <p className="lock-geo">
               <b>{sim.unidad.unit_symbol}</b> {sim.unidad.unit_name}
-              {sim.unidad.age_prefix ? ` · ${sim.unidad.age_prefix}` : ''}
+              {sim.unidad.age_prefix ? ` · ${String(sim.unidad.age_prefix).replace(/Noachiano/g, 'Noachian').replace(/Hesperiano/g, 'Hesperian')}` : ''}
             </p>
           )}
-          {cruza.length > 1 && <p className="lock-geo sub">Cruza {cruza.join(' → ')}</p>}
-          <span className="lock-fuente">Terreno: USGS SIM 3464</span>
+          {cruza.length > 1 && <p className="lock-geo sub">Crosses {cruza.join(' → ')}</p>}
+          <span className="lock-fuente">Terrain: USGS SIM 3464</span>
         </div>
       )}
     </div>

@@ -91,7 +91,7 @@ export async function unidadesPorEstacion(
     out[e.id] = {
       simbolo: String(p.unit_symbol ?? p.unit_key ?? ''),
       nombre: String(p.unit_name ?? ''),
-      edad: String(p.age_prefix ?? ''),
+      edad: String(p.age_prefix ?? '').replace(/Noachiano/g, 'Noachian').replace(/Hesperiano/g, 'Hesperian'), // en inglés para la interfaz
       color: colorDeUnidad(p),
     };
   }

@@ -28,9 +28,9 @@ export const HudHeader: React.FC<HudHeaderProps> = ({ activeTab, onTabChange, st
   };
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-    { id: 'chat', label: 'Copiloto', icon: <MessageSquare className="h-3.5 w-3.5" /> },
+    { id: 'chat', label: 'Copilot', icon: <MessageSquare className="h-3.5 w-3.5" /> },
     { id: 'planb', label: 'Plan B', icon: <ShieldCheck className="h-3.5 w-3.5" /> },
-    { id: 'stations', label: `Fichas (${stationsCount})`, icon: <MapPin className="h-3.5 w-3.5" /> },
+    { id: 'stations', label: `Stations (${stationsCount})`, icon: <MapPin className="h-3.5 w-3.5" /> },
   ];
 
   return (
@@ -47,13 +47,13 @@ export const HudHeader: React.FC<HudHeaderProps> = ({ activeTab, onTabChange, st
             <h1 className="m-0 font-display font-bold text-base leading-[18px] tracking-[0.02em] uppercase text-ink">
               MarsWalk Copilot
             </h1>
-            <p className="label-caps m-0">EVA HUD · Cráter Jezero</p>
+            <p className="label-caps m-0">EVA HUD · Jezero Crater</p>
           </div>
         </div>
 
         {/* Vistas de la consola + modo visor */}
         <div className="flex w-full sm:w-auto items-center gap-2 order-last sm:order-none">
-          <nav className="segmentado flex-1 sm:min-w-[320px] bg-hud-deep" aria-label="Vistas">
+          <nav className="segmentado flex-1 sm:min-w-[320px] bg-hud-deep" aria-label="Views">
             {tabs.map((t) => (
               <button
                 key={t.id}
@@ -67,7 +67,7 @@ export const HudHeader: React.FC<HudHeaderProps> = ({ activeTab, onTabChange, st
             ))}
           </nav>
           {onAbrirVisor && (
-            <button type="button" onClick={onAbrirVisor} className="btn primario !min-h-[30px] !px-3" title="Modo visor en primera persona (HUD de casco)">
+            <button type="button" onClick={onAbrirVisor} className="btn primario !min-h-[30px] !px-3" title="First-person visor mode (helmet HUD)">
               <ScanEye className="h-3.5 w-3.5" /> Visor
             </button>
           )}
@@ -76,10 +76,10 @@ export const HudHeader: React.FC<HudHeaderProps> = ({ activeTab, onTabChange, st
         {/* Telemetría y fuente de datos */}
         <div className="flex items-center gap-2 text-xs dato-num">
           <span className="hidden lg:inline-flex items-center gap-1.5 px-2 py-1 border border-hud-border rounded bg-hud-deep text-nominal">
-            <Battery className="h-3.5 w-3.5" /> 94% TRAJE
+            <Battery className="h-3.5 w-3.5" /> SUIT 94% · SIM
           </span>
           <span className="hidden lg:inline-flex items-center gap-1.5 px-2 py-1 border border-hud-border rounded bg-hud-deep text-hud-cyan">
-            <Activity className="h-3.5 w-3.5" /> O₂ 4.2 h
+            <Activity className="h-3.5 w-3.5" /> O₂ 4.2 h · SIM
           </span>
           <span className="hidden md:inline-flex items-baseline gap-1.5 px-2 py-1 border border-hud-border rounded bg-hud-deep text-ink">
             <span className="label-caps">UTC</span> {time}
@@ -88,11 +88,11 @@ export const HudHeader: React.FC<HudHeaderProps> = ({ activeTab, onTabChange, st
           <button
             type="button"
             onClick={handleToggleMock}
-            title="Alternar entre datos de prueba locales y FastAPI :8000"
+            title="Switch between local test data and FastAPI :8000"
             className={`chip sin-punto cursor-pointer bg-hud-deep min-h-[26px] ${useMock ? 'warning' : 'nominal'}`}
           >
             <Database className="h-3 w-3" />
-            {useMock ? 'Modo prueba' : 'FastAPI :8000'}
+            {useMock ? 'Test mode' : 'FastAPI :8000'}
           </button>
         </div>
       </div>
