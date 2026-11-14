@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "web/map", "run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "web-hud",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "web/ui/hud", "run", "dev"],
+      "port": 5174
     }
   ]
 }
