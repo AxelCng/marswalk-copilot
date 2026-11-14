@@ -106,10 +106,11 @@ export const App: React.FC = () => {
     setZonaAlerta(zona); setEjemplo(ejemplo); setActiveMission(r);
   };
 
-  /** Respuesta del chat: si el copiloto llamó a recalcular_por_alerta, se muestra como alerta. */
+  /** Respuesta del chat: si el copiloto llamó a reroute_for_alert, se muestra como alerta. */
   const onRutaDelChat = (ruta: RespuestaMision, res?: ChatResponse) => {
-    const alerta = res?.llamadas.find((l) => l.herramienta === 'recalcular_por_alerta');
-    if (alerta) aplicarAlerta(ruta, String(alerta.argumentos.zona ?? '') || null);
+    const alerta = res?.calls.find((l) => l.tool === 'reroute_for_alert');
+    // comms afecta a toda la red: no hay zona que resaltar (igual que el Plan B)
+    if (alerta) aplicarAlerta(ruta, alerta.arguments.type === 'comms' ? null : String(alerta.arguments.zone ?? '') || null);
     else mostrarMision(ruta);
   };
 

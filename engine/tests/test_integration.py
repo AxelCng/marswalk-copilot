@@ -11,17 +11,17 @@ from engine.main import create_app
 def test_chat_router_delegates_to_manuel(monkeypatch):
     calls = []
 
-    def responder(mensaje, historial, modelo=None):
-        calls.append((mensaje, historial, modelo))
-        return {"respuesta": "prueba", "llamadas": [], "ruta": None}
+    def respond(message, history, model=None):
+        calls.append((message, history, model))
+        return {"answer": "prueba", "calls": [], "route": None}
 
-    monkeypatch.setattr(chat_router, "responder", responder)
+    monkeypatch.setattr(chat_router, "respond", respond)
     with TestClient(create_app()) as client:
-        response = client.post("/chat", json={"mensaje": "hola", "historial": []})
+        response = client.post("/chat", json={"message": "hola", "history": []})
         assert response.status_code == 200
-        assert response.json()["respuesta"] == "prueba"
+        assert response.json()["answer"] == "prueba"
         assert calls == [("hola", [], None)]
-        assert client.get("/chat/estado").status_code == 200
+        assert client.get("/chat/status").status_code == 200
         assert client.post("/chat/reset").json() == {"ok": True}
 
 

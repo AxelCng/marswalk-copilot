@@ -42,7 +42,7 @@ docker compose up --build -d     # la primera vez tarda unos minutos
 
 | Para | Cómo |
 | --- | --- |
-| Usar el `graph.json` real de Pedro | Copiarlo a `data/out/graph.json` y correr `$env:GRAPH_PATH="data/out/graph.json"; docker compose up -d` (no hace falta reconstruir) |
+| Grafo | Por defecto el **real** (`data/out/graph.json`). Para el falso: `$env:GRAPH_PATH="contracts/graph_fake.json"; docker compose up -d`. Un grafo nuevo de Pedro se toma con `docker compose restart api` (no hace falta reconstruir) |
 | Usar Ollama de otra máquina o de Colab | `$env:OLLAMA_URL="http://<ip-o-túnel>:11434"; docker compose up -d` |
 | Ver los logs del motor | `docker compose logs -f api` |
 

@@ -17,7 +17,7 @@ Ejemplos reales de request/response, generados desde `graph_fake.json`, en [`eje
 | POST | `/mision` | `{estaciones[], tiempo_max_min, pendiente_max, modo}` | `RespuestaMision` | `post_mision.*.json` |
 | POST | `/alerta` | `{zona, tipo}` | `RespuestaMision` + `aristas_afectadas` | `post_alerta.*.json` |
 | POST | `/reset` | — | `{"ok": true}` | — |
-| POST | `/chat` | `{mensaje, historial}` | `{respuesta, llamadas, ruta}` | — (lo implementa Manuel) |
+| POST | `/chat` | `{message, history}` | `{answer, calls, route}` | — (lo implementa Manuel, en inglés) |
 
 ### GET `/estaciones`
 
@@ -65,17 +65,21 @@ Respuesta = `RespuestaMision` + `"aristas_afectadas": ["HAB->M2", "M2->M1"]` (lo
 
 ### POST `/chat` (Manuel)
 
+El copiloto habla en inglés y sus campos están en inglés (ver `llm/README.md`).
+
 ```json
 // entrada
-{"mensaje": "¿Y si acepto hasta 12°?",
- "historial": [{"rol": "usuario", "contenido": "..."}, {"rol": "asistente", "contenido": "..."}]}
+{"message": "What if I accept up to 12°?",
+ "history": [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]}
 // salida
-{"respuesta": "Con 12° sumo la Cima del delta (E2)...",
- "llamadas": [{"herramienta": "optimizar_mision",
-               "argumentos": {"estaciones": ["E1","M1","M2","E2"], "tiempo_max_min": 240, "pendiente_max": 20},
-               "ok": true}],
- "ruta": { "...": "RespuestaMision o null si no hubo ruta" }}
+{"answer": "With 12° I add the Upper delta (E2)...",
+ "calls": [{"tool": "optimize_mission",
+            "arguments": {"stations": ["E1","M1","M2","E2"], "max_time_min": 240, "max_slope_deg": 12},
+            "ok": true}],
+ "route": { "...": "RespuestaMision o null si no hubo ruta" }}
 ```
+
+
 
 ## `RespuestaMision` (la misma forma para `/ruta`, `/mision` y `/alerta`)
 

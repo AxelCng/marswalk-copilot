@@ -1,200 +1,298 @@
 """
-Las 5 herramientas que el LLM puede llamar. Cada una llama a un endpoint de la API (contracts/api.md).
-El LLM nunca recibe el grafo completo ni calcula nada: solo elige herramienta y argumentos.
+The 5 tools the LLM can call. Each one calls an endpoint of the engine API (contracts/api.md).
+The LLM never receives the full graph and never computes anything: it only picks a tool and its arguments.
+
+The model sees English tool names and arguments; this file translates them to the engine API fields
+(which are part of the Spanish contract owned by the engine: estaciones, pendiente_max, zona...).
 """
+import re
 import unicodedata
 
 import requests
 
-from config import API_URL, PENDIENTE_DEFAULT, TIEMPO_DEFAULT
+from config import API_URL, DEFAULT_SLOPE_DEG, DEFAULT_TIME_MIN
 
 TIMEOUT = 30
 
 TOOLS = [
     {"type": "function", "function": {
-        "name": "listar_estaciones",
-        "description": "Lista todas las estaciones (id, nombre, tipo, valor científico). Úsala para traducir "
-                       "los nombres que dice el astronauta a ids antes de llamar a otras herramientas.",
+        "name": "list_stations",
+        "description": "Lists every station (id, name, type, science value). Use it to translate the place names "
+                       "the astronaut says into ids before calling other tools.",
         "parameters": {"type": "object", "properties": {}, "required": []}}},
     {"type": "function", "function": {
-        "name": "info_estacion",
-        "description": "Datos completos de una estación: tarea, tiempo de permanencia, unidad geológica, "
-                       "zona, elevación, pendiente y fotos.",
+        "name": "station_info",
+        "description": "Full data for one station: task, dwell time, geologic unit, zone, elevation, slope and photos.",
         "parameters": {"type": "object", "properties": {
-            "id": {"type": "string", "description": "Id de la estación, por ejemplo E1"}},
+            "id": {"type": "string", "description": "Station id, for example E1"}},
             "required": ["id"]}}},
     {"type": "function", "function": {
-        "name": "ruta_punto_a_punto",
-        "description": "Camino más rápido entre dos estaciones respetando una pendiente máxima.",
+        "name": "point_to_point_route",
+        "description": "Fastest path between two stations that respects a maximum slope.",
         "parameters": {"type": "object", "properties": {
-            "origen": {"type": "string", "description": "Id de la estación de origen, por ejemplo HAB"},
-            "destino": {"type": "string", "description": "Id de la estación de destino"},
-            "pendiente_max": {"type": "number",
-                              "description": f"Pendiente máxima en grados. Si no la dicen, usa {PENDIENTE_DEFAULT:g}"}},
-            "required": ["origen", "destino"]}}},
+            "origin": {"type": "string", "description": "Origin station id, for example HAB"},
+            "destination": {"type": "string", "description": "Destination station id"},
+            "max_slope_deg": {"type": "number",
+                              "description": f"Maximum slope in degrees. If not given, use {DEFAULT_SLOPE_DEG:g}"}},
+            "required": ["origin", "destination"]}}},
     {"type": "function", "function": {
-        "name": "optimizar_mision",
-        "description": "Calcula la mejor caminata que sale del hábitat y vuelve, visitando estaciones, con tiempo "
-                       "límite y pendiente máxima. Devuelve el orden, los tramos, las estaciones omitidas con su "
-                       "motivo, los totales y la comparación con la misión anterior.",
+        "name": "optimize_mission",
+        "description": "Computes the best walk that leaves the habitat and comes back, visiting stations, with a "
+                       "time limit and a maximum slope. Returns the order, the legs, the skipped stations with "
+                       "their reason, the totals and the comparison with the previous mission.",
         "parameters": {"type": "object", "properties": {
-            "estaciones": {"type": "array", "items": {"type": "string"},
-                           "description": "Ids de TODAS las estaciones a visitar, por ejemplo [\"E1\", \"M1\"]"},
-            "tiempo_max_min": {"type": "number",
-                               "description": f"Tiempo máximo total en MINUTOS (3 horas = 180, 4 horas = 240). "
-                                              f"Si no lo dicen, usa {TIEMPO_DEFAULT:g}"},
-            "pendiente_max": {"type": "number",
-                              "description": f"Pendiente máxima en grados. Si no la dicen, usa {PENDIENTE_DEFAULT:g}"}},
-            "required": ["estaciones"]}}},
+            "stations": {"type": "array", "items": {"type": "string"},
+                         "description": "Ids of ALL the stations to visit, for example [\"E1\", \"M1\"]"},
+            "max_time_min": {"type": "number",
+                             "description": f"Maximum total time in MINUTES (3 hours = 180, 4 hours = 240). "
+                                            f"If not given, use {DEFAULT_TIME_MIN:g}"},
+            "max_slope_deg": {"type": "number",
+                              "description": f"Maximum slope in degrees. If not given, use {DEFAULT_SLOPE_DEG:g}"}},
+            "required": ["stations"]}}},
     {"type": "function", "function": {
-        "name": "recalcular_por_alerta",
-        "description": "Registra una alerta (tormenta de polvo en una zona o pérdida de comunicación) y "
-                       "recalcula la última misión. Devuelve la nueva ruta y los tramos afectados.",
+        "name": "reroute_for_alert",
+        "description": "Registers an alert (dust storm in a zone or loss of communications) and recalculates the "
+                       "last mission. Returns the new route and the affected legs.",
         "parameters": {"type": "object", "properties": {
-            "zona": {"type": "string", "description": "Id de la zona afectada, por ejemplo Z2 (o su nombre)"},
-            "tipo": {"type": "string", "enum": ["polvo", "comms"]}},
-            "required": ["tipo"]}}},
+            "zone": {"type": "string", "description": "Affected zone id, for example Z2 (or its name)"},
+            "type": {"type": "string", "enum": ["dust", "comms"]}},
+            "required": ["type"]}}},
 ]
 
+# English names and tasks by id. The catalog (estaciones.csv / graph.json) is in Spanish and owned by
+# other people; these maps let the copilot speak English and understand English place names.
+STATION_NAMES_EN = {
+    "HAB": "Octavia E. Butler habitat",
+    "ROV": "Support rover, south floor",
+    "E1": "Delta front, Amalik outcrop",
+    "M1": "South Séítah, Brac outcrop",
+    "M2": "Three Forks sample depot",
+    "E2": "Upper delta (Upper Fan)",
+    "REF": "Shelter at the base of Hawksbill Gap",
+    "COM": "Relay antenna, northern plain",
+}
+STATION_TASKS_EN = {
+    "HAB": "Mission base",
+    "ROV": "Battery swap and sample handoff",
+    "E1": "Stratigraphy of sedimentary layers",
+    "M1": "Core sample of olivine-rich igneous rock",
+    "M2": "Check the depot sample tubes",
+    "E2": "Stratigraphy and panorama of the fan",
+    "REF": "Shelter from dust storms",
+    "COM": "Antenna inspection",
+}
+# Zones are keyed by their Spanish NAME, not by id: the fake and the real graph reuse Z1..Z4 for
+# different zones. Value: (English name, extra aliases the user may say). Unknown zones keep their name.
+ZONES_EN = {
+    "delta": ("Delta", []),
+    "campo de dunas": ("Dune field", ["dunes"]),
+    "seitah": ("Séítah", []),
+    "llanura norte": ("Northern plain", ["north plain"]),
+    "frente del delta": ("Delta front", []),
+    "campo de dunas seitah": ("Séítah dune field", ["dune field", "dunes", "seitah"]),
+    "corredor de acceso": ("Access corridor", ["corridor"]),
+    "entrada al delta": ("Delta entrance", ["delta entrance", "delta"]),
+    "borde norte de seitah": ("North edge of Séítah", ["seitah"]),
+    "corredor del habitat": ("Habitat corridor", ["corridor"]),
+}
+TYPES_EN = {"habitat": "habitat", "rover": "rover", "ciencia": "science", "muestreo": "sampling",
+            "refugio": "shelter", "comms": "comms"}
+REASONS_EN = {"pendiente": "slope", "tiempo": "time", "alerta": "alert", "comms": "comms", "no_existe": "not_found"}
 
-# ---------- tolerancia: acepta nombres además de ids (ayuda mucho a modelos chicos) ----------
+
+# ---------- tolerance: accepts names as well as ids (helps small models a lot) ----------
 def _norm(s):
     s = unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode().lower()
     return " ".join(s.replace("_", " ").replace("-", " ").replace(",", " ").split())
 
 
-_cache = {"estaciones": None, "zonas": None}
+_cache = {"stations": None, "zones": None}
 
 
-def _estaciones():
-    if _cache["estaciones"] is None:
+def _stations():
+    """Stations from the API, with the English name added as `name`."""
+    if _cache["stations"] is None:
         r = requests.get(f"{API_URL}/estaciones", timeout=TIMEOUT)
         r.raise_for_status()
-        _cache["estaciones"] = r.json()
-    return _cache["estaciones"]
+        _cache["stations"] = [{**e, "name": STATION_NAMES_EN.get(e["id"], e.get("nombre", e["id"]))}
+                              for e in r.json()]
+    return _cache["stations"]
 
 
-def _zonas():
-    if _cache["zonas"] is None:
+def _zones():
+    """Zones of the loaded graph with English name and aliases. A failed call is not cached."""
+    if _cache["zones"] is None:
         try:
             r = requests.get(f"{API_URL}/grafo", timeout=TIMEOUT)
-            _cache["zonas"] = [{"id": z["id"], "nombre": z.get("nombre", "")} for z in r.json().get("zonas", [])]
+            r.raise_for_status()
+            zones = []
+            for z in r.json().get("zonas", []):
+                nombre = z.get("nombre", "")
+                name, aliases = ZONES_EN.get(_norm(nombre), (nombre, []))
+                zones.append({"id": z["id"], "nombre": nombre, "name": name, "aliases": aliases})
+            _cache["zones"] = zones
         except (requests.RequestException, ValueError):
-            _cache["zonas"] = []
-    return _cache["zonas"]
+            return []
+    return _cache["zones"]
 
 
-def _mejor_por_nombre(ref, items):
-    """Busca por nombre normalizado: igualdad, inclusión o más palabras en común."""
+def zone_in_text(text):
+    """Zone id named in a (normalized) text, by English name, Spanish name or alias; longest match wins."""
+    candidates = []
+    for z in _zones():
+        for phrase in [z["name"], z["nombre"], *z["aliases"]]:
+            p = _norm(phrase)
+            if p and re.search(rf"\b{re.escape(p)}\b", text):
+                candidates.append((len(p), z["id"]))
+    return max(candidates)[1] if candidates else None
+
+
+def station_names():
+    """{id: English name} for every station; {} if the API is down."""
+    try:
+        return {e["id"]: e["name"] for e in _stations()}
+    except Exception:
+        return {}
+
+
+def _names_of(item):
+    return [n for n in (item.get("name"), item.get("nombre")) if n]
+
+
+def _best_by_name(ref, items):
+    """Looks up by normalized name (English or Spanish): equality, inclusion or most words in common."""
     r = _norm(ref)
     if not r:
         return None
     for it in items:
-        n = _norm(it["nombre"])
-        if r == n or r in n or n in r:
-            return it["id"]
-    palabras = [p for p in r.split() if len(p) > 3]
-    mejor = max(items, key=lambda it: sum(p in _norm(it["nombre"]) for p in palabras), default=None)
-    if mejor and any(p in _norm(mejor["nombre"]) for p in palabras):
-        return mejor["id"]
+        for name in _names_of(it):
+            n = _norm(name)
+            if r == n or r in n or n in r:
+                return it["id"]
+    words = [p for p in r.split() if len(p) > 3]
+
+    def score(it):
+        return max((sum(p in _norm(n) for p in words) for n in _names_of(it)), default=0)
+
+    best = max(items, key=score, default=None)
+    if best and score(best) > 0:
+        return best["id"]
     return None
 
 
-def resolver_id(ref):
-    """'E1', 'e1', 'frente del delta', 'el delta' -> 'E1'. Si no encuentra, devuelve ref tal cual
-    (la API la marcará como no_existe y el LLM podrá decirlo)."""
-    ests = _estaciones()
-    ids = {e["id"].upper(): e["id"] for e in ests}
-    if str(ref).strip().upper() in ids:
-        return ids[str(ref).strip().upper()]
-    if _norm(ref) in ("habitat", "base", "el habitat", "hab"):
-        return next((e["id"] for e in ests if e["tipo"] == "habitat"), ref)
-    return _mejor_por_nombre(ref, ests) or str(ref).strip()
-
-
-def resolver_zona(ref):
-    """'Z2', 'z2', 'zona 2', 'campo de dunas' -> 'Z2'."""
-    s = str(ref).strip()
-    zonas = _zonas()
-    ids = {z["id"].upper(): z["id"] for z in zonas}
+def resolve_id(ref):
+    """'E1', 'e1', 'delta front', 'frente del delta' -> 'E1'. If nothing matches, returns ref unchanged
+    (the API will mark it as not found and the LLM can say so)."""
+    stations = _stations()
+    ids = {e["id"].upper(): e["id"] for e in stations}
+    s = str(ref or "").strip()
     if s.upper() in ids:
         return ids[s.upper()]
-    compacto = s.upper().replace("ZONA", "Z").replace(" ", "")
-    if compacto in ids or (not zonas and compacto[:1] == "Z"):
-        return ids.get(compacto, compacto)
-    return _mejor_por_nombre(s, zonas) or s.upper()
+    # 'E1 (delta front)', 'station E1', 'E 1' -> the id inside
+    for token in re.findall(r"\b([A-Za-z]{1,3})\s?(\d)\b", s):
+        if (token[0] + token[1]).upper() in ids:
+            return ids[(token[0] + token[1]).upper()]
+    for word in re.findall(r"\b[A-Za-z]{3}\b", s):
+        if word.upper() in ids:
+            return ids[word.upper()]
+    if _norm(s) in ("habitat", "the habitat", "base", "home", "home base", "base camp", "hab", "el habitat"):
+        return next((e["id"] for e in stations if e["tipo"] == "habitat"), s)
+    if len(_norm(s)) < 3:  # 'a', 'x': do not guess
+        return s
+    return _best_by_name(s, stations) or s
 
 
-def _num(x, defecto):
+def resolve_zone(ref):
+    """'Z2', 'z2', 'zone 2', 'dune field' -> 'Z2'."""
+    s = str(ref).strip()
+    zones = _zones()
+    ids = {z["id"].upper(): z["id"] for z in zones}
+    if s.upper() in ids:
+        return ids[s.upper()]
+    compact = s.upper().replace("ZONE", "Z").replace("ZONA", "Z").replace(" ", "")
+    if compact in ids or (not zones and compact[:1] == "Z"):
+        return ids.get(compact, compact)
+    return zone_in_text(_norm(s)) or _best_by_name(s, zones) or s.upper()
+
+
+def _num(x, default):
     try:
         return float(x)
     except (TypeError, ValueError):
-        return defecto
+        return default
 
 
-def _lista(x):
-    if isinstance(x, str):  # algunos modelos mandan "E1, E3" o '["E1","E3"]'
+def _as_list(x):
+    if isinstance(x, str):  # some models send "E1, E3" or '["E1","E3"]'
         x = x.replace("[", "").replace("]", "").replace('"', "").replace("'", "").split(",")
     return [str(s).strip() for s in (x or []) if str(s).strip()]
 
 
-# ---------- ejecución ----------
-def ejecutar(nombre, args):
-    """Ejecuta una herramienta y devuelve (argumentos_enviados, resultado).
-    Nunca lanza excepción: los errores van en resultado['error']."""
-    args = dict(args or {})
-    enviado = args
-    try:
-        if nombre == "listar_estaciones":
-            _cache["estaciones"] = None
-            return {}, {"estaciones": _estaciones()}
+def _arg(args, *keys, default=None):
+    """First argument present among English keys (and the old Spanish ones, in case a model uses them)."""
+    for k in keys:
+        if args.get(k) not in (None, ""):
+            return args[k]
+    return default
 
-        if nombre == "info_estacion":
-            id_ = resolver_id(args.get("id", ""))
-            enviado = {"id": id_}
+
+# ---------- execution ----------
+def execute(name, args):
+    """Runs a tool and returns (arguments_used, result). arguments_used are in English (what the UI shows).
+    Never raises: errors go in result['error']."""
+    args = dict(args or {})
+    used = args
+    try:
+        if name == "list_stations":
+            _cache["stations"] = None
+            return {}, {"estaciones": _stations()}
+
+        if name == "station_info":
+            id_ = resolve_id(_arg(args, "id", default=""))
+            used = {"id": id_}
+            if not id_:
+                return used, {"error": "station id is empty"}
             r = requests.get(f"{API_URL}/estaciones/{id_}", timeout=TIMEOUT)
 
-        elif nombre == "ruta_punto_a_punto":
-            enviado = {"origen": resolver_id(args.get("origen") or "HAB"),
-                       "destino": resolver_id(args.get("destino", "")),
-                       "pendiente_max": _num(args.get("pendiente_max"), PENDIENTE_DEFAULT)}
-            r = requests.post(f"{API_URL}/ruta", timeout=TIMEOUT, json=enviado)
+        elif name == "point_to_point_route":
+            used = {"origin": resolve_id(_arg(args, "origin", "origen", default="HAB")),
+                    "destination": resolve_id(_arg(args, "destination", "destino", default="")),
+                    "max_slope_deg": _num(_arg(args, "max_slope_deg", "pendiente_max"), DEFAULT_SLOPE_DEG)}
+            r = requests.post(f"{API_URL}/ruta", timeout=TIMEOUT,
+                              json={"origen": used["origin"], "destino": used["destination"],
+                                    "pendiente_max": used["max_slope_deg"]})
 
-        elif nombre == "optimizar_mision":
-            enviado = {"estaciones": list(dict.fromkeys(resolver_id(s) for s in _lista(args.get("estaciones")))),
-                       "tiempo_max_min": _num(args.get("tiempo_max_min"), TIEMPO_DEFAULT),
-                       "pendiente_max": _num(args.get("pendiente_max"), PENDIENTE_DEFAULT),
-                       "modo": "orientacion"}
-            r = requests.post(f"{API_URL}/mision", timeout=TIMEOUT, json=enviado)
+        elif name == "optimize_mission":
+            used = {"stations": list(dict.fromkeys(resolve_id(s) for s in
+                                                   _as_list(_arg(args, "stations", "estaciones")))),
+                    "max_time_min": _num(_arg(args, "max_time_min", "tiempo_max_min"), DEFAULT_TIME_MIN),
+                    "max_slope_deg": _num(_arg(args, "max_slope_deg", "pendiente_max"), DEFAULT_SLOPE_DEG)}
+            r = requests.post(f"{API_URL}/mision", timeout=TIMEOUT,
+                              json={"estaciones": used["stations"], "tiempo_max_min": used["max_time_min"],
+                                    "pendiente_max": used["max_slope_deg"], "modo": "orientacion"})
 
-        elif nombre == "recalcular_por_alerta":
-            tipo = str(args.get("tipo") or "polvo").lower()
-            tipo = "comms" if tipo.startswith("com") else "polvo"
-<<<<<<< HEAD
-            zona = resolver_zona(args.get("zona", "")) if args.get("zona") else ""
-            if tipo == "comms" and zona not in {z["id"] for z in _zonas()}:
-                # El motor exige una zona existente aunque comms afecte a todas las aristas.
-                zona = next((z["id"] for z in _zonas()), zona or "Z1")
-=======
-            if tipo == "polvo":
-                zona = resolver_zona(args.get("zona", ""))
-            else:
-                # comms afecta a todas las aristas, pero la API exige una zona válida: sin zona, la primera del grafo
-                zona = str(args.get("zona") or "") or next((z["id"] for z in _zonas()), "Z1")
->>>>>>> 02d5ef397a6069cb92039a747565524bf3d74655
-            enviado = {"zona": zona, "tipo": tipo}
-            r = requests.post(f"{API_URL}/alerta", timeout=TIMEOUT, json=enviado)
+        elif name == "reroute_for_alert":
+            kind = str(_arg(args, "type", "tipo", default="dust")).lower()
+            kind = "comms" if kind.startswith("com") else "dust"
+            ref = _arg(args, "zone", "zona", default="")
+            zone = resolve_zone(ref) if ref else ""
+            if kind == "comms" and zone not in {z["id"] for z in _zones()}:
+                # comms affects every edge, but the API requires a valid zone: use the first one in the graph
+                zone = next((z["id"] for z in _zones()), "Z1")
+            used = {"zone": zone, "type": kind}
+            r = requests.post(f"{API_URL}/alerta", timeout=TIMEOUT,
+                              json={"zona": zone, "tipo": "polvo" if kind == "dust" else "comms"})
 
         else:
-            return args, {"error": f"Herramienta desconocida: {nombre}"}
+            return args, {"error": f"Unknown tool: {name}"}
 
         if r.status_code >= 400:
             try:
-                detalle = r.json().get("detail", r.text)
+                detail = r.json().get("detail", r.text)
             except ValueError:
-                detalle = r.text
-            return enviado, {"error": detalle, "status": r.status_code}
-        return enviado, r.json()
+                detail = r.text
+            return used, {"error": detail, "status": r.status_code}
+        return used, r.json()
 
     except requests.RequestException as e:
-        return enviado, {"error": f"No se pudo llamar a la API ({API_URL}): {e}"}
+        return used, {"error": f"Could not reach the API ({API_URL}): {e}"}

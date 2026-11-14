@@ -127,24 +127,24 @@ class ApiService {
   }
 
   /** Carga el modelo del copiloto en la GPU para que la primera pregunta no espere (~2.5 min en frío). */
-  async precalentarChat(): Promise<{ modelo: string; segundos?: number; error?: string } | null> {
+  async precalentarChat(): Promise<{ model: string; seconds?: number; error?: string } | null> {
     if (this.useMock) return null;
     try {
-      const res = await fetch(`${API_BASE}/chat/precalentar`, { method: 'POST' });
+      const res = await fetch(`${API_BASE}/chat/warmup`, { method: 'POST' });
       return res.ok ? await res.json() : null;
     } catch {
       return null; // sin motor o sin /chat: el chat ya avisa y ofrece el Plan B
     }
   }
 
-  async postChat(mensaje: string, historial: { rol: string; contenido: string }[]): Promise<ChatResponse> {
+  async postChat(mensaje: string, historial: { role: string; content: string }[]): Promise<ChatResponse> {
     if (this.useMock) {
       const lower = mensaje.toLowerCase();
       // Match demo cues
-      if (lower.includes(String(DEMO.pendiente_2)) || lower.includes('acepto')) {
+      if (lower.includes(String(DEMO.pendiente_2)) || lower.includes('acepto') || lower.includes('accept')) {
         return MOCK_CHAT_FLOW.demo2;
       }
-      if (lower.includes('polvo') || lower.includes('alerta') || lower.includes('z2')) {
+      if (lower.includes('polvo') || lower.includes('dust') || lower.includes('alert') || lower.includes('z2')) {
         return MOCK_CHAT_FLOW.demo3;
       }
       return MOCK_CHAT_FLOW.demo1;
@@ -154,7 +154,7 @@ class ApiService {
       const res = await fetch(`${API_BASE}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mensaje, historial })
+        body: JSON.stringify({ message: mensaje, history: historial })
       });
       if (!res.ok) throw await errorDe(res);
       return await res.json();

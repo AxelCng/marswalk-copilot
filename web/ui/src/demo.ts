@@ -17,8 +17,9 @@ export const DEMO = {
 /** Opciones del selector de pendiente del Plan B. */
 export const PENDIENTES = [DEMO.pendiente_1, DEMO.pendiente_2, 15] as const;
 
+// En inglés: el copiloto responde siempre en inglés (llm/agent.py) y estas frases son las de llm/test_questions.py.
 export const FRASES = {
-  paso1: `Quiero visitar el frente del delta, Séítah, el depósito Three Forks y la cima del delta, volver en menos de 4 horas, sin pendientes de más de ${DEMO.pendiente_1}°`,
-  paso2: `¿Y si acepto hasta ${DEMO.pendiente_2}°?`,
-  paso3: `Alerta de polvo en la zona ${DEMO.zona}`,
+  paso1: `I want to visit the delta front, Séítah, the Three Forks depot and the upper delta, back in under 4 hours, with no slopes over ${DEMO.pendiente_1}°`,
+  paso2: `What if I accept up to ${DEMO.pendiente_2}°?`,
+  paso3: `Dust alert in zone ${DEMO.zona}`,
 };
