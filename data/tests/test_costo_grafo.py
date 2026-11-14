@@ -110,7 +110,9 @@ def test_pendiente_nunca_supera_su_limite():
 def test_ida_y_vuelta_difieren_por_la_pendiente():
     """El contrato exige aristas dirigidas: subir y bajar no cuestan igual."""
     datos = json.loads((rutas.OUT / "aristas.json").read_text(encoding="utf-8"))
-    pares = {(e["origen"], e["destino"]): e for e in datos if e["limite_deg"] == 20}
+    # el límite más alto: ahí existen todas las aristas (los límites salen de params.yaml)
+    limite = max(e["limite_deg"] for e in datos)
+    pares = {(e["origen"], e["destino"]): e for e in datos if e["limite_deg"] == limite}
     distintas = 0
     for (a, b), e in pares.items():
         if a >= b:

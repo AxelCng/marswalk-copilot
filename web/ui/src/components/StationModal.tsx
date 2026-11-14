@@ -51,7 +51,7 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
             <span className={`text-xs font-mono font-semibold px-2 py-0.5 rounded border ${badge.bg} ${badge.border} ${badge.text}`}>
               {badge.label}
             </span>
-            <span className="label-caps">Zona {station.zona}</span>
+            {station.zona && <span className="label-caps">Zona {station.zona}</span>}
             {station.valor_cientifico > 0 && (
               <span className="flex items-center gap-1 text-hud-cyan text-xs font-mono font-bold dato-num" title="Valor científico">
                 <Sparkles className="h-3.5 w-3.5" /> {station.valor_cientifico}/10

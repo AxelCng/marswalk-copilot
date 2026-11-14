@@ -85,6 +85,34 @@ python -m engine.check_graph data/out/graph.json
 - `graph.json` valida con **0 avisos** y el motor lo acepta
 - Misión de prueba: 229.8 min, alerta Z1 verificada
 
+## Cambios del sábado 14 (tarde), aplicados por Jeicoll
+
+Se regeneró `graph.json` con el pipeline completo (`--paso todo`). Las aristas de 15° y los nodos
+quedaron idénticos a la versión anterior, salvo lo que se cambió a propósito:
+
+1. **Límites de pendiente `[8, 12, 15]`** (opción A de `HALLAZGO_pendiente_demo.md`, ya en `params.yaml`).
+   8°: 30 aristas, 12°: 42, 15°: 56. A 8° la cima del delta (E2) queda omitida por pendiente
+   (camino más suave 9.18°); a 12° entra.
+2. **`themis_noche` de los nodos en Kelvin.** Antes se guardaba el DN de 8 bits (49–131), y el contrato
+   pide K. Ahora usa la misma calibración que el costo (`costo.dn_a_k`): 179–227 K.
+3. **Zonas de alerta sin estaciones adentro** (`_relieve.zonas_de_alerta`). Las cajas anteriores
+   encerraban estaciones, y la alerta las dejaba aisladas (con Z4 no se llegaba a ninguna). Las nuevas
+   están sobre corredores entre estaciones y desvían la ruta sin aislar a nadie. Por eso los nodos
+   ya no tienen `zona`. Con la misión de 12°:
+
+   | Zona | Evita | Costo |
+   | --- | --- | --- |
+   | Z1 Entrada al delta | HAB->M2 | +6.6 min |
+   | Z2 Campo de dunas (la de la demo) | HAB->M2, E1->M1 | +30.3 min |
+   | Z3 Borde norte de Séítah | E1->M1 | +17.1 min |
+   | Z4 Corredor del hábitat | M1->HAB | +8.0 min |
+
+4. `requirements.txt`: se agregó `scikit-image` (lo usa el paso 60) y `pyyaml`.
+5. `tests/test_costo_grafo.py`: la prueba de ida ≠ vuelta usaba la versión de 20°, que ya no existe;
+   ahora usa el límite más alto.
+
+Verificado: 37 pruebas de `data/`, 67 del motor, `validar_graph.py` OK y `engine.check_graph` OK.
+
 ## Capas de entrada
 
 | Capa | Fuente | CRS de origen | Uso |
