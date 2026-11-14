@@ -95,7 +95,7 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
               <span className={`text-base font-bold ${station.capas.pendiente_deg > 15 ? 'text-amber-400' : 'text-slate-100'}`}>
                 {station.capas.pendiente_deg}°
               </span>
-              <span className="text-[9px] text-slate-500 block">USGS DTM 20m</span>
+              <span className="text-[9px] text-slate-500 block">Inclinación del rover (waypoint)</span>
             </div>
 
             <div className="bg-slate-900/70 border border-slate-800 p-2.5 rounded-lg">
@@ -105,7 +105,7 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
               <span className="text-base font-bold text-slate-100">
                 {station.capas.elev_m} m
               </span>
-              <span className="text-[9px] text-slate-500 block">Areoide Jezero</span>
+              <span className="text-[9px] text-slate-500 block">Sobre el geoide (waypoint)</span>
             </div>
 
             <div className="bg-slate-900/70 border border-slate-800 p-2.5 rounded-lg">
@@ -115,7 +115,7 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
               <span className="text-base font-bold text-cyan-400">
                 {station.capas.themis_noche} K
               </span>
-              <span className="text-[9px] text-slate-500 block">Inercia térmica</span>
+              <span className="text-[9px] text-slate-500 block">Temp. de brillo (provisional)</span>
             </div>
 
             <div className="bg-slate-900/70 border border-slate-800 p-2.5 rounded-lg">
@@ -131,8 +131,8 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
 
           {/* Coordinates footer */}
           <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-[11px] font-mono text-slate-500">
-            <span>COORDENADAS MTM: {station.lon.toFixed(4)}° E, {station.lat.toFixed(4)}° N</span>
-            <span>CÁMARA: {photo?.camara || 'NAVCAM'}</span>
+            <span>LON/LAT: {station.lon.toFixed(4)}° E, {station.lat.toFixed(4)}° N</span>
+            <span>{photo ? `FOTO: ${photo.camara} · SOL ${photo.sol} · ${photo.credito ?? 'NASA/JPL-Caltech'}` : 'SIN FOTO'}</span>
           </div>
         </div>
       </div>

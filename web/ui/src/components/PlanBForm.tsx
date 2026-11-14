@@ -6,12 +6,14 @@ import { ShieldCheck, Mountain, Clock, Sparkles, Send, AlertTriangle, RefreshCw,
 interface PlanBFormProps {
   stations: EstacionDetalle[];
   onMissionCalculated: (res: RespuestaMision) => void;
+  /** Si viene, la alerta se muestra como alerta (zona roja + tramos evitados) en el mapa. */
+  onAlertaCalculada?: (res: RespuestaMision, zona: string) => void;
 }
 
-export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, onMissionCalculated }) => {
+export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, onMissionCalculated, onAlertaCalculada }) => {
   const [selectedStations, setSelectedStations] = useState<string[]>(['E1', 'M1', 'M2', 'E2']);
   const [pendienteMax, setPendienteMax] = useState<number>(15);
-  const [tiempoMax, setTiempoMax] = useState<number>(180);
+  const [tiempoMax, setTiempoMax] = useState<number>(240); // tope de la demo (params.yaml: tiempo_max_min_default)
   const [modo, setModo] = useState<'orientacion' | 'tsp'>('orientacion');
   const [loading, setLoading] = useState<boolean>(false);
   const [alertaLoading, setAlertaLoading] = useState<boolean>(false);
@@ -47,7 +49,8 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, onMissionCalcula
     setAlertaLoading(true);
     try {
       const result = await api.postAlerta('Z2', 'polvo');
-      onMissionCalculated(result);
+      if (onAlertaCalculada) onAlertaCalculada(result, 'Z2');
+      else onMissionCalculated(result);
     } catch (err) {
       console.error(err);
     } finally {

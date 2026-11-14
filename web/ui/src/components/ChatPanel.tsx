@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import type { MensajeHistorial, RespuestaMision } from '../types/mission';
+import type { ChatResponse, MensajeHistorial, RespuestaMision } from '../types/mission';
 import { ChatMessage } from './ChatMessage';
 import { api } from '../services/api';
 import { Send, Sparkles, Loader2, RefreshCw, Radio } from 'lucide-react';
 
 interface ChatPanelProps {
-  onRouteGenerated?: (ruta: RespuestaMision) => void;
+  onRouteGenerated?: (ruta: RespuestaMision, respuesta?: ChatResponse) => void;
   onViewRoute?: () => void;
 }
 
@@ -80,7 +80,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
       setMessages((prev) => [...prev, botMsg]);
 
       if (res.ruta) {
-        onRouteGenerated?.(res.ruta);
+        onRouteGenerated?.(res.ruta, res);
       }
     } catch (err) {
       console.error(err);
