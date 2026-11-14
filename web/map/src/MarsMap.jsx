@@ -434,6 +434,8 @@ export default function MarsMap({
       new maplibregl.Marker({ element: crearWaypoint(n, (id) => cb.current.onSelectEstacion?.(id)), anchor: 'center' })
         .setLngLat([n.lon, n.lat]).addTo(map),
     ]));
+    // MapLibre pone aria-label='Map marker': devolverle el nombre de la estación.
+    grafo.nodes.forEach((n) => waypoints.current[n.id].getElement().setAttribute('aria-label', `Estación ${n.id}, ${n.nombre}`));
     map.getSource('aristas').setData(aristasGeoJSON(grafo.edges));
     map.getSource('zonas').setData(zonasGeoJSON(grafo.zonas));
     nodosRef.current = grafo.nodes;
