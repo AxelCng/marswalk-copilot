@@ -1,0 +1,142 @@
+[
+  {
+    "unit_key": 1,
+    "unit_code": "10",
+    "unit_name": "Upper etched unit",
+    "unit_symbol": "Nue",
+    "symbol_base": "Nue",
+    "subscript": "",
+    "color_id": 74,
+    "age_prefix": "N"
+  },
+  {
+    "unit_key": 2,
+    "unit_code": "7",
+    "unit_name": "Eolian bedform unit",
+    "unit_symbol": "Aeb",
+    "symbol_base": "Aeb",
+    "subscript": "",
+    "color_id": 51,
+    "age_prefix": "A"
+  },
+  {
+    "unit_key": 3,
+    "unit_code": "8",
+    "unit_name": "Smooth unit, undivided",
+    "unit_symbol": "su",
+    "symbol_base": "su",
+    "subscript": "",
+    "color_id": 250,
+    "age_prefix": null
+  },
+  {
+    "unit_key": 4,
+    "unit_code": "5",
+    "unit_name": "Nili Planum 2 unit",
+    "unit_symbol": "Nnp2",
+    "symbol_base": "Nnp",
+    "subscript": "2",
+    "color_id": 206,
+    "age_prefix": "N"
+  },
+  {
+    "unit_key": 5,
+    "unit_code": "9",
+    "unit_name": "Rugged bright unit",
+    "unit_symbol": "Nrb",
+    "symbol_base": "Nrb",
+    "subscript": "",
+    "color_id": 203,
+    "age_prefix": "N"
+  },
+  {
+    "unit_key": 6,
+    "unit_code": "6",
+    "unit_name": "Nili Planum 1 unit",
+    "unit_symbol": "Nnp1",
+    "symbol_base": "Nnp",
+    "subscript": "1",
+    "color_id": 21,
+    "age_prefix": "N"
+  },
+  {
+    "unit_key": 7,
+    "unit_code": "12",
+    "unit_name": "Crater ejecta unit",
+    "unit_symbol": "ce",
+    "symbol_base": "ce",
+    "subscript": "",
+    "color_id": 480,
+    "age_prefix": null
+  },
+  {
+    "unit_key": 8,
+    "unit_code": "13",
+    "unit_name": "Crater interior unit",
+    "unit_symbol": "ci",
+    "symbol_base": "ci",
+    "subscript": "",
+    "color_id": 90,
+    "age_prefix": null
+  },
+  {
+    "unit_key": 9,
+    "unit_code": "11",
+    "unit_name": "Crater rim unit",
+    "unit_symbol": "cr",
+    "symbol_base": "cr",
+    "subscript": "",
+    "color_id": 355,
+    "age_prefix": null
+  },
+  {
+    "unit_key": 10,
+    "unit_code": "2",
+    "unit_name": "Jezero floor unit",
+    "unit_symbol": "Njf",
+    "symbol_base": "Njf",
+    "subscript": "",
+    "color_id": 13,
+    "age_prefix": "N"
+  },
+  {
+    "unit_key": 11,
+    "unit_code": "3",
+    "unit_name": "Lower etched unit",
+    "unit_symbol": "Nle",
+    "symbol_base": "Nle",
+    "subscript": "",
+    "color_id": 55,
+    "age_prefix": "N"
+  },
+  {
+    "unit_key": 12,
+    "unit_code": "4",
+    "unit_name": "Nili Planum fan unit",
+    "unit_symbol": "Hnpf",
+    "symbol_base": "Hnpf",
+    "subscript": "",
+    "color_id": 504,
+    "age_prefix": "H"
+  },
+  {
+    "unit_key": 13,
+    "unit_code": "0",
+    "unit_name": "Jezero fan 2 unit",
+    "unit_symbol": "NHjf2",
+    "symbol_base": "NHjf",
+    "subscript": "2",
+    "color_id": 603,
+    "age_prefix": "NH"
+  },
+  {
+    "unit_key": 14,
+    "unit_code": "1",
+    "unit_name": "Jezero fan 1 unit",
+    "unit_symbol": "NHjf1",
+    "symbol_base": "NHjf",
+    "subscript": "1",
+    "color_id": 600,
+    "age_prefix": "NH"
+  }
+]

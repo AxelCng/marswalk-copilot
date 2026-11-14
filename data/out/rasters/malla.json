@@ -1,0 +1,163 @@
+{
+  "crs_name": "MTM 77.5E",
+  "datum": "Mars_2000_(Sphere)",
+  "celda_m": 20.0,
+  "ancho_px": 194,
+  "alto_px": 141,
+  "transform": [
+    20.0,
+    0.0,
+    -6060.0,
+    0.0,
+    -20.0,
+    1094820.0
+  ],
+  "origen_x": -6060.0,
+  "origen_y": 1094820.0,
+  "capas": {
+    "dtm": {
+      "archivo": "C:\\Users\\saial\\Documents\\Codex\\marswalk-copilot\\data\\raw\\sim3464\\Rasters\\USGS_CTX_Stereo_DTMs\\J03_045994_1986_J03_046060_1986_20m_DTM.tif",
+      "crs": "Equirectangular Mars",
+      "resolucion_m": [
+        20.2013,
+        20.2013
+      ],
+      "tamano_px": [
+        2093,
+        5235
+      ],
+      "capa": "dtm",
+      "descripcion": "DTM CTX estéreo 20 m; elevación del modelo de costo",
+      "salida": "data\\out\\rasters\\dtm.tif",
+      "remuestreo": "bilinear",
+      "validos_pct": 100.0,
+      "rango": [
+        -2584.25,
+        -2426.42
+      ]
+    },
+    "orto": {
+      "archivo": "C:\\Users\\saial\\Documents\\Codex\\marswalk-copilot\\data\\raw\\sim3464\\Rasters\\USGS_CTX_Stereo_DTMs\\J03_045994_1986_XN_18N282W_6m_ORTHO.tif",
+      "crs": "Equirectangular Mars",
+      "resolucion_m": [
+        6.0604,
+        6.0604
+      ],
+      "tamano_px": [
+        6974,
+        17448
+      ],
+      "capa": "orto",
+      "descripcion": "Ortoimagen CTX 6 m; mapa base de detalle",
+      "salida": "data\\out\\rasters\\orto.tif",
+      "remuestreo": "bilinear",
+      "validos_pct": 100.0
+    },
+    "orto_mosaico": {
+      "archivo": "C:\\Users\\saial\\Documents\\Codex\\marswalk-copilot\\data\\raw\\sim3464\\Rasters\\Caltech_CTX_mosaic_feb2018\\Nili_CTX_Mosaic_Beta01_Feb2018_MTM.tif",
+      "crs": "MTM_clon77_5E",
+      "resolucion_m": [
+        5.0,
+        5.0
+      ],
+      "tamano_px": [
+        11294,
+        11870
+      ],
+      "capa": "orto_mosaico",
+      "descripcion": "Mosaico CTX Caltech 5 m; ya está en MTM",
+      "salida": "data\\out\\rasters\\orto_mosaico.tif",
+      "remuestreo": "bilinear",
+      "validos_pct": 100.0
+    },
+    "themis_dia": {
+      "archivo": "C:\\Users\\saial\\Documents\\Codex\\marswalk-copilot\\data\\raw\\sim3464\\Rasters\\USGS_THEMIS_IR_controlled_mosaic_oct2018\\nili_THEMIS_DayIR_Controlled_oct2018.tif",
+      "crs": "MTM_clon77_5E",
+      "resolucion_m": [
+        100.0,
+        100.0
+      ],
+      "tamano_px": [
+        565,
+        594
+      ],
+      "capa": "themis_dia",
+      "descripcion": "THEMIS IR día; complemento térmico",
+      "salida": "data\\out\\rasters\\themis_dia.tif",
+      "remuestreo": "nearest",
+      "validos_pct": 100.0
+    },
+    "themis_noche": {
+      "archivo": "C:\\Users\\saial\\Documents\\Codex\\marswalk-copilot\\data\\raw\\sim3464\\Rasters\\USGS_THEMIS_IR_controlled_mosaic_oct2018\\nili_THEMIS_NightIR_Controlled_oct2018.tif",
+      "crs": "MTM_clon77_5E",
+      "resolucion_m": [
+        100.0,
+        100.0
+      ],
+      "tamano_px": [
+        565,
+        594
+      ],
+      "capa": "themis_noche",
+      "descripcion": "THEMIS IR noche; proxy roca (caliente) vs arena (fría)",
+      "salida": "data\\out\\rasters\\themis_noche.tif",
+      "remuestreo": "nearest",
+      "validos_pct": 100.0
+    },
+    "hrsc": {
+      "archivo": "C:\\Users\\saial\\Documents\\Codex\\marswalk-copilot\\data\\raw\\sim3464\\Rasters\\HRSC\\nili_h0988_0000_da4_clip.tif",
+      "crs": "MTM_clon77_5E",
+      "resolucion_m": [
+        75.0,
+        75.0
+      ],
+      "tamano_px": [
+        753,
+        791
+      ],
+      "capa": "hrsc",
+      "descripcion": "DTM HRSC 75 m; contraste de elevación",
+      "salida": "data\\out\\rasters\\hrsc.tif",
+      "remuestreo": "bilinear",
+      "validos_pct": 100.0,
+      "rango": [
+        -2624.35,
+        -2450.01
+      ]
+    },
+    "hrsc_sombra": {
+      "archivo": "C:\\Users\\saial\\Documents\\Codex\\marswalk-copilot\\data\\raw\\sim3464\\Rasters\\HRSC\\nili_h0988_0000_hillshade_clip.tif",
+      "crs": "MTM_clon77_5E",
+      "resolucion_m": [
+        75.0,
+        75.0
+      ],
+      "tamano_px": [
+        753,
+        791
+      ],
+      "capa": "hrsc_sombra",
+      "descripcion": "Hillshade HRSC; relieve para el mapa",
+      "salida": "data\\out\\rasters\\hrsc_sombra.tif",
+      "remuestreo": "nearest",
+      "validos_pct": 100.0
+    },
+    "pendiente": {
+      "capa": "pendiente",
+      "descripcion": "Pendiente en grados derivada de la DTM alineada",
+      "salida": "data\\out\\rasters\\pendiente.tif",
+      "derivada_de": "dtm",
+      "validos_pct": 100.0,
+      "rango": [
+        0.02,
+        40.1
+      ],
+      "media": 3.58,
+      "mediana": 2.49,
+      "p99": 21.79,
+      "pct_mayor_15": 2.57,
+      "pct_mayor_20": 1.37,
+      "pct_mayor_25": 0.59
+    }
+  }
+}
