@@ -170,8 +170,11 @@ def ejecutar(nombre, args):
         elif nombre == "recalcular_por_alerta":
             tipo = str(args.get("tipo") or "polvo").lower()
             tipo = "comms" if tipo.startswith("com") else "polvo"
-            enviado = {"zona": resolver_zona(args.get("zona", "")) if tipo == "polvo" else str(args.get("zona", "")),
-                       "tipo": tipo}
+            zona = resolver_zona(args.get("zona", "")) if args.get("zona") else ""
+            if tipo == "comms" and zona not in {z["id"] for z in _zonas()}:
+                # El motor exige una zona existente aunque comms afecte a todas las aristas.
+                zona = next((z["id"] for z in _zonas()), zona or "Z1")
+            enviado = {"zona": zona, "tipo": tipo}
             r = requests.post(f"{API_URL}/alerta", timeout=TIMEOUT, json=enviado)
 
         else:
