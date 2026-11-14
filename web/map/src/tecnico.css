@@ -1,0 +1,159 @@
+/* =====================================================================
+   Estética técnica (OpenMCT / QGIS): bloques acoplados, divisores de 1 px,
+   sin desenfoques ni brillos, esquinas de 2–4 px.
+   ===================================================================== */
+.marca-icono { border-radius: 50%; border-color: var(--on-surface); box-shadow: inset 0 0 0 4px var(--hud-panel), inset 0 0 0 7px var(--acento); }
+.marca strong { font-family: var(--font-mono); letter-spacing: 0.06em; }
+.barra .dato { border-radius: var(--radius-sm); background: var(--hud-glass); }
+.chip { border-radius: var(--radius-sm); }
+.chip::before { border-radius: 0; width: 5px; height: 5px; }
+
+/* Marcas de registro en las esquinas del lienzo */
+.lienzo::before, .lienzo::after {
+  content: ''; position: absolute; z-index: 2; width: 14px; height: 14px; pointer-events: none;
+  border: 1px solid var(--outline);
+}
+.lienzo::before { left: 6px; bottom: 6px; border-right: 0; border-top: 0; }
+.lienzo::after { right: 6px; bottom: 6px; border-left: 0; border-top: 0; }
+
+/* Tira de telemetría: una sola barra acoplada en lugar de tarjetas sueltas */
+.franja { border-radius: var(--radius-sm); background: var(--hud-panel); }
+.tiles { gap: 0; background: var(--hud-panel); border: 1px solid var(--hud-border); border-radius: var(--radius-sm); }
+.tile { border: 0; border-radius: 0; background: transparent; align-items: flex-end; text-align: right; padding: 6px 12px; }
+.tile + .tile { border-left: 1px solid var(--hud-border); }
+.tile .label-caps { align-self: stretch; text-align: left; color: var(--outline); }
+.tile b { font-size: 18px; line-height: 24px; }
+.tile .sub { color: var(--outline); }
+.tile.ok b { color: var(--on-surface); }
+
+/* Dock de capas abajo a la izquierda del mapa */
+.dock-capas {
+  position: absolute; left: var(--space-sm); bottom: 30px; z-index: 3;
+  width: min(380px, calc(100% - 2 * var(--space-sm)));
+  background: var(--hud-panel); border: 1px solid var(--hud-border); border-radius: var(--radius-sm);
+}
+.dock-capas .capas {
+  position: static; width: auto; padding: 0; gap: 0; background: transparent; border: 0; border-radius: 0;
+  display: flex; flex-direction: column;
+}
+.capas-cab {
+  display: flex; justify-content: space-between; padding: 6px 10px;
+  border-bottom: 1px solid var(--hud-border); background: var(--hud-glass);
+}
+.capas-cab .label-caps, .tabla-tramos th { color: var(--outline); }
+.capas-lista { list-style: none; margin: 0; padding: 0; }
+.capas-lista li {
+  display: grid; grid-template-columns: 28px 8px minmax(0, 1fr) 84px 26px; align-items: center; gap: 8px;
+  padding: 5px 10px; border-bottom: 1px solid var(--hud-border-subtle);
+}
+.capas-lista li.no-disp { opacity: 0.5; }
+.capa-nombre { display: flex; flex-direction: column; min-width: 0; font: 600 12px/15px var(--font-mono); color: var(--on-surface); }
+.capa-nombre small { font: 500 10px/12px var(--font-mono); color: var(--outline); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.capa-pct { font: 500 10px/12px var(--font-mono); color: var(--outline); text-align: right; font-variant-numeric: tabular-nums; }
+.led { width: 6px; height: 6px; background: var(--hud-border); }
+.led.on { background: var(--status-nominal); }
+.led.off { background: transparent; border: 1px solid var(--outline); }
+
+/* Interruptor plano */
+.interruptor { position: relative; display: inline-block; width: 26px; height: 14px; cursor: pointer; }
+.interruptor input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; cursor: pointer; z-index: 1; }
+.interruptor-pista {
+  position: absolute; inset: 0; border: 1px solid var(--outline); border-radius: var(--radius-sm); background: var(--hud-bg-deep);
+}
+.interruptor-pista::after {
+  content: ''; position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; background: var(--outline);
+  transition: transform 100ms;
+}
+.interruptor input:checked + .interruptor-pista { border-color: var(--acento); }
+.interruptor input:checked + .interruptor-pista::after { transform: translateX(12px); background: var(--acento); }
+.interruptor input:focus-visible + .interruptor-pista { outline: 1px solid var(--acento); outline-offset: 2px; }
+.interruptor input:disabled { cursor: not-allowed; }
+
+/* Opacidad */
+.opacidad { -webkit-appearance: none; appearance: none; width: 100%; height: 14px; background: transparent; margin: 0; }
+.opacidad::-webkit-slider-runnable-track { height: 2px; background: var(--hud-border); }
+.opacidad::-moz-range-track { height: 2px; background: var(--hud-border); }
+.opacidad::-webkit-slider-thumb { -webkit-appearance: none; width: 8px; height: 12px; margin-top: -5px; background: var(--on-surface-variant); border: 0; border-radius: 0; }
+.opacidad::-moz-range-thumb { width: 8px; height: 12px; background: var(--on-surface-variant); border: 0; border-radius: 0; }
+.opacidad:disabled { opacity: 0.35; }
+.opacidad:focus-visible { outline: 1px solid var(--acento); outline-offset: 2px; }
+
+.leyenda-pend { display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 6px 10px; border-bottom: 1px solid var(--hud-border-subtle); }
+.leyenda-pend span { display: inline-flex; align-items: center; gap: 4px; font: 500 10px/12px var(--font-mono); color: var(--on-surface-variant); }
+.leyenda-pend i { width: 10px; height: 10px; border: 1px solid var(--hud-border); }
+.capa-nota { margin: 0; padding: 6px 10px; font-size: 11px; line-height: 14px; color: var(--outline); border-bottom: 1px solid var(--hud-border-subtle); }
+.dock-capas .capas-acciones { padding: 8px 10px; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; }
+
+/* Tabla de tramos */
+.tabla-tramos { width: 100%; border-collapse: collapse; font: 500 11px/14px var(--font-mono); font-variant-numeric: tabular-nums; }
+.tabla-tramos th {
+  font: 700 9px/12px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; text-align: left;
+  padding: 4px; border-bottom: 1px solid var(--hud-border);
+}
+.tabla-tramos th.num { text-align: right; }
+.tabla-tramos td { padding: 5px 4px; border-bottom: 1px solid var(--hud-border-subtle); color: var(--on-surface-variant); }
+.tabla-tramos .num { text-align: right; }
+.tabla-tramos .par { color: var(--on-surface); white-space: nowrap; }
+.tabla-tramos .wp-n { color: var(--outline); }
+.tabla-tramos .warning { color: var(--status-warning); }
+.tabla-tramos tr.activo td { background: var(--acento-tenue); color: var(--on-surface); }
+.tabla-tramos tr.activo td:first-child { box-shadow: inset 2px 0 0 var(--acento); }
+.tabla-tramos tfoot td { border-top: 1px solid var(--hud-border); border-bottom: 0; color: var(--on-surface); font-weight: 600; }
+.ruta { color: var(--acento); }
+
+/* Waypoints cartográficos (marcadores HTML de MapLibre) */
+.wp {
+  position: relative; width: 22px; height: 22px; padding: 0; min-height: 0;
+  background: transparent; border: 0; border-radius: 0; cursor: pointer;
+}
+.wp:hover:not(:disabled), .wp:focus-visible { border: 0; outline: none; }
+.wp::before, .wp::after { content: ''; position: absolute; background: var(--c); }
+.wp::before { left: 50%; top: -3px; bottom: -3px; width: 1px; margin-left: -0.5px; }
+.wp::after { top: 50%; left: -3px; right: -3px; height: 1px; margin-top: -0.5px; }
+.wp-ret {
+  position: absolute; z-index: 1; inset: 3px; border: 2px solid #000; border-radius: 50%;
+  background: var(--hud-bg-deep); box-shadow: 0 0 0 1px var(--c);
+}
+.wp-ret::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px;
+  border-radius: 50%; background: var(--c);
+}
+.wp-guia {
+  position: absolute; left: 17px; bottom: 17px; width: 16px; height: 1px; background: var(--on-surface-variant);
+  transform-origin: left center; transform: rotate(-45deg);
+}
+.wp-tag {
+  position: absolute; left: 29px; bottom: 26px; display: flex; align-items: baseline; gap: 6px;
+  padding: 2px 5px; white-space: nowrap;
+  background: var(--hud-panel); border: 1px solid var(--hud-border); border-left: 2px solid var(--c);
+  font: 600 11px/13px var(--font-mono); color: var(--on-surface); text-align: left;
+}
+.wp-tag i { font-style: normal; font-weight: 500; font-size: 10px; color: var(--outline); }
+.wp.en-ruta .wp-ret { box-shadow: 0 0 0 2px var(--acento); }
+.wp.en-ruta .wp-tag { border-color: var(--acento); border-left-color: var(--acento); }
+.wp.omitida .wp-ret { box-shadow: 0 0 0 1px var(--status-warning); background: transparent; }
+.wp.omitida .wp-tag { color: var(--status-warning); text-decoration: line-through; }
+.wp:focus-visible .wp-tag, .wp:hover .wp-tag { border-color: var(--on-surface); }
+
+/* Aviso de alerta sobre el mapa: sólido, sin halo */
+.aviso-mapa { background: var(--hud-panel); border-left-width: 3px; }
+
+.maplibregl-ctrl-group { border-radius: var(--radius-sm) !important; box-shadow: none !important; }
+.maplibregl-popup-content { border-radius: var(--radius-sm); box-shadow: none; }
+
+@media (max-width: 959px) {
+  .dock-capas { position: static; width: auto; border-left: 0; border-right: 0; }
+}
+
+.tile > * { max-width: 100%; }
+.tile .sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.capas-cab { align-items: center; }
+.capas-plegar { min-height: 0; padding: 0; border: 0; background: transparent; color: var(--on-surface); font: 700 10px/12px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.capas-plegar:hover:not(:disabled) { border: 0; color: var(--acento); }
+.capas-n { color: var(--outline); margin-left: 6px; }
+
+/* Procedencia: azul informativo (el ámbar queda para ruta y selección) */
+.tag-nasa { color: var(--status-info); border-color: rgba(88, 166, 255, 0.45); }
+.ficha { border-radius: var(--radius-sm); box-shadow: inset 0 2px 0 var(--franja, var(--outline)); }
+.ficha-foto img { border-radius: var(--radius-sm); }
