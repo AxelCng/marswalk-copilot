@@ -29,6 +29,8 @@ export interface EstacionDetalle extends EstacionResumen {
   zona: string;
   capas: CapasEstacion;
   fotos: FotoEstacion[];
+  /** Solo en la UI: unidad USGS SIM 3464 bajo la estación (services/geologia.ts), si hay capa geológica. */
+  unidad_sim?: { simbolo: string; nombre: string; edad: string; color: string };
 }
 
 export interface Tramo {
