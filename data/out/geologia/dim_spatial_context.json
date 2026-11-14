@@ -1,0 +1,14 @@
+[
+  {
+    "spatial_context_key": 3,
+    "in_landing_ellipse": 1,
+    "in_figure_area": 1,
+    "on_cross_section": 0
+  },
+  {
+    "spatial_context_key": 7,
+    "in_landing_ellipse": 1,
+    "in_figure_area": 1,
+    "on_cross_section": 1
+  }
+]

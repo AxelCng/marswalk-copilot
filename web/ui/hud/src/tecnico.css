@@ -1,0 +1,86 @@
+/* Visor HUD en clave técnica: instrumentos blancos con contorno negro (se leen sobre
+   cualquier foto), objetivo y ruta en ámbar, paneles sólidos, rojo solo para alertas. */
+
+/* Instrumentos: cinta de rumbo y retícula */
+.tick { background: var(--instrumento); opacity: 0.7; }
+.tick.mayor { background: var(--instrumento); opacity: 1; }
+.tick span { color: var(--instrumento); text-shadow: 0 0 2px #000, 0 0 1px #000; }
+.tick span.card { color: var(--instrumento); }
+.cinta-escala { border-bottom-color: var(--instrumento); }
+.cinta-obj { border-bottom-color: var(--hud-cyan); filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000); }
+.cinta-centro { background: var(--hud-glass-80); border: 1px solid var(--hud-border); border-top: 0; }
+.cinta-centro b { color: var(--instrumento); }
+.cinta-centro::before { background: var(--hud-cyan); }
+
+.reticula { filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000); }
+.ret-punto { fill: var(--instrumento); }
+.ret-anillo { stroke: var(--instrumento); stroke-opacity: 0.6; }
+.ret-linea, .ret-pitch path { stroke: var(--instrumento); }
+.ret-pitch text { fill: var(--instrumento); }
+.ret-pend path { fill: var(--hud-cyan); }
+.ret-pend text { fill: var(--hud-cyan); }
+
+/* Objetivo fijado: corchetes ámbar con contorno negro, ficha sólida */
+.lock .c { border-color: var(--hud-cyan); filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000); }
+.lock-caja::before { border-color: rgba(255, 176, 0, 0.6); }
+.lock-caja::after { background: var(--hud-cyan); box-shadow: 0 0 0 1px #000; }
+.lock-id { color: var(--hud-cyan); }
+.lock-ficha { border-radius: var(--radius); border: 1px solid var(--hud-border); border-left: 2px solid var(--hud-cyan); }
+.lock-ficha.izq { border-left: 1px solid var(--hud-border); border-right: 2px solid var(--hud-cyan); }
+.lock-ficha::before { background: var(--hud-cyan); }
+.lock-estado { color: var(--hud-cyan); }
+.lock-nombre { font-family: var(--font-body); font-weight: 600; }
+.lock-geo b { color: var(--hud-cyan); }
+
+/* Panel de misión */
+.mision { border-radius: var(--radius); }
+.mision-tramo b { color: var(--on-surface); font-family: var(--font-mono); }
+.mision-ruta li.hecho { color: var(--outline); }
+.mision-ruta li.hacia { color: var(--hud-cyan); }
+.mision-datos dd { text-align: right; }
+
+/* Alerta: sólida, rojo solo acá */
+.alerta-franja { background: var(--hud-glass-80); border-radius: var(--radius); border: 1px solid var(--status-critical); border-left-width: 4px; }
+.alerta-icono { border-radius: 0; }
+
+/* Minimapa táctico: cuadro con marcas de registro, no un círculo */
+.minimapa {
+  border-radius: var(--radius); background: var(--hud-glass-80); border: 1px solid var(--hud-border);
+  aspect-ratio: auto; height: auto; padding: 22px 6px 6px; display: block;
+}
+.minimapa figcaption { top: 4px; left: 8px; right: 8px; display: flex; justify-content: space-between; text-align: left; }
+.minimapa svg { width: 100%; height: auto; display: block; }
+.minimapa::before, .minimapa::after {
+  content: ''; position: absolute; width: 8px; height: 8px; border: 1px solid var(--outline); pointer-events: none;
+}
+.minimapa::before { left: 3px; bottom: 3px; border-right: 0; border-top: 0; }
+.minimapa::after { right: 3px; bottom: 3px; border-left: 0; border-top: 0; }
+.mm-tramo { stroke: var(--outline); }
+.mm-actual { stroke: var(--hud-cyan); filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 1px #000); }
+.mm-nodo.obj circle { stroke: #000; fill: var(--hud-cyan); }
+.mm-nodo.obj text { fill: var(--hud-cyan); }
+.mm-zona { fill: rgba(218, 54, 51, 0.18); }
+
+/* Botones planos */
+button { border-radius: var(--radius); }
+button.primario { color: #000; }
+button.primario:hover:not(:disabled) { box-shadow: none; border-color: var(--on-surface); }
+.chip { border-radius: var(--radius); }
+.chip::before { border-radius: 0; }
+.chip.nominal { border-color: rgba(63, 185, 80, 0.5); }
+.chip.warning { border-color: rgba(210, 153, 34, 0.5); }
+
+/* Visor: el aro del casco en gris neutro */
+.visor::before { border-color: rgba(230, 237, 243, 0.08); box-shadow: none; }
+
+/* Fondos sólidos (antes compartían línea con el desenfoque) */
+.mision, .lock-ficha, .cinta-centro { background: var(--hud-glass-80); }
+
+/* Reglas finales: sin sombras de color (bordes sólidos) y cifras tabulares que no saltan */
+.hud-alerta .visor { box-shadow: inset 0 0 0 2px var(--status-critical); }
+.lock-caja::after { box-shadow: none; outline: 1px solid #000; }
+button, button.primario:hover:not(:disabled) { box-shadow: none; }
+button { transition: border-color 120ms; }
+.alerta-franja { box-shadow: none; }
+.mision-tramo b, .mision-ruta li.hacia, .lock-id, .tick span.card { text-shadow: 0 0 2px #000; }
+.mision-datos dd, .lock-ficha dd, .cinta-centro b, .tick span, .credito, .alerta-franja .mono, .mision-omitidas, .lock-geo.sub, .reticula text, .minimapa text { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }

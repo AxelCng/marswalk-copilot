@@ -37,7 +37,17 @@ export const MOCK_CHAT_FLOW: Record<'demo1' | 'demo2' | 'demo3', ChatResponse> =
       `Tiempo total ${MOCK_MISION_20DEG.totales.tiempo_min} min (margen ${MOCK_MISION_20DEG.totales.margen_min} min).`,
     llamadas: [{ herramienta: 'optimizar_mision',
       argumentos: { estaciones: ['E1', 'M1', 'M2', 'E2'], tiempo_max_min: 240, pendiente_max: 20 }, ok: true }],
-    ruta: MOCK_MISION_20DEG,
+    // misma forma que llm/agent.py (_comparar), calculada con los JSON de contracts/
+    ruta: {
+      ...MOCK_MISION_20DEG,
+      comparacion_con_anterior: {
+        tiempo_anterior_min: MOCK_MISION_15DEG.totales.tiempo_min,
+        tiempo_nuevo_min: MOCK_MISION_20DEG.totales.tiempo_min,
+        diferencia_tiempo_min: Math.round((MOCK_MISION_20DEG.totales.tiempo_min - MOCK_MISION_15DEG.totales.tiempo_min) * 10) / 10,
+        estaciones_agregadas: MOCK_MISION_15DEG.omitidas.map((o) => o.id).filter((id) => MOCK_MISION_20DEG.ruta.includes(id)),
+        estaciones_quitadas: [],
+      },
+    },
   },
   demo3: {
     respuesta:
