@@ -153,6 +153,28 @@ el servidor al cambiar el archivo del grafo.
 .\.venv\Scripts\python.exe -m pytest engine/tests -q
 ```
 
+### Comprobar el grafo de Pedro antes de integrarlo
+
+Desde la raíz, en Git Bash (requiere `engine/requirements-dev.txt`):
+
+```bash
+./.venv/Scripts/python.exe -m engine.check_graph data/out/graph.json
+```
+
+La comprobación valida el contrato, consulta estaciones y grafo, calcula una
+misión de 240 minutos, aplica una alerta y comprueba el reset usando una instancia
+de prueba aislada. No modifica el archivo ni el estado del servidor en marcha.
+Termina con código 1 ante errores. Una misión inviable con 240 minutos también
+se informa como error de la demo: puede requerir cambiar el presupuesto, no
+necesariamente significa que el grafo sea inválido. Para probar el servidor con
+el grafo recibido, reiniciarlo con:
+
+```bash
+GRAPH_PATH=data/out/graph.json ./.venv/Scripts/python.exe -m uvicorn engine.main:app --reload --port 8000
+```
+
+Hasta recibir el grafo real se puede ejecutar con `contracts/graph_fake.json`.
+
 Las pruebas comparan respuestas completas con los ejemplos compartidos y
 verifican límites de pendiente, E2 inaccesible a 15°, errores 404/422, CORS,
 origen igual a destino y sustitución del grafo mediante `GRAPH_PATH`.
