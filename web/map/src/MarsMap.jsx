@@ -6,10 +6,15 @@ import { HUD, COLOR_TIPO } from './tokens.js';
 // MarsMap: el mapa de la demo.
 //
 // Props (todo lo que Axl necesita para conectarlo desde web/ui/):
-//   grafo   {zonas, nodes, edges}    → de GET /grafo (o graph_fake.json)
-//   mision  RespuestaMision | null   → de /mision, /ruta, /alerta o /chat.ruta
-//   alerta  {zona, aristas_afectadas} | null
-//   onSelectEstacion(id)             → click en un nodo (para abrir la ficha)
+//   grafo     {zonas, nodes, edges}     → de GET /grafo (o graph_fake.json)
+//   mision    RespuestaMision | null    → de /mision, /ruta, /alerta o /chat.ruta
+//   alerta    {zona, tipo, aristas_afectadas} | null
+//   geologia  resultado de getGeologia() | null
+//   capas     {base, geologia, aristas, zonas} → visibilidad de cada capa (default: todas)
+//   margen    {top, right, bottom, left} px que tapan los paneles (para encuadrar)
+//   onSelectEstacion(id)  → click en un nodo (para abrir la ficha)
+//   onCursor({lng, lat})  → posición del cursor sobre el mapa
+//   onPaso(i)             → tramo que se está dibujando (-1 sin animación)
 // ---------------------------------------------------------------------------
 
 // Mapa base (plan B del spec, ya activo): el servicio OnMars/CTX usa una grilla
@@ -50,6 +55,7 @@ function nodosGeoJSON(nodes) {
         tipo: n.tipo,
         color: COLOR_TIPO[n.tipo] ?? HUD.onSurface,
         valor: n.valor_cientifico ?? 0,
+        elev: n.capas?.elev_m ?? null,
       },
       geometry: { type: 'Point', coordinates: [n.lon, n.lat] },
     })),
@@ -102,25 +108,46 @@ function afectadasGeoJSON(edges, ids = []) {
   return aristasGeoJSON(edges.filter((e) => pares.has([e.origen, e.destino].sort().join('|'))));
 }
 
-function encuadrar(map, nodes) {
+const MARGEN_DEFECTO = { top: 60, right: 60, bottom: 60, left: 60 };
+
+function encuadrar(map, nodes, margen) {
   if (!nodes?.length) return;
   map.resize();
   const b = new maplibregl.LngLatBounds();
   nodes.forEach((n) => b.extend([n.lon, n.lat]));
-  // A la izquierda queda el panel (320px + márgenes): no tapar estaciones con él.
-  const ancho = map.getContainer().clientWidth;
-  const izq = ancho > 700 ? 380 : 40;
-  map.fitBounds(b, { padding: { top: 60, bottom: 60, left: izq, right: 60 }, duration: 0 });
+  const { clientWidth: w, clientHeight: h } = map.getContainer();
+  // Si los paneles dejan poco espacio libre, se ignoran (pantallas chicas).
+  const m = { ...MARGEN_DEFECTO, ...margen };
+  const libre = w - m.left - m.right > 240 && h - m.top - m.bottom > 200;
+  map.fitBounds(b, { padding: libre ? m : MARGEN_DEFECTO, duration: 0 });
 }
 
-const CAPAS_GEO = ['geo-fill', 'geo-contactos', 'geo-contactos-inciertos', 'geo-label'];
+// Grupos de capas que se prenden y apagan juntos.
+const GRUPOS = {
+  geologia: ['geo-fill', 'geo-contactos', 'geo-contactos-inciertos', 'geo-label'],
+  aristas: ['aristas'],
+  zonas: ['zonas-line', 'zonas-label'],
+};
 
-export default function MarsMap({ grafo, mision, alerta, geologia, mostrarGeologia = true, onSelectEstacion }) {
+function centroide(poligono) {
+  const pts = poligono.slice(0, -1);
+  const s = pts.reduce((a, [x, y]) => [a[0] + x, a[1] + y], [0, 0]);
+  return [s[0] / pts.length, s[1] / pts.length];
+}
+
+export default function MarsMap({
+  grafo, mision, alerta, geologia, capas, margen,
+  onSelectEstacion, onCursor, onPaso,
+}) {
   const contenedor = useRef(null);
   const mapRef = useRef(null);
   const listo = useRef(false);
-  const onSelectRef = useRef(onSelectEstacion);
-  onSelectRef.current = onSelectEstacion;
+  const cb = useRef({});
+  cb.current = { onSelectEstacion, onCursor, onPaso };
+  const margenRef = useRef(margen);
+  margenRef.current = margen;
+  const nodosRef = useRef(null);
+  const movido = useRef(false);
 
   // --- Crear el mapa una sola vez -----------------------------------------
   useEffect(() => {
@@ -142,9 +169,16 @@ export default function MarsMap({ grafo, mision, alerta, geologia, mostrarGeolog
       compact: true,
       customAttribution: 'CTX: NASA/JPL-Caltech/MSSS · Murray Lab/Caltech · Esri',
     }));
-    // El contenedor puede medir 0 al montar (estilos aún sin aplicar): seguir su tamaño.
-    const ro = new ResizeObserver(() => map.resize());
+    // El contenedor puede medir 0 al montar (estilos aún sin aplicar): seguir su tamaño
+    // y volver a encuadrar mientras el usuario no haya movido el mapa.
+    const ro = new ResizeObserver(() => {
+      map.resize();
+      if (!movido.current && nodosRef.current) encuadrar(map, nodosRef.current, margenRef.current);
+    });
     ro.observe(contenedor.current);
+    const alMover = (e) => { if (e.originalEvent) movido.current = true; };
+    map.on('dragstart', alMover);
+    map.on('zoomstart', alMover);
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
 
@@ -254,11 +288,16 @@ export default function MarsMap({ grafo, mision, alerta, geologia, mostrarGeolog
       map.addLayer({
         id: 'nodos-label', type: 'symbol', source: 'nodos',
         layout: {
-          'text-field': ['get', 'id'],
+          'text-field': [
+            'format',
+            ['get', 'id'], { 'font-scale': 1 },
+            ['case', ['!=', ['get', 'elev'], null], ['concat', '\n', ['to-string', ['get', 'elev']], ' m'], ''], { 'font-scale': 0.8 },
+          ],
           'text-font': ['Open Sans Semibold'],
           'text-size': 12,
-          'text-offset': [0, 1.4],
+          'text-offset': [0, 1.2],
           'text-anchor': 'top',
+          'text-line-height': 1.1,
         },
         paint: { 'text-color': HUD.onSurface, 'text-halo-color': HUD.bgDeep, 'text-halo-width': 1.5 },
       });
@@ -273,7 +312,8 @@ export default function MarsMap({ grafo, mision, alerta, geologia, mostrarGeolog
         map.getCanvas().style.cursor = '';
         popup.remove();
       });
-      map.on('click', 'nodos', (e) => onSelectRef.current?.(e.features[0].properties.id));
+      map.on('click', 'nodos', (e) => cb.current.onSelectEstacion?.(e.features[0].properties.id));
+      map.on('mousemove', (e) => cb.current.onCursor?.(e.lngLat));
 
       // Unidad geológica bajo el cursor (solo si no hay un nodo encima)
       const popupGeo = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 8 });
@@ -320,7 +360,8 @@ export default function MarsMap({ grafo, mision, alerta, geologia, mostrarGeolog
     map.getSource('nodos').setData(nodosGeoJSON(grafo.nodes));
     map.getSource('aristas').setData(aristasGeoJSON(grafo.edges));
     map.getSource('zonas').setData(zonasGeoJSON(grafo.zonas));
-    encuadrar(map, grafo.nodes);
+    nodosRef.current = grafo.nodes;
+    if (!movido.current) encuadrar(map, grafo.nodes, margenRef.current);
   }), [grafo]);
 
   // --- Geología: unidades y contactos del SIM 3464 -------------------------
@@ -329,10 +370,18 @@ export default function MarsMap({ grafo, mision, alerta, geologia, mostrarGeolog
     map.getSource('geo-lineas').setData(geologia?.lineas ?? vacia());
   }), [geologia]);
 
+  // --- Capas visibles ------------------------------------------------------
+  const claveCapas = JSON.stringify(capas ?? {});
   useEffect(() => cuandoListo((map) => {
-    const v = mostrarGeologia ? 'visible' : 'none';
-    CAPAS_GEO.forEach((id) => map.setLayoutProperty(id, 'visibility', v));
-  }), [mostrarGeologia]);
+    const c = { base: true, geologia: true, aristas: true, zonas: true, ...capas };
+    const poner = (id, on) => map.getLayer(id) && map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none');
+    Object.entries(GRUPOS).forEach(([g, ids]) => ids.forEach((id) => poner(id, c[g])));
+    const aplicarBase = () => map.getStyle().layers.filter((l) => l.id.startsWith('base-')).forEach((l) => poner(l.id, c.base));
+    aplicarBase();
+    // Las teselas base llegan después de 'load': reaplicar cuando aparezcan.
+    map.on('sourcedata', aplicarBase);
+    return () => map.off('sourcedata', aplicarBase);
+  }), [claveCapas]);
 
   // --- Ruta: se dibuja tramo por tramo -------------------------------------
   useEffect(() => cuandoListo((map) => {
@@ -341,6 +390,7 @@ export default function MarsMap({ grafo, mision, alerta, geologia, mostrarGeolog
     nodos.forEach((n) => map.setFeatureState({ source: 'nodos', id: n.id }, { en_ruta: false, omitida: false }));
     map.getSource('ruta').setData(vacia());
     map.getSource('actual').setData(vacia());
+    cb.current.onPaso?.(-1);
     if (!mision) return;
 
     (mision.omitidas ?? []).forEach((o) => {
@@ -364,8 +414,10 @@ export default function MarsMap({ grafo, mision, alerta, geologia, mostrarGeolog
       if (paso >= tramos.length) {
         clearInterval(timer);
         map.getSource('actual').setData(vacia());
+        cb.current.onPaso?.(-1);
         return;
       }
+      cb.current.onPaso?.(paso);
       paso += 1;
       map.getSource('ruta').setData(tramosGeoJSON(tramos.slice(0, paso)));
       marcar(tramos[paso - 1].destino);
@@ -382,6 +434,20 @@ export default function MarsMap({ grafo, mision, alerta, geologia, mostrarGeolog
       return;
     }
     map.setFilter('zonas-fill', ['==', ['get', 'id'], alerta.zona]);
+
+    // Aviso Nivel 3 anclado al centro de la zona
+    const zona = grafo?.zonas?.find((z) => z.id === alerta.zona);
+    let aviso;
+    if (zona) {
+      const el = document.createElement('div');
+      el.className = 'aviso-mapa';
+      const n = alerta.aristas_afectadas?.length ?? 0;
+      const tipo = (alerta.tipo ?? 'polvo').toUpperCase();
+      el.innerHTML = '<span class="aviso-titulo">Alerta crítica · ' + tipo + '</span>'
+        + '<span class="aviso-zona">' + (zona.nombre ?? zona.id) + ' · ' + zona.id + '</span>'
+        + '<span class="aviso-dato">' + n + (n === 1 ? ' tramo bloqueado' : ' tramos bloqueados') + '</span>';
+      aviso = new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat(centroide(zona.poligono)).addTo(map);
+    }
     let raf;
     const t0 = performance.now();
     const latir = (t) => {
@@ -390,7 +456,7 @@ export default function MarsMap({ grafo, mision, alerta, geologia, mostrarGeolog
       raf = requestAnimationFrame(latir);
     };
     raf = requestAnimationFrame(latir);
-    return () => cancelAnimationFrame(raf);
+    return () => { cancelAnimationFrame(raf); aviso?.remove(); };
   }), [grafo, alerta]);
 
   return <div ref={contenedor} className="mapa" />;
