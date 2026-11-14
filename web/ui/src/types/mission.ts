@@ -73,31 +73,31 @@ export interface RespuestaMision {
   totales: TotalesMision;
   aristas_afectadas?: string[];
   /** Agregado por /chat (llm/agent.py) cuando la misión sigue a otra: diferencias calculadas por código. */
-  comparacion_con_anterior?: ComparacionMision | null;
+  comparison_with_previous?: ComparacionMision | null;
 }
 
 export interface ComparacionMision {
-  tiempo_anterior_min: number;
-  tiempo_nuevo_min: number;
-  diferencia_tiempo_min: number;
-  estaciones_agregadas: string[];
-  estaciones_quitadas: string[];
+  previous_time_min: number;
+  new_time_min: number;
+  time_difference_min: number;
+  stations_added: string[];
+  stations_removed: string[];
 }
 
 export interface LlamadaHerramienta {
-  herramienta: string;
-  argumentos: Record<string, any>;
+  tool: string;
+  arguments: Record<string, any>;
   ok: boolean;
 }
 
 export interface ChatResponse {
-  respuesta: string;
-  llamadas: LlamadaHerramienta[];
-  ruta: RespuestaMision | null;
+  answer: string;
+  calls: LlamadaHerramienta[];
+  route: RespuestaMision | null;
   // Agregados de llm/ (aditivos, ver llm/README.md)
-  historial?: { rol: string; contenido: string }[];
-  segundos?: number;
-  numeros_sin_fuente?: string[];
+  history?: { role: string; content: string }[];
+  seconds?: number;
+  unsourced_numbers?: string[];
   /** Si viene, el copiloto no está disponible (Ollama caído, modelo sin descargar): ofrecer el Plan B. */
   error?: string;
 }

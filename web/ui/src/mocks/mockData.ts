@@ -23,37 +23,37 @@ const omitida15 = MOCK_MISION_15DEG.omitidas[0];
 // Respuestas de ejemplo del copiloto, armadas SOLO con números de los JSON de arriba.
 export const MOCK_CHAT_FLOW: Record<'demo1' | 'demo2' | 'demo3', ChatResponse> = {
   demo1: {
-    respuesta:
+    answer:
       `[MODO PRUEBA] Ruta con pendiente máxima de 15°: ${recorrido(MOCK_MISION_15DEG)}. ` +
       `Tiempo total ${MOCK_MISION_15DEG.totales.tiempo_min} min (margen ${MOCK_MISION_15DEG.totales.margen_min} min). ` +
       `Omití ${nombre(omitida15.id)} porque su camino más suave tiene ${omitida15.detalle.pendiente_max_deg}° y pediste ${omitida15.detalle.limite}°.`,
-    llamadas: [{ herramienta: 'optimizar_mision',
-      argumentos: { estaciones: ['E1', 'M1', 'M2', 'E2'], tiempo_max_min: 240, pendiente_max: 15 }, ok: true }],
-    ruta: MOCK_MISION_15DEG,
+    calls: [{ tool: 'optimize_mission',
+      arguments: { stations: ['E1', 'M1', 'M2', 'E2'], max_time_min: 240, max_slope_deg: 15 }, ok: true }],
+    route: MOCK_MISION_15DEG,
   },
   demo2: {
-    respuesta:
+    answer:
       `[MODO PRUEBA] Con 20° entra ${nombre('E2')}: ${recorrido(MOCK_MISION_20DEG)}. ` +
       `Tiempo total ${MOCK_MISION_20DEG.totales.tiempo_min} min (margen ${MOCK_MISION_20DEG.totales.margen_min} min).`,
-    llamadas: [{ herramienta: 'optimizar_mision',
-      argumentos: { estaciones: ['E1', 'M1', 'M2', 'E2'], tiempo_max_min: 240, pendiente_max: 20 }, ok: true }],
+    calls: [{ tool: 'optimize_mission',
+      arguments: { stations: ['E1', 'M1', 'M2', 'E2'], max_time_min: 240, max_slope_deg: 20 }, ok: true }],
     // misma forma que llm/agent.py (_comparar), calculada con los JSON de contracts/
-    ruta: {
+    route: {
       ...MOCK_MISION_20DEG,
-      comparacion_con_anterior: {
-        tiempo_anterior_min: MOCK_MISION_15DEG.totales.tiempo_min,
-        tiempo_nuevo_min: MOCK_MISION_20DEG.totales.tiempo_min,
-        diferencia_tiempo_min: Math.round((MOCK_MISION_20DEG.totales.tiempo_min - MOCK_MISION_15DEG.totales.tiempo_min) * 10) / 10,
-        estaciones_agregadas: MOCK_MISION_15DEG.omitidas.map((o) => o.id).filter((id) => MOCK_MISION_20DEG.ruta.includes(id)),
-        estaciones_quitadas: [],
+      comparison_with_previous: {
+        previous_time_min: MOCK_MISION_15DEG.totales.tiempo_min,
+        new_time_min: MOCK_MISION_20DEG.totales.tiempo_min,
+        time_difference_min: Math.round((MOCK_MISION_20DEG.totales.tiempo_min - MOCK_MISION_15DEG.totales.tiempo_min) * 10) / 10,
+        stations_added: MOCK_MISION_15DEG.omitidas.map((o) => o.id).filter((id) => MOCK_MISION_20DEG.ruta.includes(id)),
+        stations_removed: [],
       },
     },
   },
   demo3: {
-    respuesta:
+    answer:
       `[MODO PRUEBA] Alerta de polvo en Z2. Evité los tramos ${(MOCK_ALERTA_Z2.aristas_afectadas ?? []).join(', ')}. ` +
       `Nueva ruta: ${recorrido(MOCK_ALERTA_Z2)}, ${MOCK_ALERTA_Z2.totales.tiempo_min} min.`,
-    llamadas: [{ herramienta: 'recalcular_por_alerta', argumentos: { zona: 'Z2', tipo: 'polvo' }, ok: true }],
-    ruta: MOCK_ALERTA_Z2,
+    calls: [{ tool: 'reroute_for_alert', arguments: { zone: 'Z2', type: 'dust' }, ok: true }],
+    route: MOCK_ALERTA_Z2,
   },
 };

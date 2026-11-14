@@ -21,7 +21,7 @@ El motor carga `data/out/graph.json` (grafo real de Pedro) si existe; si no,
 `contracts/graph_fake.json`. `GRAPH_PATH` fuerza otro archivo.
 
 `/chat` (copiloto de Manuel, `llm/router.py`) se monta en esta misma API, junto con
-`/chat/reset`, `/chat/estado` y `/chat/precalentar`. Necesita Ollama corriendo con el
+`/chat/reset`, `/chat/status` y `/chat/warmup`. Necesita Ollama corriendo con el
 modelo de `llm/.env`; sin el paquete `ollama`, o con `CHAT=0`, el motor arranca igual
 sin `/chat` y la UI ofrece el formulario Plan B.
 

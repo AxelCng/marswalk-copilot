@@ -15,7 +15,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, 
   const [showTools, setShowTools] = useState(false);
   const llamadas = message.llamadas ?? [];
   const fallidas = llamadas.filter((l) => !l.ok).length;
-  const comp = message.ruta?.comparacion_con_anterior;
+  const comp = message.ruta?.comparison_with_previous;
   const sinFuente = message.numeros_sin_fuente ?? [];
 
   return (
@@ -64,13 +64,13 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, 
         {comp && (
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
             <span className="label-caps mr-1">Vs. misión anterior</span>
-            <span className={`chip ${comp.diferencia_tiempo_min > 0 ? 'warning' : 'nominal'} dato-num`}>
-              {signo(comp.diferencia_tiempo_min)} min
+            <span className={`chip ${comp.time_difference_min > 0 ? 'warning' : 'nominal'} dato-num`}>
+              {signo(comp.time_difference_min)} min
             </span>
-            {comp.estaciones_agregadas.map((id) => (
+            {comp.stations_added.map((id) => (
               <span key={`a-${id}`} className="chip nominal">+ {id}</span>
             ))}
-            {comp.estaciones_quitadas.map((id) => (
+            {comp.stations_removed.map((id) => (
               <span key={`q-${id}`} className="chip critical">− {id}</span>
             ))}
           </div>
@@ -107,13 +107,13 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, 
                     className={`rounded bg-hud-deep border border-hud-border border-l-2 ${tool.ok ? 'border-l-hud-cyan' : 'border-l-critical'} p-2 text-[10px] text-ink-dim font-mono`}
                   >
                     <div className="flex items-center justify-between font-bold mb-1">
-                      <span className="text-hud-cyan"><span className="text-ink-mute">$</span> {tool.herramienta}()</span>
+                      <span className="text-hud-cyan"><span className="text-ink-mute">$</span> {tool.tool}()</span>
                       <span className={`chip sin-punto !min-h-[18px] ${tool.ok ? 'nominal' : 'critical'}`}>
                         {tool.ok ? 'OK' : 'Error'}
                       </span>
                     </div>
                     <pre className="m-0 text-ink-dim overflow-x-auto p-1 text-[10px] leading-[14px]">
-                      {JSON.stringify(tool.argumentos, null, 2)}
+                      {JSON.stringify(tool.arguments, null, 2)}
                     </pre>
                   </div>
                 ))}
