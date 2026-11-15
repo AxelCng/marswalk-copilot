@@ -5,6 +5,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { copiloto, useCopiloto } from '../services/copiloto';
 import { Reconocimiento, ERRORES_VOZ, type BrowserRecognition } from '../types/speech';
+import { elegirVoz, paraHablar } from '../services/vozNatural';
+import { ESTACIONES } from '../i18n';
 
 const CLAVE_SILENCIO = 'marswalk-visor-silencio';
 const leerSilencio = () => { try { return localStorage.getItem(CLAVE_SILENCIO) === '1'; } catch { return false; } };
@@ -85,6 +87,16 @@ export function useVozCopiloto(): VozCopiloto {
     return () => window.removeEventListener('keydown', tecla);
   }, [hablar]);
 
+  // La voz más humana del navegador. Chrome carga la lista de voces después: se elige de nuevo al llegar.
+  const vozElegida = useRef<SpeechSynthesisVoice | null>(null);
+  useEffect(() => {
+    if (!('speechSynthesis' in window)) return undefined;
+    const elegir = () => { vozElegida.current = elegirVoz(window.speechSynthesis.getVoices()); };
+    elegir();
+    window.speechSynthesis.addEventListener('voiceschanged', elegir);
+    return () => window.speechSynthesis.removeEventListener('voiceschanged', elegir);
+  }, []);
+
   // Leer en voz alta cada respuesta nueva. Las de antes de abrir el visor no se leen: los ids llevan
   // la hora de creación (bot-<ms>) y la conversación de otra ventana llega un momento después.
   const abiertoEn = useRef(Date.now());
@@ -96,8 +108,9 @@ export function useVozCopiloto(): VozCopiloto {
       if (Number(m.id.split('-')[1]) < abiertoEn.current) continue;
       if (m.rol !== 'asistente' || silencio || !('speechSynthesis' in window)) continue;
       callar();
-      const u = new SpeechSynthesisUtterance(m.contenido);
-      u.lang = 'en-US';
+      const u = new SpeechSynthesisUtterance(paraHablar(m.contenido, ESTACIONES));
+      if (vozElegida.current) u.voice = vozElegida.current;
+      u.lang = vozElegida.current?.lang ?? 'en-US';
       window.speechSynthesis.speak(u);
     }
   }, [mensajes, silencio]);
