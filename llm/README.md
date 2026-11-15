@@ -98,10 +98,22 @@ the 8°/12° demo no longer separating E2), a test fails and says what to update
 
 If the LLM fails live: Axl's form → `POST /mision`.
 
-## Results with GPU and the real engine (Sat 14, night, before the English switch)
+## Results with GPU and the real engine (Sun 15, English version)
 
-RTX 3050 laptop (4 GB, model fully on GPU), `qwen2.5:3b`, `engine/` with `/chat` mounted and the real
-`graph.json`. Demo: 8° → 12° → dust in Z2. 10/10 checks in 2 runs, 0 invented numbers, 2.2 s per question.
-The first cold load took 151 s: `POST /chat/warmup` loads the model and `KEEP_ALIVE=60m` keeps it on the GPU.
+RTX 3050 laptop (4 GB, model 100% on GPU), `qwen2.5:3b`, the API in Docker (`docker compose up`) with the real
+`graph.json`. `test_questions.py`: 16/16 checks, 0 invented numbers, 2.5 s per question on average.
 
-These numbers were measured with the Spanish prompt: run `test_questions.py` again after the English switch.
+| Demo question | Time | Result |
+| --- | --- | --- |
+| 1. Mission at 8° | 2.7 s | 164.8 min, margin 75.2; E2 skipped for slope |
+| 2. "What if I accept up to 12°?" | 3.1 s | 200.6 min, +35.8 min, E2 added |
+| 3. Dust alert in Z2 | 3.8 s | 230.9 min, +30.3 min; legs HAB→M2 and E1→M1 avoided |
+
+The 3 demo questions take about 10 s in total. The answers match the map, the Mission Planner and the visor.
+With the model warm, `POST /chat/warmup` takes 0–5 s; a cold load took 151 s. `KEEP_ALIVE=60m` keeps it on the
+GPU: call the warm-up again if the copilot was idle for more than an hour.
+
+Besides counting invented numbers, `test_questions.py` now checks the wording against the engine result
+(`phrasing_problems` in `agent.py`): a route station left out, a wrong skip reason, the comparison with the
+previous mission dropped, or a comms alert presented as local. When the model's wording fails these checks,
+the answer is the code summary (`answer from summary (...)` in the test output); demo 3 often ends up there.
