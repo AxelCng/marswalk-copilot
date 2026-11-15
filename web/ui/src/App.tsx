@@ -117,7 +117,7 @@ export const App: React.FC = () => {
   };
 
   const lanzarAlerta = async (zona: string, tipo: 'polvo' | 'comms') => {
-    if (!activeMission) { setAvisoAlerta('Plan a walk first, with the copilot or the mission form.'); return; }
+    if (!activeMission) { setAvisoAlerta('Plan a walk first, with the Copilot or Mission Planner.'); return; }
     setAlertaCargando(true);
     try {
       const r = await api.postAlerta(zona, tipo);

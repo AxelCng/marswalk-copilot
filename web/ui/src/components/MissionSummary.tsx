@@ -26,7 +26,7 @@ export const MissionSummary: React.FC<MissionSummaryProps> = ({ mission, onSelec
   if (!mission) {
     return (
       <div className="panel px-4 py-5 text-[13px] leading-5 text-ink-mute">
-        No plan yet. Ask the copilot for a walk, or pick stations in the mission form.
+        No plan yet. Ask the copilot for a walk, or pick stations in Mission Planner.
       </div>
     );
   }

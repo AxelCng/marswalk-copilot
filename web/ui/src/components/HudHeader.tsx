@@ -25,7 +25,7 @@ export const HudHeader: React.FC<HudHeaderProps> = ({ activeTab, onTabChange, st
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     // Íconos ocultos en el celular: sin ellos las tres pestañas entran en 390 px
     { id: 'chat', label: 'Copilot', icon: <MessageSquare className="hidden sm:block h-4 w-4" /> },
-    { id: 'planb', label: 'Mission form', icon: <SlidersHorizontal className="hidden sm:block h-4 w-4" /> },
+    { id: 'planb', label: 'Mission Planner', icon: <SlidersHorizontal className="hidden sm:block h-4 w-4" /> },
     { id: 'stations', label: `Stations ${stationsCount}`, icon: <MapPin className="hidden sm:block h-4 w-4" /> },
   ];
 
