@@ -116,7 +116,7 @@ export const App: React.FC = () => {
   };
 
   const lanzarAlerta = async (zona: string, tipo: 'polvo' | 'comms') => {
-    if (!activeMission) { setAvisoAlerta('Request a mission first (chat or Plan B).'); return; }
+    if (!activeMission) { setAvisoAlerta('Request a mission first (Copilot or Mission Planner).'); return; }
     setAlertaCargando(true);
     try {
       const r = await api.postAlerta(zona, tipo);
@@ -394,10 +394,10 @@ export const App: React.FC = () => {
 
               <div className="panel p-4 text-xs text-ink-dim space-y-2">
                 <div className="flex items-center gap-1.5 text-hud-cyan font-semibold">
-                  <Info className="h-4 w-4" /> Why a Plan B mode?
+                  <Info className="h-4 w-4" /> About Mission Planner
                 </div>
                 <p className="leading-relaxed">
-                  During the live evaluation, or in a real mission with a satellite link outage, this form makes sure the mission is computed 100% by the <strong>OR-Tools / Dijkstra</strong> algorithms, without depending on LLM inference.
+                  Choose destinations and constraints to calculate a mission with the <strong>OR-Tools / Dijkstra</strong> engine, without depending on the copilot.
                 </p>
               </div>
             </div>
