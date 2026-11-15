@@ -43,7 +43,7 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations
   const [loading, setLoading] = useState<boolean>(false);
   const [alertaLoading, setAlertaLoading] = useState<boolean>(false);
   const [estado, setEstado] = useState<{ texto: string; tono: Tono }>({
-    texto: 'Choose stations and constraints, or use a demo question.',
+    texto: 'Pick the stations and limits, then plan the walk.',
     tono: 'info',
   });
 
@@ -60,7 +60,7 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations
       onMissionCalculated(result);
       const tope = params.tiempo_max_min == null ? 'no limit' : `${params.tiempo_max_min} min`;
       setEstado({
-        texto: `${api.useMock ? 'Test mode' : 'Engine'}: ${params.estaciones.length} stations · ≤ ${params.pendiente_max}° · ${tope} · ${params.modo}.`,
+        texto: `Planned ${params.estaciones.length} stations with slopes up to ${params.pendiente_max}° and ${tope === 'no limit' ? 'no time limit' : `${tope} available`}${api.useMock ? ' (sample data)' : ''}.`,
         tono: 'info',
       });
     } catch (err) {
@@ -106,13 +106,13 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations
       else onMissionCalculated(result);
       const ev = result.aristas_afectadas ?? [];
       setEstado({
-        texto: `Dust in ${z}: ${ev.length ? `avoided ${ev.join(', ')}` : 'the route did not cross the zone'}.`,
+        texto: ev.length ? `Rerouted around dust in ${z}, avoiding ${ev.join(', ')}.` : `Dust in ${z} doesn't touch this route.`,
         tono: 'critical',
       });
     } catch (err) {
       console.error('Plan B /alerta:', err);
       if (err instanceof ApiError && err.status === 409) {
-        setEstado({ texto: 'Calculate a mission first: the alert recalculates the last one.', tono: 'warning' });
+        setEstado({ texto: 'Plan a walk first. The alert reroutes the last plan.', tono: 'warning' });
       } else if (sinConexion(err) && z === 'Z2') {
         if (onAlertaCalculada) onAlertaCalculada(MOCK_ALERTA_Z2, 'Z2', true);
         else onMissionCalculated(MOCK_ALERTA_Z2, true);
@@ -128,7 +128,7 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations
   const handleReset = async () => {
     try {
       await api.resetAlerta();
-      setEstado({ texto: 'Alerts cleared. Calculate the mission again.', tono: 'info' });
+      setEstado({ texto: 'Alerts and plan cleared.', tono: 'info' });
     } catch (err) {
       setEstado({ texto: `Reset without engine (${mensaje(err)}): only the screen was cleared.`, tono: 'warning' });
     }
@@ -145,25 +145,24 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-hud-cyan" />
           <div>
-            <h3 className="m-0 font-display text-base font-semibold text-ink">Plan B · Manual mission</h3>
-            <span className="label-caps">Computed directly by the graph engine, no LLM</span>
+            <h3 className="m-0 font-display text-base font-semibold text-ink">Mission form</h3>
+            <span className="label-caps">Plans the walk with the route engine alone, no language model</span>
           </div>
         </div>
-        <span className="chip warning">Demo backup</span>
       </div>
 
-      {/* Preguntas de la demo */}
+      {/* Preguntas de la demo, en orden */}
       <section className="bloque">
-        <h4 className="label-caps m-0">Demo questions</h4>
+        <h4 className="label-caps m-0">Demo, step by step</h4>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <button type="button" className="btn !justify-start" disabled={ocupado} onClick={() => pregunta(DEMO.pendiente_1)} title={FRASES.paso1}>
-            1 · Delta, samples and upper fan, ≤ {DEMO.pendiente_1}°
+          <button type="button" className="btn !justify-start !text-ink" disabled={ocupado} onClick={() => pregunta(DEMO.pendiente_1)} title={FRASES.paso1}>
+            <span className="dato-num text-hud-cyan">1</span> Walk at {DEMO.pendiente_1}°
           </button>
-          <button type="button" className="btn !justify-start" disabled={ocupado} onClick={() => pregunta(DEMO.pendiente_2)} title={FRASES.paso2}>
-            2 · What if I accept {DEMO.pendiente_2}°?
+          <button type="button" className="btn !justify-start !text-ink" disabled={ocupado} onClick={() => pregunta(DEMO.pendiente_2)} title={FRASES.paso2}>
+            <span className="dato-num text-hud-cyan">2</span> Allow {DEMO.pendiente_2}°
           </button>
           <button type="button" className="btn alerta !justify-start" disabled={ocupado} onClick={() => { setZona(DEMO.zona); handleTriggerAlert(DEMO.zona); }}>
-            3 · Dust alert in {DEMO.zona}
+            <span className="dato-num">3</span> Dust in {DEMO.zona}
           </button>
         </div>
       </section>
@@ -172,7 +171,7 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations
       <section className="bloque">
         <div className="flex items-center justify-between">
           <h4 className="label-caps m-0">Stations to visit</h4>
-          <span className="font-mono text-[11px] text-hud-cyan">{selectedStations.length} seleccionadas</span>
+          <span className="text-xs text-ink-mute dato-num">{selectedStations.length} selected</span>
         </div>
 
         <fieldset className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-0.5 border-0 m-0 p-0">
@@ -188,8 +187,8 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations
                 <i className="h-2 w-2 rounded-full" style={{ background: `var(--tipo-${station.tipo})` }} aria-hidden />
                 <b className="font-mono text-xs font-semibold">{station.id}</b>
                 <span className="text-xs truncate">{station.nombre}</span>
-                <span className="font-mono text-[10px] text-ink-mute dato-num" title="Science value · local slope">
-                  {station.valor_cientifico > 0 ? `+${station.valor_cientifico}` : ''} · {station.capas.pendiente_deg}°
+                <span className="text-[11px] text-ink-mute dato-num" title="Local slope at the station">
+                  {station.capas.pendiente_deg}°
                 </span>
               </label>
             );
@@ -201,7 +200,7 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations
       <section className="bloque">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
-            <span className="label-caps" id="lbl-pend">Suit maximum slope</span>
+            <span className="label-caps" id="lbl-pend">Steepest slope allowed</span>
             <div className="segmentado" role="radiogroup" aria-labelledby="lbl-pend">
               {PENDIENTES.map((p) => (
                 <button
@@ -219,7 +218,7 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="label-caps" htmlFor="planb-tiempo">Maximum time</label>
+            <label className="label-caps" htmlFor="planb-tiempo">Time available</label>
             <span className={`flex items-center bg-hud-glass/90 border border-hud-border rounded focus-within:border-hud-cyan ${modo === 'tsp' && sinTope ? 'opacity-45' : ''}`}>
               <input
                 id="planb-tiempo"
@@ -230,12 +229,12 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations
                 value={tiempoMax}
                 disabled={modo === 'tsp' && sinTope}
                 onChange={(e) => setTiempoMax(Math.max(30, Number(e.target.value) || 30))}
-                className="flex-1 min-w-0 px-2 py-1 bg-transparent border-0 outline-none text-ink font-mono text-sm dato-num"
+                className="flex-1 min-w-0 px-2 py-1 bg-transparent border-0 outline-none text-ink text-sm dato-num"
               />
-              <span className="pr-2 font-mono text-[11px] text-ink-mute">min · {(tiempoMax / 60).toFixed(1)} h</span>
+              <span className="pr-2 text-xs text-ink-mute dato-num">min ({(tiempoMax / 60).toFixed(1)} h)</span>
             </span>
             {modo === 'tsp' && (
-              <label className="flex items-center gap-1.5 text-[11px] font-mono text-ink-dim cursor-pointer">
+              <label className="flex items-center gap-1.5 text-xs text-ink-dim cursor-pointer">
                 <input type="checkbox" checked={sinTope} onChange={(e) => setSinTope(e.target.checked)} className="h-3.5 w-3.5 m-0" />
                 No time limit
               </label>
@@ -244,19 +243,19 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <span className="label-caps" id="lbl-modo">Algorithm</span>
+          <span className="label-caps" id="lbl-modo">If not everything fits</span>
           <div className="segmentado" role="radiogroup" aria-labelledby="lbl-modo">
             <button type="button" role="radio" aria-checked={modo === 'orientacion'} onClick={() => setModo('orientacion')} className={modo === 'orientacion' ? 'activo' : ''}>
-              Orienteering · max science
+              Keep the best science
             </button>
             <button type="button" role="radio" aria-checked={modo === 'tsp'} onClick={() => setModo('tsp')} className={modo === 'tsp' ? 'activo' : ''}>
-              TSP · all
+              Visit all or none
             </button>
           </div>
-          <span className="text-[11px] text-ink-mute">
+          <span className="text-xs text-ink-mute">
             {modo === 'orientacion'
-              ? 'Maximizes science value within the time limit and skips the stations that do not fit.'
-              : 'Visits all of them in the best order, or answers that it is not feasible.'}
+              ? 'Drops the stations that don’t fit, keeping the most scientific value (orienteering problem).'
+              : 'Visits every station in the best order, or says it can’t be done (traveling salesman).'}
           </span>
         </div>
       </section>
@@ -270,29 +269,29 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations
           className="btn primario w-full"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          Calculate optimal route
+          Plan the walk
         </button>
         <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2">
           <select
             aria-label="Alert zone"
             value={zona}
             onChange={(e) => setZona(e.target.value)}
-            className="min-w-0 min-h-[34px] px-1 bg-hud-glass/90 border border-hud-border rounded text-ink font-mono text-xs"
+            className="min-w-0 min-h-[34px] px-1 bg-hud-glass/90 border border-hud-border rounded text-ink text-[13px]"
           >
             {(zonas.length ? zonas : [{ id: 'Z2', nombre: '' }]).map((z) => (
-              <option key={z.id} value={z.id}>{z.id}{z.nombre ? ` · ${z.nombre}` : ''}</option>
+              <option key={z.id} value={z.id}>{z.nombre ? `${z.nombre} (${z.id})` : z.id}</option>
             ))}
           </select>
           <button type="button" onClick={() => handleTriggerAlert()} disabled={ocupado} className="btn alerta">
             {alertaLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <AlertTriangle className="h-3.5 w-3.5" />} Simulate dust
           </button>
-          <button type="button" onClick={handleReset} disabled={ocupado} title="Clears the alerts (POST /reset)" className="btn">
-            <RefreshCw className="h-3.5 w-3.5" /> Reset
+          <button type="button" onClick={handleReset} disabled={ocupado} title="Clears alerts and the current plan" className="btn">
+            <RefreshCw className="h-3.5 w-3.5" /> Clear
           </button>
         </div>
         <p
           role="status"
-          className={estado.tono === 'info' ? 'm-0 font-mono text-[11px] leading-[14px] text-ink-mute' : `nota ${estado.tono}`}
+          className={estado.tono === 'info' ? 'm-0 text-xs leading-4 text-ink-mute' : `nota ${estado.tono}`}
         >
           {estado.texto}
         </p>

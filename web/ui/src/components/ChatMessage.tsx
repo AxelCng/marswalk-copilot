@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { MensajeHistorial } from '../types/mission';
-import { Bot, User, Wrench, ChevronDown, ChevronRight, Route, ShieldCheck } from 'lucide-react';
+import { ChevronDown, ChevronRight, Route, SlidersHorizontal } from 'lucide-react';
 
 interface ChatMessageProps {
   message: MensajeHistorial;
@@ -9,6 +9,21 @@ interface ChatMessageProps {
 }
 
 const signo = (n: number) => (n > 0 ? `+${n}` : `${n}`);
+
+/**
+ * El modelo a veces responde en Markdown ("**Route**: ..."). Sin esto se veían los asteriscos.
+ * Solo se interpreta la negrita y se juntan los saltos de línea dobles; nada de HTML crudo.
+ */
+function conFormato(texto: string): React.ReactNode[] {
+  return texto
+    .replace(/\n{3,}/g, '\n\n')
+    .split(/(\*\*[^*\n]+\*\*)/g)
+    .map((parte, i) =>
+      parte.startsWith('**') && parte.endsWith('**') && parte.length > 4
+        ? <strong key={i} className="font-semibold text-ink">{parte.slice(2, -2)}</strong>
+        : parte,
+    );
+}
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, onIrPlanB }) => {
   const isUser = message.rol === 'usuario';
@@ -21,82 +36,70 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, 
   return (
     <div className={`flex flex-col gap-1.5 ${isUser ? 'items-end' : 'items-start'}`}>
       {/* Remitente */}
-      <div className="flex items-center gap-1.5 text-[10px] font-mono text-ink-dim px-1">
-        {isUser ? (
-          <>
-            <span>{message.timestamp}</span>
-            <span className="font-semibold text-rust">ASTRONAUT</span>
-            <div className="flex h-4 w-4 items-center justify-center rounded-full bg-rust/20 text-rust">
-              <User className="h-2.5 w-2.5" />
-            </div>
-          </>
-        ) : (
-          <>
-            <div className={`flex h-4 w-4 items-center justify-center rounded-full ${message.error ? 'bg-critical/20 text-critical' : 'bg-hud-cyan/20 text-hud-cyan'}`}>
-              <Bot className="h-2.5 w-2.5" />
-            </div>
-            <span className={`font-semibold ${message.error ? 'text-critical' : 'text-hud-cyan'}`}>MARSWALK COPILOT</span>
-            <span>{message.timestamp}</span>
-            {message.segundos != null && <span className="dato-num text-ink-mute">· {message.segundos} s</span>}
-          </>
-        )}
+      <div className="flex items-baseline gap-2 text-xs text-ink-mute px-0.5">
+        <span className={`font-medium ${isUser ? 'text-ink-dim' : message.error ? 'text-critical' : 'text-hud-cyan'}`}>
+          {isUser ? 'You' : 'Copilot'}
+        </span>
+        {message.timestamp && <span className="dato-num">{message.timestamp}</span>}
+        {/* Cuánto tardó: el modelo local puede demorar, y es honesto mostrarlo */}
+        {!isUser && message.segundos != null && <span className="dato-num">answered in {Math.round(message.segundos)} s</span>}
       </div>
 
-      {/* Burbuja */}
+      {/* Burbuja: la del usuario lleva el óxido de la marca; la del copiloto, neutra */}
       <div
-        className={`max-w-[88%] rounded p-3.5 text-sm leading-relaxed ${
+        className={`max-w-[88%] rounded-md px-3.5 py-3 text-[15px] leading-6 ${
           isUser
-            ? 'bg-hud-glass border border-hud-border border-r-2 border-r-rust text-ink rounded-tr-none'
+            ? 'bg-rust/12 border border-rust/30 text-ink'
             : message.error
-              ? 'bg-critical/5 border border-critical/50 border-l-2 border-l-critical text-ink rounded-tl-none'
-              : 'bg-hud-glass border border-hud-border/80 text-ink rounded-tl-none'
+              ? 'bg-critical/5 border border-critical/50 text-ink'
+              : 'bg-hud-glass border border-hud-border/80 text-ink'
         }`}
       >
-        <p className="m-0 whitespace-pre-wrap">{message.contenido}</p>
+        <p className="m-0 whitespace-pre-wrap">{isUser ? message.contenido : conFormato(message.contenido)}</p>
 
         {message.error && onIrPlanB && (
           <button type="button" onClick={onIrPlanB} className="btn alerta mt-3">
-            <ShieldCheck className="h-3.5 w-3.5" /> Open Plan B
+            <SlidersHorizontal className="h-3.5 w-3.5" /> Open the mission form
           </button>
         )}
 
         {/* Qué cambió respecto a la misión anterior (lo calcula llm/agent.py, no el modelo) */}
         {comp && (
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
-            <span className="label-caps mr-1">Vs. previous mission</span>
-            <span className={`chip ${comp.time_difference_min > 0 ? 'warning' : 'nominal'} dato-num`}>
+            <span className="label-caps mr-1">Compared with the last plan</span>
+            <span className={`chip sin-punto ${comp.time_difference_min > 0 ? 'warning' : 'nominal'} dato-num`}>
               {signo(comp.time_difference_min)} min
             </span>
             {comp.stations_added.map((id) => (
-              <span key={`a-${id}`} className="chip nominal">+ {id}</span>
+              <span key={`a-${id}`} className="chip sin-punto nominal">Adds {id}</span>
             ))}
             {comp.stations_removed.map((id) => (
-              <span key={`q-${id}`} className="chip critical">− {id}</span>
+              <span key={`q-${id}`} className="chip sin-punto critical">Drops {id}</span>
             ))}
           </div>
         )}
 
         {sinFuente.length > 0 && (
           <p className="nota warning mt-3">
-            Check: numbers without a tool backing them ({sinFuente.join(', ')}).
+            Double-check these numbers; the route engine didn&apos;t return them: {sinFuente.join(', ')}.
           </p>
         )}
 
         {/* Llamadas a herramientas: terminal mono */}
         {llamadas.length > 0 && (
-          <div className="mt-3 pt-2.5 border-t border-hud-border/60 font-mono text-xs">
+          <div className="mt-3 pt-2.5 border-t border-hud-border/60 text-xs">
+            {/* Prueba de que los números salen del motor: qué se le pidió, con qué argumentos */}
             <button
               type="button"
               onClick={() => setShowTools(!showTools)}
               aria-expanded={showTools}
-              className="flex items-center gap-1.5 text-[11px] text-hud-cyan/90 hover:text-hud-cyan transition-colors"
+              className="flex items-center gap-1 text-[13px] text-ink-dim hover:text-ink transition-colors"
             >
-              <Wrench className="h-3 w-3" />
+              {showTools ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
               <span>
-                {llamadas.length} {llamadas.length === 1 ? 'function called' : 'functions called'}
-                {fallidas > 0 && <span className="text-critical"> · {fallidas} with errors</span>}
+                {showTools ? 'Hide' : 'Show'} {llamadas.length === 1 ? 'the engine call' : `${llamadas.length} engine calls`}
+                {fallidas > 0 && <span className="text-critical">, {fallidas} failed</span>}
               </span>
-              {showTools ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
             </button>
 
             {showTools && (
@@ -107,9 +110,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, 
                     className={`rounded bg-hud-deep border border-hud-border border-l-2 ${tool.ok ? 'border-l-hud-cyan' : 'border-l-critical'} p-2 text-[10px] text-ink-dim font-mono`}
                   >
                     <div className="flex items-center justify-between font-bold mb-1">
-                      <span className="text-hud-cyan"><span className="text-ink-mute">$</span> {tool.tool}()</span>
+                      <span className="text-hud-cyan">{tool.tool}</span>
                       <span className={`chip sin-punto !min-h-[18px] ${tool.ok ? 'nominal' : 'critical'}`}>
-                        {tool.ok ? 'OK' : 'Error'}
+                        {tool.ok ? 'Returned' : 'Failed'}
                       </span>
                     </div>
                     <pre className="m-0 text-ink-dim overflow-x-auto p-1 text-[10px] leading-[14px]">
@@ -124,18 +127,18 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, 
 
         {/* Ruta resultante */}
         {message.ruta && !message.error && (
-          <div className="mt-2.5 pt-2 border-t border-hud-border/60 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
-            <span className={`${message.ruta.factible ? 'text-nominal' : 'text-critical'} flex items-center gap-1`}>
-              <Route className="h-3.5 w-3.5 shrink-0" />
-              {message.ruta.factible ? message.ruta.ruta.join(' → ') : 'No feasible route'}
+          <div className="mt-2.5 pt-2 border-t border-hud-border/60 flex flex-wrap items-center justify-between gap-2 text-[13px]">
+            <span className={`${message.ruta.factible ? 'text-ink-dim' : 'text-critical'} flex items-center gap-1.5`}>
+              <Route className={`h-4 w-4 shrink-0 ${message.ruta.factible ? 'text-hud-cyan' : ''}`} />
+              {message.ruta.factible ? <span className="font-medium">{message.ruta.ruta.join(' → ')}</span> : 'No route meets these limits'}
             </span>
             {onViewRoute && (
               <button
                 type="button"
                 onClick={onViewRoute}
-                className="px-2 py-0.5 rounded bg-hud-cyan/10 border border-hud-cyan/50 text-hud-cyan hover:border-hud-cyan transition-colors text-[10px]"
+                className="text-hud-cyan hover:underline"
               >
-                View telemetry
+                See the plan
               </button>
             )}
           </div>

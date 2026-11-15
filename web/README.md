@@ -20,7 +20,7 @@ $env:GRAPH_PATH = "contracts/graph_fake.json"
 cd web/ui; npm install; npm run dev     # http://localhost:5173
 ```
 
-- La pantalla arranca contra el motor real (`MODO: FASTAPI :8000`). El botón del HUD cambia a `MODO: MOCK LOCAL`, que usa los archivos de `contracts/`.
+- La pantalla arranca contra el motor real: el botón de arriba a la derecha dice `Live engine`. Al hacerle clic cambia a `Sample data`, que usa los archivos de `contracts/`.
 - Los datos de prueba (`web/ui/src/mocks/mockData.ts`) **salen de `contracts/`**: no se escriben números a mano.
 - Si `/chat` falla, el panel lo dice y manda al Plan B. **Nunca muestra una respuesta inventada.**
 - El mapa (`web/map/src/MarsMap.jsx`, de Axl) está arriba de las pestañas, con la barra de alertas (polvo por zona, sin comunicación, reset). Al hacer clic en una estación del mapa se abre su ficha.
