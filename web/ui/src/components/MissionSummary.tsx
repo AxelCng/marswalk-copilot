@@ -1,145 +1,116 @@
 import React from 'react';
 import type { RespuestaMision } from '../types/mission';
-import { Route, Clock, ShieldAlert, AlertTriangle, ArrowRight } from 'lucide-react';
+import { AlertTriangle, ChevronRight } from 'lucide-react';
 
 interface MissionSummaryProps {
   mission: RespuestaMision | null;
   onSelectStation?: (stationId: string) => void;
 }
 
+const miles = (n: number) => Math.round(n).toLocaleString('en-US');
+
+/** Motivo de una estación omitida, en una frase (los valores vienen tal cual del motor). */
+function motivo(om: RespuestaMision['omitidas'][number]): string {
+  const d = om.detalle;
+  switch (om.motivo) {
+    case 'pendiente': return `The gentlest path climbs ${d.pendiente_max_deg}°; your limit is ${d.limite}°.`;
+    case 'tiempo': return `Doesn't fit in ${d.tiempo_max_min} min.`;
+    case 'alerta': return `Cut off by the dust alert in ${d.zonas?.join(', ')}.`;
+    case 'comms': return `No path keeps enough radio coverage (${d.cobertura_com_pct}%).`;
+    case 'no_existe': return 'Not a known station.';
+    default: return String(om.motivo);
+  }
+}
+
 export const MissionSummary: React.FC<MissionSummaryProps> = ({ mission, onSelectStation }) => {
   if (!mission) {
     return (
-      <div className="panel p-4 text-center text-ink-mute font-mono text-xs">
-        <Route className="h-6 w-6 mx-auto mb-1.5 text-ink-mute" />
-        No active mission loaded in telemetry.
+      <div className="panel px-4 py-5 text-[13px] leading-5 text-ink-mute">
+        No plan yet. Ask the copilot for a walk, or pick stations in the mission form.
       </div>
     );
   }
 
   const { factible, ruta, tramos, omitidas, totales, aristas_afectadas } = mission;
+  const margenBajo = totales.margen_min !== null && totales.margen_min < 10;
+
+  // Cifras del plan: cada una con su unidad y una aclaración honesta de qué es
+  const cifras = [
+    { etiqueta: 'Total time', valor: totales.tiempo_min.toFixed(1), unidad: 'min', nota: 'Walking plus time at stops' },
+    { etiqueta: 'Distance', valor: (totales.distancia_m / 1000).toFixed(2), unidad: 'km', nota: `${miles(totales.distancia_m)} m on foot` },
+    {
+      etiqueta: 'Margin',
+      valor: totales.margen_min !== null ? totales.margen_min.toFixed(1) : '—',
+      unidad: totales.margen_min !== null ? 'min' : '',
+      nota: totales.margen_min !== null ? 'Left before your time limit' : 'No time limit set',
+      tono: margenBajo ? 'text-warning' : 'text-ink',
+    },
+    { etiqueta: 'Radiation', valor: totales.dosis_rel.toFixed(1), unidad: '', nota: 'Relative index, a model estimate' },
+  ];
 
   return (
-    <div className="panel p-4 space-y-3.5">
-      {/* Feasibility Header */}
-      <div className="flex items-center justify-between border-b border-hud-subtle pb-2.5">
-        <div className="flex items-center gap-2">
-          {factible ? (
-            <span className="chip nominal">Feasible mission</span>
-          ) : (
-            <span className="chip critical">Not feasible</span>
-          )}
-          <span className="label-caps">{tramos.length} legs</span>
-        </div>
-
+    <div className="panel">
+      {/* Estado */}
+      <div className="flex flex-wrap items-center gap-2 px-4 pt-3.5">
+        <span className={`chip ${factible ? 'nominal' : 'critical'}`}>{factible ? 'Feasible' : 'Not feasible'}</span>
+        <span className="text-xs text-ink-mute dato-num">{tramos.length} {tramos.length === 1 ? 'leg' : 'legs'}</span>
         {aristas_afectadas && aristas_afectadas.length > 0 && (
-          <span className="chip critical">Dust alert active</span>
+          <span className="chip critical ml-auto">Rerouted around dust</span>
         )}
       </div>
 
-      {/* Waypoint Sequence Trail */}
-      <div>
-        <span className="label-caps block mb-1.5">
-          Optimal station sequence
-        </span>
-        <div className="flex flex-wrap items-center gap-1.5 font-mono text-xs">
-          {ruta.map((nodeId, idx) => (
-            <React.Fragment key={idx}>
-              <button
-                onClick={() => onSelectStation?.(nodeId)}
-                className={`px-2.5 py-1 rounded border font-bold transition-colors ${
-                  nodeId === 'HAB'
-                    ? 'bg-rust/10 border-rust/50 text-rust hover:bg-rust/10'
-                    : 'bg-hud-glass/80 border-hud-border text-hud-cyan hover:border-hud-cyan hover:bg-hud-glass'
-                }`}
-              >
-                {nodeId}
-              </button>
-              {idx < ruta.length - 1 && (
-                <ArrowRight className="h-3 w-3 text-ink-mute flex-shrink-0" />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
+      {/* Orden de paradas: es una secuencia real, así que se lee como recorrido */}
+      <ol className="flex flex-wrap items-center gap-y-1.5 m-0 px-4 pt-3 list-none text-[13px]" aria-label="Stops in order">
+        {ruta.map((nodeId, idx) => (
+          <li key={idx} className="flex items-center">
+            <button
+              onClick={() => onSelectStation?.(nodeId)}
+              title={`Open ${nodeId}`}
+              className={`px-2 py-0.5 rounded font-display font-semibold transition-colors ${
+                nodeId === 'HAB'
+                  ? 'text-rust hover:bg-rust/10'
+                  : 'text-ink hover:bg-hud-glass'
+              }`}
+            >
+              {nodeId}
+            </button>
+            {idx < ruta.length - 1 && <ChevronRight aria-hidden className="h-3.5 w-3.5 text-ink-mute" />}
+          </li>
+        ))}
+      </ol>
 
-      {/* Telemetry Metrics Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-xs">
-        <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
-          <span className="label-caps flex items-center gap-1">
-            <Clock className="h-3 w-3 text-hud-cyan" /> TOTAL TIME
-          </span>
-          <span className="block text-lg font-semibold text-ink dato-num">
-            {totales.tiempo_min.toFixed(1)} min
-          </span>
-          <span className="text-[9px] text-ink-mute block">
-            {(totales.tiempo_min / 60).toFixed(2)} h walking + time on site
-          </span>
-        </div>
+      {/* Cifras: una fila con divisores en vez de cuatro tarjetas iguales */}
+      <dl className="grid grid-cols-2 sm:grid-cols-4 m-0 mt-3.5 border-t border-hud-subtle">
+        {cifras.map((c, i) => (
+          <div
+            key={c.etiqueta}
+            className={`px-4 py-3 ${i % 2 === 1 ? 'border-l border-hud-subtle' : ''} ${i >= 2 ? 'border-t sm:border-t-0 border-hud-subtle' : ''} ${i === 2 ? 'sm:border-l' : ''}`}
+          >
+            <dt className="text-xs text-ink-mute">{c.etiqueta}</dt>
+            <dd className={`m-0 mt-0.5 font-display text-xl font-semibold dato-num ${c.tono ?? 'text-ink'}`}>
+              {c.valor}{c.unidad && <span className="ml-1 text-sm font-medium text-ink-dim">{c.unidad}</span>}
+            </dd>
+            <dd className="m-0 text-[11px] leading-4 text-ink-mute">{c.nota}</dd>
+          </div>
+        ))}
+      </dl>
 
-        <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
-          <span className="label-caps flex items-center gap-1">
-            <Route className="h-3 w-3 text-nominal" /> DISTANCE
-          </span>
-          <span className="block text-lg font-semibold text-ink dato-num">
-            {(totales.distancia_m / 1000).toFixed(2)} km
-          </span>
-          <span className="text-[9px] text-ink-mute block">
-            {totales.distancia_m} real meters
-          </span>
-        </div>
-
-        <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
-          <span className="label-caps flex items-center gap-1">
-            <Clock className="h-3 w-3 text-warning" /> SAFETY MARGIN
-          </span>
-          <span className={`block text-lg font-semibold dato-num ${totales.margen_min !== null && totales.margen_min < 10 ? 'text-warning' : 'text-nominal'}`}>
-            {totales.margen_min !== null ? `${totales.margen_min.toFixed(1)} min` : 'No limit'}
-          </span>
-          <span className="text-[9px] text-ink-mute block">
-            Life support remaining
-          </span>
-        </div>
-
-        <div className="bg-hud-glass/80 border border-hud-border p-2.5 rounded">
-          <span className="label-caps flex items-center gap-1">
-            <ShieldAlert className="h-3 w-3 text-rust" /> RELATIVE DOSE
-          </span>
-          <span className="block text-lg font-semibold text-ink dato-num">
-            {totales.dosis_rel.toFixed(1)}
-          </span>
-          <span className="text-[9px] text-ink-mute block">
-            Adjusted cosmic exposure
-          </span>
-        </div>
-      </div>
-
-      {/* Omitted Stations Accordion/Callout */}
+      {/* Estaciones omitidas y por qué */}
       {omitidas.length > 0 && (
-        <div className="rounded border border-warning/40 bg-warning/10 p-2.5 text-xs font-mono">
-          <div className="flex items-center gap-1.5 text-warning font-semibold mb-1">
-            <AlertTriangle className="h-3.5 w-3.5" />
-            <span className="label-caps text-warning">Skipped stations and reason</span>
-          </div>
-          <div className="space-y-1">
+        <div className="border-t border-hud-subtle px-4 py-3">
+          <p className="m-0 mb-1.5 flex items-center gap-1.5 text-[13px] font-medium text-warning">
+            <AlertTriangle className="h-4 w-4" /> Left out of this plan
+          </p>
+          <ul className="m-0 p-0 list-none space-y-1 text-[13px] leading-5">
             {omitidas.map((om, i) => (
-              <div key={i} className="text-ink-dim flex items-center justify-between bg-hud-deep/60 px-2 py-1 rounded">
-                <span className="font-bold text-warning">Station {om.id}:</span>
-                <span className="text-ink-dim">
-                  {om.motivo === 'pendiente' &&
-                    `Minimum slope required ${om.detalle.pendiente_max_deg}° > limit ${om.detalle.limite}°`}
-                  {om.motivo === 'tiempo' &&
-                    `Exceeds the ${om.detalle.tiempo_max_min} min time limit`}
-                  {om.motivo === 'alerta' &&
-                    `Cut off by the dust alert in ${om.detalle.zonas?.join(', ')}`}
-                  {om.motivo === 'comms' &&
-                    `Insufficient comms coverage (${om.detalle.cobertura_com_pct}%)`}
-                  {om.motivo === 'no_existe' &&
-                    `Unknown station`}
-                </span>
-              </div>
+              <li key={i} className="text-ink-dim">
+                <button onClick={() => onSelectStation?.(om.id)} className="font-display font-semibold text-ink hover:underline">
+                  {om.id}
+                </button>{' '}
+                {motivo(om)}
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
     </div>
