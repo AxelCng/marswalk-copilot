@@ -145,7 +145,7 @@ export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-hud-cyan" />
           <div>
-            <h3 className="m-0 font-display text-base font-semibold text-ink">Mission form</h3>
+            <h3 className="m-0 font-display text-base font-semibold text-ink">Mission Planner</h3>
             <span className="label-caps">Plans the walk with the route engine alone, no language model</span>
           </div>
         </div>

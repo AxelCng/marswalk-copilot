@@ -2,8 +2,25 @@ import React, { useState, useRef, useEffect } from 'react';
 import type { ChatResponse, MensajeHistorial, RespuestaMision } from '../types/mission';
 import { ChatMessage } from './ChatMessage';
 import { api } from '../services/api';
-import { Send, Loader2, RotateCcw } from 'lucide-react';
+import { Send, Loader2, RotateCcw, Mic, Square } from 'lucide-react';
 import { DEMO, FRASES } from '../demo';
+
+// Web Speech is not yet included in TypeScript's standard DOM definitions.
+type SpeechResultEvent = Event & { resultIndex: number; results: { length: number; [index: number]: { isFinal: boolean; [index: number]: { transcript: string } } } };
+type SpeechErrorEvent = Event & { error: string };
+interface BrowserRecognition {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onresult: ((event: SpeechResultEvent) => void) | null;
+  onerror: ((event: SpeechErrorEvent) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+}
+type RecognitionConstructor = new () => BrowserRecognition;
+type SpeechWindow = Window & { SpeechRecognition?: RecognitionConstructor; webkitSpeechRecognition?: RecognitionConstructor };
 
 interface ChatPanelProps {
   onRouteGenerated?: (ruta: RespuestaMision, respuesta?: ChatResponse) => void;
@@ -41,6 +58,10 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [espera, setEspera] = useState(0);
+  const [listening, setListening] = useState(false);
+  const [speechStatus, setSpeechStatus] = useState('');
+  const recognitionRef = useRef<BrowserRecognition | null>(null);
+  const Recognition = (window as SpeechWindow).SpeechRecognition ?? (window as SpeechWindow).webkitSpeechRecognition;
   const listaRef = useRef<HTMLDivElement>(null);
 
   // Baja al último mensaje desplazando solo la lista del chat. scrollIntoView movía la página entera,
@@ -59,9 +80,79 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
     return () => clearInterval(id);
   }, [loading]);
 
+  useEffect(() => () => {
+    const recognition = recognitionRef.current;
+    recognitionRef.current = null;
+    if (recognition) {
+      recognition.onresult = null;
+      recognition.onerror = null;
+      recognition.onend = null;
+      recognition.abort();
+    }
+  }, []);
+
+  const toggleDictation = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      return;
+    }
+    if (!Recognition) return;
+    const recognition = new Recognition();
+    recognitionRef.current = recognition;
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onresult = (event) => {
+      const phrases: string[] = [];
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        if (event.results[i].isFinal) phrases.push(event.results[i][0].transcript.trim());
+      }
+      const spoken = phrases.filter(Boolean).join(' ');
+      if (spoken) {
+        setInput((current) => current.trim() ? `${current.trimEnd()} ${spoken}` : spoken);
+        setSpeechStatus('Dictation added. Review the message before sending.');
+      }
+    };
+    recognition.onerror = (event) => {
+      const messages: Record<string, string> = {
+        'not-allowed': 'Microphone permission denied. Allow it in browser settings to use voice input.',
+        'service-not-allowed': 'Speech recognition is blocked in this browser.',
+        'audio-capture': 'No microphone found. Check your microphone and try again.',
+        'no-speech': 'No speech detected. Try again.',
+        'network': 'Speech recognition needs a network connection. You can type instead.',
+      };
+      setSpeechStatus(messages[event.error] ?? `Voice input failed (${event.error}). You can type instead.`);
+    };
+    recognition.onend = () => {
+      if (recognitionRef.current === recognition) recognitionRef.current = null;
+      setListening(false);
+      setSpeechStatus((status) => status.startsWith('Listening') ? 'Voice input stopped. You can type or try again.' : status);
+    };
+    try {
+      recognition.start();
+      setListening(true);
+      setSpeechStatus('Listening… Speak now, then review the text.');
+    } catch {
+      recognitionRef.current = null;
+      setListening(false);
+      setSpeechStatus('Could not start voice input. Check your browser and microphone.');
+    }
+  };
+
   const handleSend = async (textToSend?: string) => {
     const text = (textToSend || input).trim();
     if (!text || loading) return;
+
+    if (recognitionRef.current) {
+      const recognition = recognitionRef.current;
+      recognitionRef.current = null;
+      recognition.onresult = null;
+      recognition.onerror = null;
+      recognition.onend = null;
+      recognition.abort();
+      setListening(false);
+    }
+    setSpeechStatus('');
 
     const userMsg: MensajeHistorial = {
       id: `user-${Date.now()}`,
@@ -106,7 +197,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
       setMessages((prev) => [...prev, {
         id: `err-${Date.now()}`,
         rol: 'asistente',
-        contenido: "The copilot isn't reachable right now. The mission form plans the same walk with the route engine directly.",
+        contenido: "The copilot isn't reachable right now. Mission Planner plans the same walk with the route engine directly.",
         timestamp: hora(),
         error: true,
         local: true,
@@ -168,7 +259,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
             <span className="dato-num text-ink-mute">{espera} s</span>
             {espera >= 20 && onIrPlanB && (
               <button type="button" onClick={onIrPlanB} className="ml-1 underline text-ink-dim hover:text-hud-cyan">
-                Taking long? Use the mission form
+                Taking long? Use Mission Planner
               </button>
             )}
           </div>
@@ -194,6 +285,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
             className="flex-1 min-w-0 bg-hud-deep/90 border border-hud-border rounded px-3.5 py-2.5 text-[15px] text-ink placeholder-ink-mute focus:outline-none focus:border-hud-cyan transition-colors"
           />
 
+          {/* Dictado por voz (Said, PR #10) */}
+          <button type="button" onClick={toggleDictation} disabled={loading || !Recognition}
+            aria-label={listening ? 'Stop voice input' : 'Start voice input'} aria-pressed={listening}
+            title={Recognition ? (listening ? 'Stop voice input' : 'Dictate a message') : 'Voice input is not supported by this browser'}
+            className={`flex items-center justify-center h-10 w-10 shrink-0 rounded border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${listening ? 'bg-critical border-critical text-ink' : 'bg-hud-deep border-hud-border text-ink-dim hover:text-ink hover:border-ink-mute'}`}>
+            {listening ? <Square className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          </button>
+
           <button
             type="submit"
             disabled={loading || !input.trim()}
@@ -203,6 +302,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
             <Send className="h-4 w-4" />
           </button>
         </form>
+        <p className={`mt-1.5 mb-0 text-[11px] leading-4 ${listening ? 'text-hud-cyan' : 'text-ink-mute'}`} role="status" aria-live="polite">
+          {speechStatus || (Recognition ? 'Voice transcription may use an online browser service. Review text before sending.' : 'Voice input is unavailable in this browser; type your message.')}
+        </p>
       </div>
     </div>
   );

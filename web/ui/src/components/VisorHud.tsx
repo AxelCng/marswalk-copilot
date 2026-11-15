@@ -234,7 +234,7 @@ export const VisorHud: React.FC<Props> = ({
         ) : (
           <section className="mision eva-sin-mision">
             <span className="label-caps">Free exploration</span>
-            <p>No mission: plan a walk with the copilot or the mission form to get a target and the autopilot.</p>
+            <p>No mission: plan a walk with the Copilot or Mission Planner to get a target and the autopilot.</p>
           </section>
         )}
 
