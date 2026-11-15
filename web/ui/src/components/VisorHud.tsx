@@ -33,6 +33,8 @@ import { CAMARAS, R_MARTE } from '../../../map/src/caminata.js';
 import { COLOR_TIPO } from '../../../map/src/tokens.js';
 import { MapaMision } from './MapaMision';
 import { eva, type EstadoAstronauta } from '../services/eva';
+import { CopilotVisor } from './CopilotVisor';
+import { useVozCopiloto } from '../hooks/useVozCopiloto';
 import type { EstacionDetalle, Grafo, RespuestaMision } from '../types/mission';
 
 // Marco del mapa (mosaico CTX del SIM 3464): el astronauta no sale de acá.
@@ -103,6 +105,7 @@ export const VisorHud: React.FC<Props> = ({
   modo = 'partido', pendienteMax = 15, onSalir, onAlerta, onQuitarAlerta,
 }) => {
   const hudRef = useRef<HTMLDivElement>(null);
+  const voz = useVozCopiloto();
   const lienzoRef = useRef<HTMLDivElement>(null);
   const control = useRef<Control | null>(null);
   const escenaRef = useRef<{ ponerRuta: (t: unknown) => void; listo: Promise<void> } | null>(null);
@@ -245,7 +248,7 @@ export const VisorHud: React.FC<Props> = ({
           <div><dt>Pace</dt><dd>{fmt(est?.velocidad_kmh, 1)} km/h</dd></div>
           {distObj != null && <div><dt>To {tramo?.destino}</dt><dd>{fmt(distObj)} m</dd></div>}
         </dl>
-        <p className="eva-ayuda"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>Q</kbd><kbd>E</kbd> turn · drag to look · <kbd>Shift</kbd> ×10</p>
+        <p className="eva-ayuda"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>Q</kbd><kbd>E</kbd> turn · drag to look · <kbd>Shift</kbd> ×10 · <kbd>T</kbd> talk</p>
         {est?.bloqueado && <p className="eva-aviso critico">Slope &gt; {MARCHA.thetaMax}°: terrain blocked</p>}
         {!est?.bloqueado && clasePend === 'aviso' && <p className="eva-aviso">Above the maximum slope ({pendienteMax}°)</p>}
 
@@ -261,6 +264,10 @@ export const VisorHud: React.FC<Props> = ({
           <p className="credito">Terrain DTM CTX 20 m · USGS SIM 3464 · Tobler pace × {fmt(MARCHA.factor, 2)}</p>
         </div>
 
+        {/* panel del copiloto encima de los controles: se apilan, así nunca se tapan */}
+        <div className="eva-abajo">
+        <CopilotVisor voz={voz} />
+
         <nav className="controles eva-controles" aria-label="Visor controls">
           <button type="button" onClick={onSalir} title="Back to the console (Esc)">✕ Console</button>
           {modo === 'partido' && eva.disponible && (
@@ -269,6 +276,24 @@ export const VisorHud: React.FC<Props> = ({
           <select aria-label="Camera" value={cam} onChange={(e) => setCam(e.target.value)} className="eva-select">
             {Object.entries(CAMARAS as Record<string, { nombre: string }>).map(([k, v]) => <option key={k} value={k}>{v.nombre}</option>)}
           </select>
+          <button
+            type="button"
+            className={`eva-talk${voz.escuchando ? ' escuchando' : ''}`}
+            onClick={voz.hablar}
+            aria-pressed={voz.escuchando || voz.escribiendo}
+            title={voz.puedeEscuchar ? 'Talk to the copilot (T)' : 'Type a question to the copilot (T)'}
+          >
+            🎙 {voz.escuchando ? 'Listening' : 'Talk'}
+          </button>
+          <button
+            type="button"
+            onClick={voz.alternarSilencio}
+            aria-pressed={voz.silencio}
+            title={voz.silencio ? 'Unmute' : "Mute the copilot's voice"}
+            aria-label={voz.silencio ? 'Unmute' : "Mute the copilot's voice"}
+          >
+            {voz.silencio ? '🔇' : '🔊'}
+          </button>
           {tramos.length > 0 && !pil && (
             <button type="button" className="primario" onClick={() => control.current?.seguirRuta(tramos, vel)}>Autopilot: follow route</button>
           )}
@@ -293,6 +318,7 @@ export const VisorHud: React.FC<Props> = ({
             </>
           )}
         </nav>
+        </div>
       </div>
 
       {modo === 'partido' && (
