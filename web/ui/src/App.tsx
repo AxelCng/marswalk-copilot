@@ -10,10 +10,11 @@ import { StationModal } from './components/StationModal';
 import { MissionSummary } from './components/MissionSummary';
 import { PlanBForm } from './components/PlanBForm';
 import { MapaMision } from './components/MapaMision';
+import { Portada } from './components/Portada';
 import { MOCK_ALERTA_Z2, MOCK_ESTACIONES, MOCK_GRAFO } from './mocks/mockData';
 import type { Grafo } from './types/mission';
 import type { ChatResponse } from './types/mission';
-import { MapPin, Compass, Route, Info, Wind, RadioTower, RotateCcw } from 'lucide-react';
+import { Compass, Route, Info, Wind, RadioTower, RotateCcw } from 'lucide-react';
 import { eva, type EstadoAstronauta } from './services/eva';
 
 /** ?vista=visor: esta ventana es solo el visor del astronauta; la consola de otra ventana lo sigue. */
@@ -116,7 +117,7 @@ export const App: React.FC = () => {
   };
 
   const lanzarAlerta = async (zona: string, tipo: 'polvo' | 'comms') => {
-    if (!activeMission) { setAvisoAlerta('Request a mission first (Copilot or Mission Planner).'); return; }
+    if (!activeMission) { setAvisoAlerta('Plan a walk first, with the Copilot or Mission Planner.'); return; }
     setAlertaCargando(true);
     try {
       const r = await api.postAlerta(zona, tipo);
@@ -221,54 +222,32 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
-        {/* Banner: Space Apps Context & Mission Area */}
-        <div className="relative overflow-hidden rounded border border-hud-border bg-hud-panel p-4 sm:p-5">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="inline-flex items-center gap-1 chip sin-punto !text-rust !border-rust/40">
-                  <MapPin className="h-3 w-3" /> JEZERO CRATER · MARS
-                </span>
-                <span className="text-xs font-mono text-ink-dim">
-                  Perseverance route · Octavia E. Butler Landing
-                </span>
-              </div>
-              <h2 className="m-0 font-display text-lg sm:text-xl font-semibold text-ink">
-                Intelligent EVA and Surface Geology Planner
-              </h2>
-            </div>
+      {/* Portada: relieve real del delta con el área de la misión (el motor calcula, el LLM explica) */}
+      <Portada grafo={grafo} estaciones={stations.length} />
 
-            <div className="flex items-center gap-2 text-xs font-mono">
-              <span className="text-ink-dim">Walking model:</span>
-              <span className="bg-black/60 border border-hud-border text-hud-cyan px-2.5 py-1 rounded">
-                Tobler v(θ) × suit factor
-              </span>
-            </div>
-          </div>
-        </div>
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6 relative z-10 -mt-6">
 
         {/* Mapa de la misión (web/map, Añe) + alertas */}
         <div className="panel overflow-hidden">
-          <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-hud-border font-mono text-xs">
-            <span className="text-ink-dim mr-1 flex items-center gap-1"><Wind className="h-3.5 w-3.5 text-critical" /> Dust alert:</span>
+          <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-hud-border text-[13px]">
+            <span className="text-ink-dim mr-1 flex items-center gap-1.5"><Wind className="h-4 w-4 text-critical" /> Simulate dust in</span>
             {(grafo?.zonas ?? []).map((z) => (
               <button key={z.id} onClick={() => lanzarAlerta(z.id, 'polvo')}
                 className={`px-2.5 py-1 rounded border transition-colors ${zonaAlerta === z.id
                   ? 'bg-critical border-critical text-ink' : 'bg-hud-panel border-hud-border text-ink-dim hover:border-critical'}`}>
-                {z.id} {z.nombre}
+                {z.nombre} <span className="opacity-60">{z.id}</span>
               </button>
             ))}
             <button onClick={() => lanzarAlerta('Z1', 'comms')}
               className="px-2.5 py-1 rounded border bg-hud-panel border-hud-border text-ink-dim hover:border-critical flex items-center gap-1">
-              <RadioTower className="h-3.5 w-3.5" /> Comms loss
+              <RadioTower className="h-4 w-4" /> Lose comms
             </button>
             <button onClick={resetear}
               className="px-2.5 py-1 rounded border bg-hud-panel border-hud-border text-ink-dim hover:border-hud-cyan flex items-center gap-1">
-              <RotateCcw className="h-3.5 w-3.5" /> Reset
+              <RotateCcw className="h-4 w-4" /> Clear map
             </button>
-            {avisoAlerta && <span className="ml-auto text-warning">{avisoAlerta}</span>}
+            {avisoAlerta && <span className="ml-auto text-warning" role="status">{avisoAlerta}</span>}
           </div>
           <MapaMision
             className="h-[460px] w-full"
@@ -279,21 +258,21 @@ export const App: React.FC = () => {
             astronauta={astronauta ? { pos: astronauta.pos, rumbo: astronauta.rumbo } : null}
             onClickMapa={astronauta ? (q) => eva.ir(q) : undefined}
           />
-          <div className="flex flex-wrap items-center gap-2 px-3 py-3 border-t border-hud-border font-mono text-xs" aria-label="Selected mission destinations">
-            <span className="text-ink-dim">Mission destinations:</span>
-            {selectedStations.length === 0 && <span className="text-ink-mute">Select a station on the map to add it.</span>}
+          <div className="flex flex-wrap items-center gap-2 px-3 py-2.5 border-t border-hud-border text-[13px]" aria-label="Selected mission destinations">
+            <span className="text-ink-dim">Stops</span>
+            {selectedStations.length === 0 && <span className="text-ink-mute">Open a station on the map and add it to the walk.</span>}
             {selectedStations.map((id) => (
               <button key={id} type="button" onClick={() => toggleMissionStation(id)}
                 aria-label={`Remove ${id} from mission`} className="px-2 py-1 rounded border border-hud-border text-hud-cyan hover:border-critical">
-                {id} · {stations.find((s) => s.id === id)?.nombre ?? id} ×
+                {stations.find((s) => s.id === id)?.nombre ?? id} <span aria-hidden className="text-ink-mute">×</span>
               </button>
             ))}
             <button type="button" onClick={openMissionPlanner} disabled={selectedStations.length === 0}
-              className="btn primario ml-auto">Plan selected mission</button>
+              className="btn primario ml-auto">Plan these stops</button>
           </div>
           {astronauta && (
-            <div className="flex flex-wrap gap-x-4 gap-y-1 px-3 py-2 border-t border-hud-border font-mono text-xs tabular-nums text-ink-dim">
-              <span className="text-hud-cyan">● Astronaut live</span>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 px-3 py-2 border-t border-hud-border text-xs dato-num text-ink-dim">
+              <span className="text-hud-cyan">Astronaut on the visor</span>
               <span>{astronauta.pos[1].toFixed(5)}°N {astronauta.pos[0].toFixed(5)}°E</span>
               <span>elev {astronauta.elev_m != null ? Math.round(astronauta.elev_m) : '—'} m</span>
               <span>slope {astronauta.pendiente_deg.toFixed(1)}°</span>
@@ -301,7 +280,7 @@ export const App: React.FC = () => {
               {astronauta.tramo != null && activeMission?.tramos[astronauta.tramo] && (
                 <span>leg {astronauta.tramo + 1}: {activeMission.tramos[astronauta.tramo].origen} → {activeMission.tramos[astronauta.tramo].destino}</span>
               )}
-              <span className="ml-auto">click the map to move the astronaut</span>
+              <span className="ml-auto text-ink-mute">Click the map to move them</span>
             </div>
           )}
         </div>
@@ -325,14 +304,9 @@ export const App: React.FC = () => {
             {/* Right: Active Mission Telemetry & Station Quick Access (takes 5 cols) */}
             <div className="lg:col-span-5 space-y-5" id="mission-summary-anchor">
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="label-caps m-0 flex items-center gap-1.5">
-                    <Route className="h-3.5 w-3.5 text-hud-cyan" /> Mission Telemetry
-                  </h3>
-                  <span className="text-[10px] font-mono text-nominal">
-                    Synced with graph
-                  </span>
-                </div>
+                <h3 className="m-0 mb-2 font-display text-base font-semibold text-ink flex items-center gap-1.5">
+                  <Route className="h-4 w-4 text-hud-cyan" /> Current plan
+                </h3>
                 <MissionSummary
                   mission={activeMission}
                   onSelectStation={handleSelectStationById}
@@ -341,15 +315,15 @@ export const App: React.FC = () => {
 
               {/* Quick Stations Carousel / Strip */}
               <div>
-                <div className="flex items-center justify-between mb-2.5">
-                  <h3 className="label-caps m-0 flex items-center gap-1.5">
-                    <Compass className="h-3.5 w-3.5 text-warning" /> Nearby Stations
+                <div className="flex items-baseline justify-between mb-2">
+                  <h3 className="m-0 font-display text-base font-semibold text-ink flex items-center gap-1.5">
+                    <Compass className="h-4 w-4 text-warning" /> Stations
                   </h3>
                   <button
                     onClick={() => setActiveTab('stations')}
-                    className="text-[11px] font-mono text-hud-cyan hover:underline"
+                    className="text-[13px] text-hud-cyan hover:underline"
                   >
-                    View all ({stations.length}) →
+                    See all {stations.length}
                   </button>
                 </div>
 
@@ -383,8 +357,8 @@ export const App: React.FC = () => {
 
             <div className="lg:col-span-5 space-y-4">
               <div className="flex items-center justify-between mb-1">
-                <h3 className="label-caps m-0">
-                  Optimization Result
+                <h3 className="m-0 font-display text-base font-semibold text-ink">
+                  Result
                 </h3>
               </div>
               <MissionSummary
@@ -394,10 +368,11 @@ export const App: React.FC = () => {
 
               <div className="panel p-4 text-xs text-ink-dim space-y-2">
                 <div className="flex items-center gap-1.5 text-hud-cyan font-semibold">
-                  <Info className="h-4 w-4" /> About Mission Planner
+                  <Info className="h-4 w-4" /> Works without the copilot
                 </div>
-                <p className="leading-relaxed">
-                  Choose destinations and constraints to calculate a mission with the <strong>OR-Tools / Dijkstra</strong> engine, without depending on the copilot.
+                <p className="m-0 leading-relaxed">
+                  This form sends your choices straight to the route engine (OR-Tools and Dijkstra).
+                  Use it when the language model is slow or offline; the plan is the same either way.
                 </p>
               </div>
             </div>
@@ -407,21 +382,21 @@ export const App: React.FC = () => {
         {activeTab === 'stations' && (
           <div className="space-y-4">
             {/* Filter Pills */}
-            <div className="flex flex-wrap items-center justify-between gap-3 bg-hud-panel/60 border border-hud-border p-3 rounded font-mono text-xs">
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-ink-mute mr-1">Filter by type:</span>
+            <div className="flex flex-wrap items-center justify-between gap-3 text-[13px]">
+              <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter stations by type">
                 {[
-                  { id: 'all', label: 'ALL' },
-                  { id: 'ciencia', label: 'SCIENCE' },
-                  { id: 'muestreo', label: 'SAMPLING' },
-                  { id: 'habitat', label: 'BASE / ROVER' },
-                  { id: 'refugio', label: 'SHELTER / COMMS' }
+                  { id: 'all', label: 'All' },
+                  { id: 'ciencia', label: 'Science' },
+                  { id: 'muestreo', label: 'Sampling' },
+                  { id: 'habitat', label: 'Habitat' },
+                  { id: 'refugio', label: 'Shelter' }
                 ].map((f) => (
                   <button
                     key={f.id}
                     onClick={() => setFilterTipo(f.id)}
+                    aria-pressed={filterTipo === f.id}
                     className={`px-3 py-1 rounded border transition-colors ${filterTipo === f.id
-                        ? 'bg-hud-cyan/10 border-hud-cyan text-hud-cyan font-bold'
+                        ? 'bg-hud-cyan/10 border-hud-cyan text-hud-cyan font-medium'
                         : 'bg-hud-deep border-hud-border text-ink-dim hover:text-ink'
                       }`}
                   >
@@ -430,8 +405,8 @@ export const App: React.FC = () => {
                 ))}
               </div>
 
-              <span className="text-ink-dim text-[11px]">
-                Showing {filteredStations.length} of {stations.length} points of interest
+              <span className="text-ink-mute text-xs dato-num">
+                {filteredStations.length} of {stations.length} stations
               </span>
             </div>
 
@@ -458,13 +433,13 @@ export const App: React.FC = () => {
       />
 
       {/* Footer credits and NASA compliance note */}
-      <footer className="mt-auto border-t border-hud-border/80 bg-hud-deep py-4 px-6 text-center text-xs font-mono text-ink-mute">
-        <p>
-          NASA Space Apps Challenge 2026 · MarsWalk Copilot · Data: NASA/JPL-Caltech (Perseverance), USGS SIM 3464, MSSS/ASU.
-        </p>
-        <p className="text-[10px] text-ink-mute mt-1">
-          This project is a prototype built for educational and aerospace research purposes. It does not imply official NASA endorsement.
-        </p>
+      <footer className="mt-auto border-t border-hud-border/80 bg-hud-deep py-5 px-6 text-xs text-ink-mute">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between gap-2">
+          <p className="m-0">
+            Built for the NASA Space Apps Challenge 2026. Data and images: NASA/JPL-Caltech (Perseverance), USGS SIM 3464, MSSS/ASU.
+          </p>
+          <p className="m-0">A student prototype, not endorsed by NASA.</p>
+        </div>
       </footer>
     </div>
   );

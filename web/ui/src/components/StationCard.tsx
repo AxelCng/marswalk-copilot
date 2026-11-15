@@ -1,6 +1,5 @@
 import React from 'react';
 import type { EstacionDetalle, TipoEstacion } from '../types/mission';
-import { Mountain, Compass, Sparkles, Clock } from 'lucide-react';
 import { FotoEstacionView, UnidadGeo } from './StationParts';
 
 interface StationCardProps {
@@ -13,17 +12,17 @@ interface StationCardProps {
 export const getTipoBadge = (tipo: TipoEstacion) => {
   switch (tipo) {
     case 'ciencia':
-      return { bg: 'bg-black/75', border: 'border-tipo-ciencia/60', text: 'text-tipo-ciencia', label: 'SCIENCE' };
+      return { bg: 'bg-black/75', border: 'border-tipo-ciencia/60', text: 'text-tipo-ciencia', label: 'Science' };
     case 'muestreo':
-      return { bg: 'bg-black/75', border: 'border-tipo-muestreo/60', text: 'text-tipo-muestreo', label: 'SAMPLING' };
+      return { bg: 'bg-black/75', border: 'border-tipo-muestreo/60', text: 'text-tipo-muestreo', label: 'Sampling' };
     case 'habitat':
-      return { bg: 'bg-black/75', border: 'border-tipo-habitat/60', text: 'text-tipo-habitat', label: 'HABITAT' };
+      return { bg: 'bg-black/75', border: 'border-tipo-habitat/60', text: 'text-tipo-habitat', label: 'Habitat' };
     case 'rover':
-      return { bg: 'bg-black/75', border: 'border-tipo-rover/60', text: 'text-tipo-rover', label: 'ROVER' };
+      return { bg: 'bg-black/75', border: 'border-tipo-rover/60', text: 'text-tipo-rover', label: 'Rover' };
     case 'refugio':
-      return { bg: 'bg-black/75', border: 'border-tipo-refugio/60', text: 'text-tipo-refugio', label: 'SHELTER' };
+      return { bg: 'bg-black/75', border: 'border-tipo-refugio/60', text: 'text-tipo-refugio', label: 'Shelter' };
     case 'comms':
-      return { bg: 'bg-black/75', border: 'border-tipo-comms/60', text: 'text-tipo-comms', label: 'COMMS' };
+      return { bg: 'bg-black/75', border: 'border-tipo-comms/60', text: 'text-tipo-comms', label: 'Comms' };
     default:
       return { bg: 'bg-hud-panel', border: 'border-hud-border', text: 'text-ink-dim', label: tipo };
   }
@@ -52,25 +51,24 @@ export const StationCard: React.FC<StationCardProps> = ({ station, isSelected, o
           foto={photo}
           alt={station.nombre}
           className="h-full w-full"
-          imgClassName="transition-transform duration-500 group-hover:scale-105 opacity-80 group-hover:opacity-100"
+          imgClassName="opacity-85 group-hover:opacity-100 transition-opacity"
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent" />
 
-        {/* Badges on photo */}
+        {/* Código y tipo de estación sobre la foto */}
         <div className="absolute top-2 left-2 flex items-center gap-1.5">
-          <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-black/75 border border-hud-border text-ink shadow-sm">
+          <span className="font-display text-[13px] font-semibold px-1.5 py-0.5 rounded bg-black/75 text-ink">
             {station.id}
           </span>
-          <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded border ${badge.bg} ${badge.border} ${badge.text}`}>
+          <span className={`text-xs font-medium px-1.5 py-0.5 rounded border ${badge.bg} ${badge.border} ${badge.text}`}>
             {badge.label}
           </span>
         </div>
 
-        {/* Science Score badge */}
+        {/* Valor científico (0–10, supuesto razonado del equipo) */}
         {station.valor_cientifico > 0 && (
-          <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/80 border border-hud-border rounded px-1.5 py-0.5 text-hud-cyan text-[11px] font-mono dato-num">
-            <Sparkles className="h-3 w-3" />
-            <span title="Science value">+{station.valor_cientifico}</span>
+          <div className="absolute top-2 right-2 rounded px-1.5 py-0.5 bg-black/75 text-xs text-ink dato-num" title="Science value, 0 to 10">
+            Science {station.valor_cientifico}/10
           </div>
         )}
 
@@ -88,35 +86,23 @@ export const StationCard: React.FC<StationCardProps> = ({ station, isSelected, o
           {station.tarea}
         </p>
 
-        {/* Telemetry chips */}
-        <div className="mt-3 grid grid-cols-3 gap-1.5 pt-2 border-t border-hud-subtle font-mono text-[11px]">
-          <div className="flex flex-col bg-hud-deep/60 rounded px-1.5 py-1">
-            <span className="label-caps !text-[9px] flex items-center gap-0.5">
-              <Mountain className="h-2.5 w-2.5" /> SLOPE
-            </span>
-            <span className={`font-semibold ${station.capas.pendiente_deg > 15 ? 'text-warning' : 'text-ink'}`}>
+        {/* Datos del terreno en la estación */}
+        <dl className="mb-0 mt-3 grid grid-cols-3 gap-2 pt-2 border-t border-hud-subtle text-[13px] dato-num">
+          <div>
+            <dt className="text-[11px] text-ink-mute">Slope</dt>
+            <dd className={`m-0 font-medium ${station.capas.pendiente_deg > 15 ? 'text-warning' : 'text-ink'}`}>
               {station.capas.pendiente_deg}°
-            </span>
+            </dd>
           </div>
-
-          <div className="flex flex-col bg-hud-deep/60 rounded px-1.5 py-1">
-            <span className="label-caps !text-[9px] flex items-center gap-0.5">
-              <Compass className="h-2.5 w-2.5" /> ELEV.
-            </span>
-            <span className="text-ink font-semibold truncate">
-              {station.capas.elev_m} m
-            </span>
+          <div className="min-w-0">
+            <dt className="text-[11px] text-ink-mute">Elevation</dt>
+            <dd className="m-0 font-medium text-ink truncate">{Math.round(station.capas.elev_m).toLocaleString('en-US')} m</dd>
           </div>
-
-          <div className="flex flex-col bg-hud-deep/60 rounded px-1.5 py-1">
-            <span className="label-caps !text-[9px] flex items-center gap-0.5">
-              <Clock className="h-2.5 w-2.5" /> TIME
-            </span>
-            <span className="text-hud-cyan font-semibold">
-              {station.permanencia_min}m
-            </span>
+          <div>
+            <dt className="text-[11px] text-ink-mute">Stay</dt>
+            <dd className="m-0 font-medium text-ink">{station.permanencia_min} min</dd>
           </div>
-        </div>
+        </dl>
       </div>
     </div>
   );
