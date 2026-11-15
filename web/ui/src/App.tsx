@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { EstacionDetalle, RespuestaMision } from './types/mission';
 import { api, ApiError } from './services/api';
 import { VisorHud } from './components/VisorHud';
@@ -16,9 +16,12 @@ import type { Grafo } from './types/mission';
 import type { ChatResponse } from './types/mission';
 import { Compass, Route, Info, Wind, RadioTower, RotateCcw } from 'lucide-react';
 import { eva, type EstadoAstronauta } from './services/eva';
+import { useCopiloto } from './services/copiloto';
 
 /** ?vista=visor: esta ventana es solo el visor del astronauta; la consola de otra ventana lo sigue. */
 const VENTANA_VISOR = new URLSearchParams(window.location.search).get('vista') === 'visor';
+/** Cuándo se abrió esta ventana: las respuestas del copiloto de antes no cambian la misión. */
+const ABIERTA_EN = Date.now();
 
 export const App: React.FC = () => {
   const [stations, setStations] = useState<EstacionDetalle[]>(MOCK_ESTACIONES);
@@ -115,6 +118,23 @@ export const App: React.FC = () => {
     if (alerta) aplicarAlerta(ruta, alerta.arguments.type === 'comms' ? null : String(alerta.arguments.zone ?? '') || null);
     else mostrarMision(ruta);
   };
+
+  // Rutas que trae el copiloto, se pregunte en la consola o en el visor (aunque sea otra ventana).
+  // Se aplica una vez por mensaje; lo que ya estaba en la conversación al abrir no reemplaza la misión.
+  const { mensajes: chat } = useCopiloto();
+  // Los ids llevan la hora de creación (bot-<ms>): una ventana recién abierta recibe la conversación
+  // entera de otra, y sus respuestas viejas no deben pisar la misión actual.
+  const vistos = useRef(new Set<string>());
+  useEffect(() => {
+    for (const m of chat) {
+      if (vistos.current.has(m.id)) continue;
+      vistos.current.add(m.id);
+      if (Number(m.id.split('-')[1]) < ABIERTA_EN) continue;
+      if (m.rol === 'asistente' && m.ruta && !m.error) {
+        onRutaDelChat(m.ruta, { answer: m.contenido, calls: m.llamadas ?? [], route: m.ruta });
+      }
+    }
+  }, [chat]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const lanzarAlerta = async (zona: string, tipo: 'polvo' | 'comms') => {
     if (!activeMission) { setAvisoAlerta('Plan a walk first, with the Copilot or Mission Planner.'); return; }
@@ -292,7 +312,6 @@ export const App: React.FC = () => {
             {/* Left: Chat Copilot (takes 7 cols) */}
             <div className="lg:col-span-7 h-[680px]">
               <ChatPanel
-                onRouteGenerated={onRutaDelChat}
                 onIrPlanB={() => setActiveTab('planb')}
                 onViewRoute={() => {
                   const el = document.getElementById('mission-summary-anchor');
