@@ -1,65 +1,151 @@
-# marswalk-copilot
+# MarsWalk Copilot
 
-Copiloto con LLM que calcula rutas óptimas por nodos para caminatas en Marte con datos de la NASA. NASA Space Apps Challenge 2026.
+An LLM copilot that plans astronaut walks (EVAs) between stations in Jezero crater, Mars, using NASA and USGS data.
+Built for the **NASA Space Apps Challenge 2026**.
 
-Un motor de grafos calcula la ruta óptima entre 6 y 8 estaciones del cráter Jezero, y un LLM traduce el pedido y explica el resultado. **El LLM nunca calcula**: cada número que dice sale de una llamada a función.
+A graph engine computes the optimal route between 6 and 8 stations, and a language model turns the astronaut's
+request into tool calls and explains the result in plain English. **The LLM never calculates:** every number it says
+comes from a function call to the engine.
 
-Spec completo: [`MarsWalk Copilot — Spec de desarrollo (Space Apps 2026).md`](<MarsWalk Copilot — Spec de desarrollo (Space Apps 2026).md>)
+## What it does
 
-## Estructura
+- **Plans a mission:** "I want to visit the delta front, Séítah, the Three Forks depot and the upper delta, back in
+  under 4 hours, with no slopes over 8°". The engine picks the order of stations, the path between them and the time,
+  and says which stations had to be skipped and why (for example, too steep).
+- **Answers "what if":** "What if I accept up to 12°?" recalculates the mission and reports the difference (stations
+  added, extra minutes), computed by code.
+- **Reacts to alerts:** "Dust alert in zone Z2" or "we lost communication" reroutes the walk around the affected zone.
+- **Shows everything on a map:** geologic map of Jezero (USGS SIM 3464), real elevation, slope and thermal layers,
+  the route leg by leg, station cards with Perseverance photos, and a first-person 3D view of the walk.
+- **Works without the LLM:** the Mission Planner form calls the engine directly, so a mission can always be computed
+  even if the model is offline.
 
-| Carpeta | Dueño | Qué hay |
-| --- | --- | --- |
-| [`contracts/`](contracts/) | Jeicoll | Los 2 contratos: `graph_fake.json` (forma del grafo) y `api.md` (API), con ejemplos |
-| [`data/`](data/) | Pedro | Pipeline: rasters NASA/USGS → `graph.json` real |
-| [`engine/`](engine/) | Said | FastAPI + networkx + OR-Tools |
-| [`llm/`](llm/) | Manuel | Ollama, herramientas y `/chat` |
-| [`web/map/`](web/map/) | Añe | Mapa MapLibre |
-| [`web/ui/`](web/ui/) | Axl | Panel de chat, fichas, HUD y plan B |
-| raíz | Jeicoll | `params.yaml`, `estaciones.csv` (con fuentes en `estaciones_fuentes.md`), Docker, despliegue |
+## How it works
 
-## Para arrancar (todos)
-
-```bash
-git clone <repo> && cd marswalk-copilot
-git checkout -b <tu-rama>          # data, engine, llm, web-map, web-ui
-python contracts/tools/validar_graph.py contracts/graph_fake.json
+```
+astronaut ──► web/ui (chat, voice, map, Mission Planner)
+                 │  /api
+                 ▼
+          engine/ (FastAPI) ◄── llm/ /chat: Ollama + qwen2.5:3b picks tools, the engine computes
+                 │
+                 ▼
+          data/out/graph.json  ◄── data/ pipeline: USGS SIM 3464 rasters → cost map → graph
 ```
 
-Después leé el `README.md` de tu carpeta. **No esperes a nadie:** el grafo falso y los ejemplos de [`contracts/ejemplos/`](contracts/ejemplos/) tienen la forma exacta de lo que vas a recibir.
+1. **Data (`data/`):** the USGS SIM 3464 rasters (CTX DTM 20 m, THEMIS day/night, geologic units) are cropped and
+   reprojected to Mars Transverse Mercator 77.5°E. Each 20 m cell gets a walking cost from Tobler's hiking function
+   (slowed down for a spacesuit) and a terrain factor from THEMIS (exposed rock or fine sand). The paths between the
+   8 stations become the edges of `graph.json`, with time, distance, max slope, comms coverage and relative radiation
+   dose, precomputed for slope limits of 8°, 12° and 15°.
+2. **Engine (`engine/`):** FastAPI + NetworkX (Dijkstra for point-to-point routes) + Google OR-Tools (best order of
+   stations under a time limit). It also handles dust and comms alerts by avoiding the edges that cross the zone.
+3. **Copilot (`llm/`):** Qwen2.5 3B running locally with Ollama. It has 5 tools (`list_stations`, `station_info`,
+   `point_to_point_route`, `optimize_mission`, `reroute_for_alert`) and only chooses tools and phrases answers.
+4. **Screen (`web/`):** React + MapLibre console with the chat, the map, station cards, mission telemetry and the
+   astronaut's 3D visor.
 
-## Correr todo con Docker
+Every assumption of the cost model (spacesuit speed factor, terrain multipliers, thresholds) is labeled in
+[`params.yaml`](params.yaml) as `[dato]` (from NASA/USGS data), `[formula]` (published formula) or `[supuesto]`
+(our assumption).
 
-Requiere Docker Desktop abierto ("Engine running").
+## Run it
+
+### With Docker (everything together)
+
+Requires Docker Desktop running.
 
 ```powershell
-docker compose up --build -d     # la primera vez tarda unos minutos
+docker compose up --build -d     # the first build takes a few minutes
 ```
 
-- Pantalla: http://localhost:8080
-- API: http://localhost:8000/docs (la pantalla la usa por `/api/...`, a través de nginx)
-- Apagar: `docker compose down`
+- Screen: http://localhost:8080
+- API: http://localhost:8000/docs (the screen uses it through nginx at `/api/...`)
+- Stop: `docker compose down`
 
-| Para | Cómo |
+| To | How |
 | --- | --- |
-| Grafo | Por defecto el **real** (`data/out/graph.json`). Para el falso: `$env:GRAPH_PATH="contracts/graph_fake.json"; docker compose up -d`. Un grafo nuevo de Pedro se toma con `docker compose restart api` (no hace falta reconstruir) |
-| Usar Ollama de otra máquina o de Colab | `$env:OLLAMA_URL="http://<ip-o-túnel>:11434"; docker compose up -d` |
-| Ver los logs del motor | `docker compose logs -f api` |
+| Use the copilot | Run [Ollama](https://ollama.com) with `ollama pull qwen2.5:3b`. By default the API looks for it on the host machine |
+| Use Ollama on another machine (e.g. a GPU laptop) | On that machine run Ollama with `OLLAMA_HOST=0.0.0.0`; here: `$env:OLLAMA_URL="http://<its-ip>:11434"; docker compose up -d` |
+| Use the test graph | `$env:GRAPH_PATH="contracts/graph_fake.json"; docker compose up -d` (by default the real `data/out/graph.json`) |
+| Load a new graph | `docker compose restart api` (no rebuild needed) |
+| See the engine logs | `docker compose logs -f api` |
 
-Archivos: `Dockerfile` (API: motor + chat), `web/Dockerfile` (pantalla compilada + nginx), `web/docker/nginx.conf`, `docker-compose.yml`.
+Files: `Dockerfile` (API: engine + chat), `web/Dockerfile` (built screen + nginx), `web/docker/nginx.conf`,
+`docker-compose.yml`.
 
-## Reglas del repo
+### Without Docker (development)
 
-- Cada persona toca solo su carpeta y trabaja en su rama; se integra a `main` por PR.
-- Los contratos (`contracts/`) y `params.yaml` solo se cambian **avisando en el grupo**.
-- Nada de rasters ni zips en git (`data/raw/` está ignorado).
-- El sábado a las 22:00 el motor pasa de `graph_fake.json` al `graph.json` real cambiando `GRAPH_PATH`; nadie cambia código.
+```powershell
+# API (engine + /chat), from the repo root
+python -m venv .venv; .venv\Scripts\Activate.ps1
+pip install -r engine/requirements-dev.txt -r llm/requirements.txt
+python -m uvicorn engine.main:app --port 8000
 
-## Hitos
+# Screen
+cd web/ui; npm ci; npm run dev     # http://localhost:5173
+```
 
-- **Sábado 14, 22:00:** se pide una misión por API y se dibuja en el mapa.
-- **Domingo 15, 21:00:** entrega (cierre 23:59).
+Voice input uses the browser's speech recognition: it works in Chrome or Edge on `localhost` or over HTTPS.
 
-## Datos y créditos
+### Tests
 
-NASA/JPL-Caltech, USGS (SIM 3464, mapa de pendientes de Jezero), MSSS/ASU según cada imagen. Este proyecto no tiene aval de la NASA.
+```powershell
+python -m pytest engine/tests llm/tests -q              # no model needed
+python -m pytest data/tests -q                          # needs data/requirements.txt (rasterio, pyproj...)
+cd llm; python test_questions.py qwen2.5:3b             # the demo conversation with the real model (needs Ollama)
+```
+
+Each folder has its own README with details: [`data/`](data/README.md), [`engine/`](engine/README.md),
+[`llm/`](llm/README.md), [`web/`](web/README.md), [`contracts/`](contracts/).
+
+## Repository structure
+
+| Folder | Owner | Contents |
+| --- | --- | --- |
+| [`contracts/`](contracts/) | Jeicoll | The 2 contracts: `graph_fake.json` (graph shape) and `api.md` (API), with examples and a validator |
+| [`data/`](data/) | Pedro | Pipeline: NASA/USGS rasters → cost map → real `graph.json` |
+| [`engine/`](engine/) | Said | FastAPI + NetworkX + OR-Tools: routes, missions and alerts |
+| [`llm/`](llm/) | Manuel | Ollama copilot: tools, `/chat` and safeguards against invented numbers |
+| [`web/map/`](web/map/) | Axl | MapLibre map: stations, edges, highlighted route and alert animation |
+| [`web/ui/`](web/ui/) | Axel | Console: chat panel, station cards, HUD mode and Mission Planner form |
+| root | Jeicoll | `params.yaml`, `estaciones.csv` (sources in `estaciones_fuentes.md`), Docker, deployment |
+
+## Team
+
+| Member | Role | Responsibilities |
+| --- | --- | --- |
+| **Francess Jeicoll Vásquez Peláez** | Technical lead and DevOps | Repository and contracts (`contracts/`), including the fake graph (`graph_fake.json`) that let everyone start in parallel from the first hour. Chose the stations, each with scientific value and a task, and loaded them with their Perseverance photos into `estaciones.csv`. Dockerfile, connection of the real graph, backend deployment and integration. Script, video and Project page together with Axel. |
+| **Oder Pedro Quincho Córdova** | Geospatial data | Downloaded the USGS SIM 3464 data, the Jezero slope map and the Perseverance waypoints. Cropped and reprojected the area, built the cost map and the edges in 3 slope versions, with comms coverage, radiation dose and alert zones, and delivered the real `graph.json`. Reviewed `params.yaml` and the optimality test. |
+| **Said Andre Alferez Andia** | Backend | Built the FastAPI engine with NetworkX and OR-Tools: `/estaciones`, `/ruta`, `/mision` (tested against brute force), `/alerta` and `/reset`. Kept the API stable, fixed engine and alert bugs and froze the backend for the demo. |
+| **Manuel Pierce Ocaña Suárez** | AI / LLM | Built the copilot: Ollama, tool calling with 5 tools over the engine, the system prompt and the `/chat` endpoint. Tested the chat end to end with the interface, tuned the prompt, worked with Axel on the Plan B form, and as final integrator decided what went into the demo. |
+| **Axl Mikel Crisóstomo Altamirano** | Frontend A: map | Built the MapLibre map: Jezero base map, stations, edges, the route drawn from `/mision` and highlighted station by station with real data, and the alert animation. Took the screenshots for the Project page. |
+| **Axel Josue Chunga Chevez** | Frontend B: interface | Built the chat panel connected to `/chat`, the station cards with photos and data (with Jeicoll), the HUD mode and the Plan B form (now Mission Planner). Wrote the problem statement and the script, and made the video and the Project page with Jeicoll. |
+
+## Data and credits
+
+| Data | Source | Used for |
+| --- | --- | --- |
+| Geologic map of Jezero crater, CTX DTM 20 m, THEMIS day/night IR, geologic units | USGS Scientific Investigations Map 3464 ([doi:10.3133/sim3464](https://doi.org/10.3133/sim3464)) | Elevation, slope, terrain type, cost map, map layers, cover image |
+| Slope map of Jezero crater | USGS | Slope layer and check of the DTM slope |
+| Perseverance waypoints | [NASA/JPL MMGIS](https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json) | Station locations along the real rover traverse |
+| Station context and photos | [Mars 2020 raw images](https://mars.nasa.gov/mars2020/multimedia/raw-images/), [Octavia E. Butler Landing (PIA24483)](https://www.jpl.nasa.gov/images/pia24483-welcome-to-octavia-e-butler-landing/), [Three Forks depot (PIA25682)](https://www.jpl.nasa.gov/images/pia25682-perseverances-three-forks-sample-depot-map/), [Amalik outcrop](https://science.nasa.gov/blog/perseverance-activities-at-amalik-outcrop/), [Upper Fan](https://science.nasa.gov/blog/up-and-soon-away-perseverance-continues-exploring-the-upper-fan/), [Hawksbill Gap](https://science.nasa.gov/missions/mars-2020-perseverance/next-stop-hawksbill-gap/), [Mars rock samples](https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples) | Station names, tasks and cards |
+
+Full list of station sources: [`estaciones_fuentes.md`](estaciones_fuentes.md).
+
+Image credits: NASA/JPL-Caltech, USGS, MSSS/ASU, as indicated on each image.
+This project is not endorsed by NASA.
+
+Software: FastAPI, NetworkX, Google OR-Tools, Ollama, Qwen2.5, React, Vite, MapLibre GL, Tailwind CSS.
+
+## Use of AI
+
+- **In the product:** the copilot uses Qwen2.5 3B, an open-weight model run locally with Ollama on a laptop GPU.
+  The model only chooses tools and writes the answer; all numbers come from the graph engine and are checked by code
+  before reaching the astronaut. Voice input uses the browser's built-in speech recognition (Web Speech API), which
+  may send audio to the browser vendor's online service; the text is shown for review before it is sent.
+- **During development:** we used AI coding assistants (Claude Code) to write and review parts of the code, translate
+  the interface to English and write tests. A team member reviewed every change before it was merged.
+
+## License
+
+See [`LICENSE`](LICENSE).
