@@ -7,9 +7,11 @@ import { X, MapPin, Mountain, Thermometer, Clock, Sparkles } from 'lucide-react'
 interface StationModalProps {
   station: EstacionDetalle | null;
   onClose: () => void;
+  selected: boolean;
+  onToggleMission: (id: string) => void;
 }
 
-export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) => {
+export const StationModal: React.FC<StationModalProps> = ({ station, onClose, selected, onToggleMission }) => {
   const [fotoIdx, setFotoIdx] = useState(0);
 
   // Al abrir otra estación se vuelve a la primera foto
@@ -89,6 +91,12 @@ export const StationModal: React.FC<StationModalProps> = ({ station, onClose }) 
         )}
 
         <div className="p-5 space-y-4">
+          {station.tipo !== 'habitat' && (
+            <button type="button" className="btn primario w-full" aria-pressed={selected}
+              onClick={() => onToggleMission(station.id)}>
+              {selected ? 'Remove from mission' : 'Add to mission'}
+            </button>
+          )}
           {/* Geología */}
           <div className="bloque">
             <span className="label-caps">Geologic unit · USGS SIM 3464</span>
