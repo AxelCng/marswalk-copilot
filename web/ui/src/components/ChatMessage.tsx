@@ -56,7 +56,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onViewRoute, 
 
         {message.error && onIrPlanB && (
           <button type="button" onClick={onIrPlanB} className="btn alerta mt-3">
-            <ShieldCheck className="h-3.5 w-3.5" /> Open Plan B
+            <ShieldCheck className="h-3.5 w-3.5" /> Open Mission Planner
           </button>
         )}
 

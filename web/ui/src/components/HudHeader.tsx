@@ -29,7 +29,7 @@ export const HudHeader: React.FC<HudHeaderProps> = ({ activeTab, onTabChange, st
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'chat', label: 'Copilot', icon: <MessageSquare className="h-3.5 w-3.5" /> },
-    { id: 'planb', label: 'Plan B', icon: <ShieldCheck className="h-3.5 w-3.5" /> },
+    { id: 'planb', label: 'Mission Planner', icon: <ShieldCheck className="h-3.5 w-3.5" /> },
     { id: 'stations', label: `Stations (${stationsCount})`, icon: <MapPin className="h-3.5 w-3.5" /> },
   ];
 
