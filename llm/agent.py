@@ -11,7 +11,8 @@ import time
 
 from ollama import Client
 
-from config import DEFAULT_SLOPE_DEG, DEFAULT_TIME_MIN, KEEP_ALIVE, MAX_STEPS, MODEL, OLLAMA_TIMEOUT_S, OLLAMA_URL
+from config import (DEFAULT_SLOPE_DEG, DEFAULT_TIME_MIN, KEEP_ALIVE, MAX_STEPS, MODEL, OLLAMA_TIMEOUT_S,
+                    OLLAMA_URL, PHRASE_TIMEOUT_S)
 from tools import (REASONS_EN, STATION_NAMES_EN, STATION_TASKS_EN, TOOLS, TYPES_EN, _norm, _stations, _zones,
                    execute, station_names, zone_in_text)
 
@@ -42,6 +43,8 @@ Rules:
 
 # With a timeout: if the GPU laptop hangs, /chat answers with an error and the UI offers Plan B.
 _client = Client(host=OLLAMA_URL, timeout=OLLAMA_TIMEOUT_S)
+# Only phrases an answer whose route is already computed: short timeout, the code summary is the fallback
+_phrase_client = Client(host=OLLAMA_URL, timeout=min(OLLAMA_TIMEOUT_S, PHRASE_TIMEOUT_S))
 # Same options for chat and warm-up: if num_ctx changes, Ollama reloads the model.
 _OPTIONS = {"temperature": 0, "num_ctx": 8192}
 _LEG_FIELDS = ("origen", "destino", "distancia_m", "tiempo_min", "pendiente_max_deg", "cobertura_com_pct", "zonas")
@@ -477,7 +480,7 @@ def respond(message, history=None, model=None):
                 + history + [{"role": "user", "content": message}])
     calls, route, sources = [], None, [message] + [h["content"] for h in history]
     t0 = time.time()
-    text, retried = None, False
+    text, retried, fallback = None, False, None
 
     def output(answer, error=None):
         hist = history + [{"role": "user", "content": message}, {"role": "assistant", "content": answer}]
@@ -486,6 +489,8 @@ def respond(message, history=None, model=None):
                "unsourced_numbers": unsourced_numbers(answer, sources) if not error else []}
         if error:
             out["error"] = error
+        if fallback:
+            out["fallback"] = fallback  # the answer is the code summary, not the model's text
         return out
 
     def run_batch(requested):
@@ -518,11 +523,17 @@ def respond(message, history=None, model=None):
     # With the tool already called by code, the model only phrases the answer: no tools, so it does not ask
     # for others (e.g. point_to_point_route) that would overwrite the mission route.
     tools = None if forced else TOOLS
+    client = _phrase_client if forced else _client
     for _ in range(MAX_STEPS):
         try:
-            r = _client.chat(model=model, messages=messages, tools=tools,
-                             options=_OPTIONS, keep_alive=KEEP_ALIVE)
-        except Exception as e:  # Ollama down, model not downloaded, etc.
+            r = client.chat(model=model, messages=messages, tools=tools,
+                            options=_OPTIONS, keep_alive=KEEP_ALIVE)
+        except Exception as e:  # Ollama down or hung, model not downloaded, etc.
+            if forced and route:
+                # The route is already computed: the astronaut gets it from the code summary, not an error
+                fallback = f"summary ({type(e).__name__})"
+                text = summary(route, names)
+                break
             return output(f"The copilot is not available ({type(e).__name__}). Use the mission form.", str(e))
         msg = r.message
         requested = [(tc.function.name, dict(tc.function.arguments or {})) for tc in (msg.tool_calls or [])]

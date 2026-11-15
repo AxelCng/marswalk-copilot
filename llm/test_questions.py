@@ -186,6 +186,7 @@ def run_case(model, name, question, check, hist):
     ok = not failed and (check(r) if check else not r["unsourced_numbers"])
     print(f"   Time: {r['seconds']} s | check: {'OK' if ok else 'FAIL'}"
           + (f" ({failed})" if failed else "")
+          + (f" | answer from {r['fallback']}" if r.get("fallback") else "")
           + f" | unsourced numbers: {r['unsourced_numbers'] or 'none'}")
     return {"name": name, "ok": ok, "seconds": r["seconds"],
             "unsourced": r["unsourced_numbers"], "history": r["history"]}
