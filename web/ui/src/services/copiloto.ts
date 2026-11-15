@@ -59,6 +59,22 @@ eva.alChat((e) => {
 eva.alPedidoChat(() => { if (estado.version > 0) eva.publicarChat(estado); });
 eva.pedirChat();
 
+// Si esta ventana se cierra con una pregunta en curso, las demás quedarían esperando para siempre
+// ("Thinking…" y sin poder preguntar): se avisa que la pregunta se cortó.
+let preguntandoAqui = false;
+window.addEventListener('pagehide', () => {
+  if (!preguntandoAqui) return;
+  preguntandoAqui = false;
+  cambiar({
+    mensajes: [...estado.mensajes, {
+      id: `err-${Date.now()}`, rol: 'asistente', timestamp: hora(), error: true, local: true,
+      contenido: 'The window that asked this question was closed before the answer arrived. Ask again.',
+    }],
+    cargando: false,
+    desde: null,
+  });
+});
+
 async function preguntar(texto: string): Promise<void> {
   const text = texto.trim();
   if (!text || estado.cargando) return;
@@ -73,6 +89,7 @@ async function preguntar(texto: string): Promise<void> {
     cargando: true,
     desde: Date.now(),
   });
+  preguntandoAqui = true;
 
   let respuesta: MensajeHistorial;
   try {
@@ -94,6 +111,8 @@ async function preguntar(texto: string): Promise<void> {
     console.error(err);
     respuesta = { id: `err-${Date.now()}`, rol: 'asistente', contenido: NO_RESPONDE, timestamp: hora(), error: true, local: true };
   }
+  if (!preguntandoAqui) return; // la ventana ya se estaba cerrando y avisó
+  preguntandoAqui = false;
   cambiar({ mensajes: [...estado.mensajes, respuesta], cargando: false, desde: null });
 }
 
