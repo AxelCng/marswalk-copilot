@@ -6,11 +6,14 @@
  *                                de visor abierta aparte (?vista=visor) muestre la misma ruta
  *   consola → visor  : 'ir'      mover al astronauta a un punto (clic en el mapa del tablero)
  *   visor  → consola : 'pedir'   pedir la misión al abrir la ventana del visor
+ *   todas  ↔ todas   : 'chat'    la conversación con el copiloto (copiloto.ts), una foto entera por cambio
+ *   todas  ↔ todas   : 'chat-pedir' una ventana recién abierta pide la conversación en curso
  *
  * Funciona entre ventanas o pestañas del mismo origen (misma URL base). Para monitorear desde
  * otra computadora haría falta un relé en el servidor (WebSocket), que no está implementado.
  */
 import type { RespuestaMision } from '../types/mission';
+import type { EstadoCopiloto } from './copiloto';
 
 export interface EstadoAstronauta {
   pos: [number, number];
@@ -33,7 +36,9 @@ type Mensaje =
   | { tipo: 'estado'; estado: EstadoAstronauta | null }
   | { tipo: 'mision'; datos: MisionCompartida }
   | { tipo: 'ir'; pos: [number, number] }
-  | { tipo: 'pedir' };
+  | { tipo: 'pedir' }
+  | { tipo: 'chat'; estado: EstadoCopiloto }
+  | { tipo: 'chat-pedir' };
 
 const canal: BroadcastChannel | null = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('marswalk-eva') : null;
 
@@ -56,4 +61,8 @@ export const eva = {
   alPedido: (fn: () => void) => escuchar('pedir', () => fn()),
   ir: (pos: [number, number]) => enviar({ tipo: 'ir', pos }),
   alIr: (fn: (pos: [number, number]) => void) => escuchar('ir', (m) => fn(m.pos)),
+  publicarChat: (estado: EstadoCopiloto) => enviar({ tipo: 'chat', estado }),
+  alChat: (fn: (e: EstadoCopiloto) => void) => escuchar('chat', (m) => fn(m.estado)),
+  pedirChat: () => enviar({ tipo: 'chat-pedir' }),
+  alPedidoChat: (fn: () => void) => escuchar('chat-pedir', () => fn()),
 };
