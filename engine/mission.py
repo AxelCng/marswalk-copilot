@@ -64,7 +64,7 @@ def solve_order(stations, costs, service, values, time_limit, mode, penalty_per_
                   routing_enums_pb2.RoutingSearchStatus.ROUTING_FAIL):
         return None
     if solution is None or status != routing_enums_pb2.RoutingSearchStatus.ROUTING_OPTIMAL:
-        raise MissionSolverUnavailable("el optimizador no pudo certificar una solucion optima; reintenta")
+        raise MissionSolverUnavailable("the optimizer could not certify an optimal solution; try again")
     order = []
     cursor = solution.Value(routing.NextVar(routing.Start(0)))
     while not routing.IsEnd(cursor):

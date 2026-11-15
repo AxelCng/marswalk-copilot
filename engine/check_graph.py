@@ -17,7 +17,7 @@ def check(path):
     graph = json.loads(path.read_text(encoding="utf-8"))
     errors, warnings = validar(graph)
     for warning in warnings:
-        print(f"AVISO: {warning}")
+        print(f"WARNING: {warning}")
     if errors:
         for error in errors:
             print(f"ERROR: {error}")
@@ -25,15 +25,15 @@ def check(path):
     nodes = graph["nodes"]
     habitats = [n for n in nodes if n["id"] == "HAB" and n["tipo"] == "habitat"]
     if len(habitats) != 1 or sum(n["tipo"] == "habitat" for n in nodes) != 1:
-        print("ERROR: se requiere un único hábitat con id HAB")
+        print("ERROR: exactly one habitat with id HAB is required")
         return False
     candidates = [n["id"] for n in nodes if n["id"] != "HAB"]
     if not candidates:
-        print("ERROR: no hay estaciones para comprobar")
+        print("ERROR: there are no stations to check")
         return False
     zones = graph.get("zonas", [])
     if not zones:
-        print("ERROR: no hay zonas para comprobar alertas")
+        print("ERROR: there are no zones to check alerts")
         return False
 
     with TestClient(create_app(path)) as client:
@@ -44,34 +44,34 @@ def check(path):
 
         stations = expect(client.get("/estaciones"))
         if len(stations) != len(nodes):
-            raise ValueError("el número de estaciones no coincide con el grafo")
+            raise ValueError("the number of stations does not match the graph")
         for node in nodes:
             if expect(client.get(f'/estaciones/{node["id"]}')) != node:
-                raise ValueError(f'la estación {node["id"]} no coincide')
+                raise ValueError(f'station {node["id"]} does not match')
         slope = max(graph["meta"]["limites_pendiente_deg"])
         filtered = expect(client.get("/grafo", params={"pendiente_max": slope}))
         for edge in filtered["edges"]:
             if edge["limite_deg"] != slope or edge["pendiente_max_deg"] > slope:
-                raise ValueError("el filtro de pendiente devolvió una arista inválida")
+                raise ValueError("the slope filter returned an invalid edge")
         request = {"estaciones": candidates, "pendiente_max": slope,
                    "tiempo_max_min": 240, "modo": "orientacion"}
         mission = expect(client.post("/mision", json=request))
         if not mission["factible"]:
-            raise ValueError("no se pudo calcular una misión con 240 minutos; revisar tiempos y conectividad")
+            raise ValueError("could not compute a mission within 240 minutes; check times and connectivity")
         if mission["ruta"][0] != "HAB" or mission["ruta"][-1] != "HAB":
-            raise ValueError("la misión no sale y vuelve al hábitat")
+            raise ValueError("the mission does not start and end at the habitat")
         if mission["totales"]["tiempo_min"] > request["tiempo_max_min"]:
-            raise ValueError("la misión excede el presupuesto")
+            raise ValueError("the mission exceeds the time budget")
         alert = expect(client.post("/alerta", json={"zona": zones[0]["id"], "tipo": "polvo"}))
         if any(zones[0]["id"] in leg["zonas"] for leg in alert["tramos"]):
-            raise ValueError("la ruta de alerta atraviesa la zona cerrada")
+            raise ValueError("the alert route crosses the closed zone")
         if expect(client.post("/reset")) != {"ok": True}:
-            raise ValueError("reset no devolvió ok")
+            raise ValueError("reset did not return ok")
         restored = expect(client.post("/mision", json=request))
         if restored != mission:
-            raise ValueError("la misión no se restauró después de reset")
-        print(f"OK: {len(nodes)} estaciones, {len(graph['edges'])} aristas; "
-              f"misión {mission['totales']['tiempo_min']} min y alerta {zones[0]['id']} verificadas")
+            raise ValueError("the mission was not restored after reset")
+        print(f"OK: {len(nodes)} stations, {len(graph['edges'])} edges; "
+              f"mission {mission['totales']['tiempo_min']} min and alert {zones[0]['id']} checked")
     return True
 
 

@@ -1,25 +1,25 @@
-# Hallazgo: la demo del spec no se sostiene con la DTM real
+# Finding: the spec's demo does not hold up with the real DTM
 
-Fecha: sábado 14, tras calcular el grafo real con `data/`.
+Date: Saturday the 14th, after computing the real graph with `data/`.
 
-## Qué dice el spec
+## What the spec says
 
-La demo tiene tres preguntas y la segunda es:
+The demo has three questions and the second one is:
 
-> "¿Y si acepto hasta 20°?" → el sistema agrega una estación y dice cuánto
-> tiempo suma.
+> "What if I accept up to 20°?" → the system adds a station and says how much
+> time it adds.
 
-Eso depende de que a 15° **no** se pueda llegar a E2 (cima del delta) y a 20° sí.
-El `graph_fake.json` lo cumple, porque usa una regla sintética: la pendiente de
-cada arista es la peor inclinación medida por el rover en sus extremos, más ruido.
-Así E2 arrastra sus 20.3° y queda bloqueada a 15°.
+That depends on E2 (upper delta) being **unreachable** at 15° and reachable at 20°.
+`graph_fake.json` meets it, because it uses a synthetic rule: each edge's slope
+is the worst tilt the rover measured at its endpoints, plus noise.
+So E2 carries its 20.3° and is blocked at 15°.
 
-## Qué pasa con el terreno real
+## What happens with the real terrain
 
-Con la DTM CTX estéreo de 20 m, **ninguna estación queda bloqueada a 15°**. Estos
-son los límites mínimos medidos, probando de 3.0° a 30° en pasos de 0.5°:
+With the 20 m CTX stereo DTM, **no station is blocked at 15°**. These are the
+minimum limits measured, trying 3.0° to 30° in 0.5° steps:
 
-| Estación | Límite mínimo para llegar desde HAB | Pendiente real del camino |
+| Station | Minimum limit to reach it from HAB | Real slope of the path |
 | --- | --- | --- |
 | ROV | 3.0° | 2.5° |
 | M1 | 3.0° | 2.5° |
@@ -29,64 +29,64 @@ son los límites mínimos medidos, probando de 3.0° a 30° en pasos de 0.5°:
 | **E2** | **8.5°** | **8.3°** |
 | REF | 12.5° | 12.3° |
 
-A 15°, 20° y 25° la misión óptima es la misma:
+At 15°, 20° and 25° the optimal mission is the same:
 
 ```
-HAB → M2 → E2 → E1 → M1 → HAB      200.6 min, 7 491 m
+HAB → M2 → E2 → E1 → M1 → HAB      200.6 min, 7,491 m
 ```
 
-Las tres versiones del grafo dan 56 aristas. No hay ninguna omitida por
-pendiente. La pregunta "¿y si acepto 20°?" no cambia nada.
+All three versions of the graph have 56 edges. No station is skipped for
+slope. The question "what if I accept 20°?" changes nothing.
 
-## Por qué
+## Why
 
-Dos razones, ambas verificadas:
+Two reasons, both verified:
 
-1. **La subida directa es empinada, pero hay un rodeo suave.** El perfil REF→E2
-   llega a 19.7° e incluso 21.3° en el peor punto de la caja, y a menos de 10°
-   no hay paso. Pero entre M2 y E2 el máximo del camino es 10.5°, y existe un
-   corredor de 12.26° que llega a E2. La barrera no es continua.
-2. **La DTM de 20 m suaviza el relieve.** El rover midió 20.3° de inclinación en
-   el sol 700, pero eso es una medición local sobre su batalla, no la pendiente
-   media de un tramo de 700 m. A 20 m por píxel, un escalón de 3 m se promedia
-   con sus vecinos y deja de verse.
+1. **The direct climb is steep, but there is a gentle detour.** The REF→E2
+   profile reaches 19.7° and even 21.3° at the worst point of the box, and there
+   is no way through under 10°. But between M2 and E2 the path's maximum is 10.5°,
+   and there is a 12.26° corridor that reaches E2. The barrier is not continuous.
+2. **The 20 m DTM smooths the relief.** The rover measured a 20.3° tilt on
+   sol 700, but that is a local measurement over its wheelbase, not the average
+   slope of a 700 m leg. At 20 m per pixel, a 3 m step gets averaged with its
+   neighbors and disappears.
 
-## Qué NO es
+## What it is NOT
 
-No es un error de alineación ni de reproyección: los pasos 40 y 60 lo verifican
-(estaciones sobre el raster, sin desplazamiento, malla compartida, ida ≠ vuelta).
-Tampoco es un error de pendiente: p99 = 21.8° y hay 704 celdas por encima de 15°,
-pero no forman una barrera entre estaciones.
+It is not an alignment or reprojection error: steps 40 and 60 check that
+(stations on the raster, no offset, shared mesh, out ≠ back).
+It is not a slope error either: p99 = 21.8° and there are 704 cells above 15°,
+but they do not form a barrier between stations.
 
-## Opciones para el equipo
+## Options for the team
 
-| Opción | Efecto en la demo | Coste |
+| Option | Effect on the demo | Cost |
 | --- | --- | --- |
-| **A. Cambiar los límites del demo** a 8° y 12° | E2 entra a 12° y no a 8°; la pregunta 2 funciona | Hay que avisar y cambiar `params.yaml` (es de Jeicoll) |
-| **B. Usar la inclinación medida por el rover como restricción del nodo** | E2 queda bloqueada con el dato real del sol 700 | Es un dato NASA, no un invento; pero no es "pendiente del camino" |
-| **C. Bajar un DTM HiRISE de 1 m para el corredor REF↔E2** | El relieve real aparece | Descarga y tiempo; el spec lo lista como opcional |
-| **D. Cambiar la pregunta 2 de la demo** por una que sí funcione (p. ej. el límite de tiempo) | Cero riesgo técnico | Se pierde el contraste de pendiente |
+| **A. Change the demo limits** to 8° and 12° | E2 fits at 12° and not at 8°; question 2 works | The team has to be told and `params.yaml` changed (it is Jeicoll's) |
+| **B. Use the tilt the rover measured as a node constraint** | E2 is blocked with the real sol 700 value | It is NASA data, not made up; but it is not "path slope" |
+| **C. Download a 1 m HiRISE DTM for the REF↔E2 corridor** | The real relief shows up | Download and time; the spec lists it as optional |
+| **D. Change demo question 2** to one that does work (e.g. the time limit) | Zero technical risk | The slope contrast is lost |
 
-**Recomendación:** A para el demo de pendiente, con 8° y 12°. Es el único cambio
-que mantiene la historia ("con más pendiente entras a la cima") y usa el terreno
-real. Si se prefiere no tocar `params.yaml`, entonces D.
+**Recommendation:** A for the slope demo, with 8° and 12°. It is the only change
+that keeps the story ("with more slope you reach the upper delta") and uses the
+real terrain. If we prefer not to touch `params.yaml`, then D.
 
-Los números de la opción A, medidos con este grafo:
+The numbers for option A, measured with this graph:
 
-| Límite | Aristas de 56 | Estaciones alcanzables desde HAB |
+| Limit | Edges out of 56 | Stations reachable from HAB |
 | --- | --- | --- |
-| 8° | 30 | ROV, E1, M1, M2, COM — **E2 y REF quedan fuera** |
+| 8° | 30 | ROV, E1, M1, M2, COM — **E2 and REF are left out** |
 | 10° | 42 | + E2 |
 | 12° | 42 | + E2 |
-| 15° | 56 | + REF (todo conectado) |
+| 15° | 56 | + REF (everything connected) |
 
-Con 8° y 12° la pregunta 2 del demo vuelve a funcionar: a 8° no se llega a la
-cima, a 12° sí, y el sistema puede decir cuánto tiempo suma. El salto útil está
-entre 8° y 10°, así que 8/12 deja margen.
+With 8° and 12°, demo question 2 works again: at 8° the upper delta cannot be
+reached, at 12° it can, and the system can say how much time it adds. The useful
+jump is between 8° and 10°, so 8/12 leaves some margin.
 
-## Mientras tanto
+## In the meantime
 
-El `graph.json` real se genera con los tres límites de `params.yaml` (15/20/25),
-sin omitidas por pendiente. Es correcto y el motor lo acepta: misión de 229.8 min
-en `engine.check_graph`. Las alertas de polvo **sí** cambian la ruta, así que la
-pregunta 3 de la demo funciona.
+The real `graph.json` is generated with the three limits in `params.yaml` (15/20/25),
+with no stations skipped for slope. It is correct and the engine accepts it: a
+229.8 min mission in `engine.check_graph`. Dust alerts **do** change the route, so
+demo question 3 works.
