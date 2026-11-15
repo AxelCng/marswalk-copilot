@@ -49,6 +49,8 @@ The astronaut is on Mars, in the first-person visor. They press a button, ask th
 
 - Today the console applies a route through `onRouteGenerated` → `onRutaDelChat` in `App.tsx`, and then publishes the mission to the visor window.
 - With a shared conversation, **every window applies the route of a new assistant message** (the one it asked or one it received in a snapshot), once per message id. That way the console updates when the question came from the visor window, and the visor window updates when it came from the console, without sending missions from the visor to the console.
+- This happens once per window, in `App.tsx` (not in `ChatPanel` or `VisorHud`), so the visor on top of the console does not apply it twice.
+- Messages already in the conversation when a window opens (its first snapshot) are marked as seen without applying their routes, so an old route does not replace the current mission.
 
 ### Console (`ChatPanel.tsx`)
 
