@@ -161,7 +161,7 @@ class ApiService {
       return await res.json();
     } catch (err) {
       // Nunca responder con datos de prueba si el copiloto real falla: el panel avisa y ofrece el plan B.
-      throw new Error(`The copilot did not respond (${err instanceof Error ? err.message : err}). Use the Plan B form.`);
+      throw new Error(`The copilot did not respond (${err instanceof Error ? err.message : err}). Use Mission Planner.`);
     }
   }
 }
