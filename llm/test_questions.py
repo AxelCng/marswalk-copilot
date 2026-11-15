@@ -17,7 +17,8 @@ import sys
 
 import requests
 
-from agent import respond
+from agent import phrasing_problems, respond
+from tools import station_names
 from config import API_URL, MODEL
 
 
@@ -38,9 +39,13 @@ def check_demo1(r):
 
 
 def check_demo2(r):
+    # Compared with the 8° mission (not with itself): E2 added, time added and said in the answer
     a = args_of(r, "optimize_mission")
+    comp = (r["route"] or {}).get("comparison_with_previous") or {}
     return bool(a) and "E2" in a["stations"] and a["max_slope_deg"] == DEMO_SLOPE_2 \
-        and bool(r["route"]) and "E2" in r["route"]["ruta"]
+        and bool(r["route"]) and "E2" in r["route"]["ruta"] \
+        and comp.get("stations_added") == ["E2"] and (comp.get("time_difference_min") or 0) > 0 \
+        and f"{comp['time_difference_min']:g}" in r["answer"]
 
 
 def check_dust_z2(r):
@@ -49,8 +54,10 @@ def check_dust_z2(r):
 
 
 def check_comms(r):
+    # Global alert: no zone in the call and the answer says it applies to the whole map
     a = args_of(r, "reroute_for_alert")
-    return bool(a) and a["type"] == "comms"
+    return bool(a) and a["type"] == "comms" and "zone" not in a \
+        and bool(re.search(r"global|whole map|entire map|all legs", r["answer"], re.I))
 
 
 def check_info_m1(r):
@@ -95,9 +102,9 @@ def check_not_found(r):
 
 def check_trap(r):
     # No mission and no stations: it must ask, not invent numbers or plan an empty walk (only HAB -> "0 minutes")
-    empty_plan = any(c["ok"] and c["tool"] == "optimize_mission"
-                     and not set(c["arguments"].get("stations") or []) - {"HAB"} for c in r["calls"])
-    return not r["unsourced_numbers"] and not empty_plan
+    # nor plan a walk to stations the user never named
+    planned = any(c["ok"] and c["tool"] == "optimize_mission" for c in r["calls"])
+    return not r["unsourced_numbers"] and not planned
 
 
 def check_outside_area(r):
@@ -183,6 +190,10 @@ def run_case(model, name, question, check, hist):
     # An error answer never passes, even if the tool call before it was right (e.g. Ollama timed out
     # while writing the answer: the tool args were fine but the astronaut got no route)
     failed = failure_reason(r)
+    # Right numbers are not enough: the wording must match the engine result (stations, reasons, comparison)
+    wording = phrasing_problems(r["answer"], r["route"], station_names()) if r.get("route") else []
+    if wording and not failed:
+        failed = "wording: " + "; ".join(wording)
     ok = not failed and (check(r) if check else not r["unsourced_numbers"])
     print(f"   Time: {r['seconds']} s | check: {'OK' if ok else 'FAIL'}"
           + (f" ({failed})" if failed else "")
