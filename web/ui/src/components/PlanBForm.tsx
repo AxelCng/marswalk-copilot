@@ -7,6 +7,8 @@ import { DEMO, FRASES, PENDIENTES } from '../demo';
 
 interface PlanBFormProps {
   stations: EstacionDetalle[];
+  selectedStations: string[];
+  onSelectedStationsChange: React.Dispatch<React.SetStateAction<string[]>>;
   /** Zonas de alerta del grafo (GET /grafo). */
   zonas?: { id: string; nombre: string }[];
   /** `ejemplo`: la misión salió de contracts/ porque no hubo conexión con el motor. */
@@ -32,8 +34,7 @@ const EJEMPLO_POR_PENDIENTE: Record<number, { mision: RespuestaMision; pendiente
 const sinConexion = (e: unknown) => !(e instanceof ApiError);
 const mensaje = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
-export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, zonas = [], onMissionCalculated, onAlertaCalculada, onReset }) => {
-  const [selectedStations, setSelectedStations] = useState<string[]>(MISION_DEMO.estaciones);
+export const PlanBForm: React.FC<PlanBFormProps> = ({ stations, selectedStations, onSelectedStationsChange: setSelectedStations, zonas = [], onMissionCalculated, onAlertaCalculada, onReset }) => {
   const [pendienteMax, setPendienteMax] = useState<number>(DEMO.pendiente_1);
   const [tiempoMax, setTiempoMax] = useState<number>(MISION_DEMO.tiempo_max_min); // params.yaml: tiempo_max_min_default
   const [sinTope, setSinTope] = useState(false);
