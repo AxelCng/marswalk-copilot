@@ -1,41 +1,41 @@
-# web/ — frontend (Añe y Axl)
+# web/ — frontend (Añe and Axl)
 
-Dos carpetas y dos ramas para no pisarse en git:
+Two folders and two branches so nobody steps on anyone in git:
 
-| Carpeta | Persona | Rama | Entrega |
+| Folder | Person | Branch | Deliverable |
 | --- | --- | --- | --- |
-| [`map/`](map/) | Añe (L4) | `web-map` | Mapa MapLibre: nodos, aristas, ruta resaltada y animación de alerta |
-| [`ui/`](ui/) | Axl (L5 + celular) | `web-ui` | Panel de chat, fichas de estación, modo HUD y formulario plan B |
+| [`map/`](map/) | Añe (L4) | `web-map` | MapLibre map: nodes, edges, highlighted route and alert animation |
+| [`ui/`](ui/) | Axl (L5 + phone) | `web-ui` | Chat panel, station cards, HUD mode and Plan B form |
 
-Solo se consume la API ([`contracts/api.md`](../contracts/api.md)) y `/chat`. **Mientras no esté la API**, se trabaja con los JSON de [`contracts/ejemplos/`](../contracts/ejemplos/) y con [`contracts/graph_fake.json`](../contracts/graph_fake.json), que tienen la forma exacta de las respuestas.
+The frontend only consumes the API ([`contracts/api.md`](../contracts/api.md)) and `/chat`. **While the API is not ready**, work with the JSON files in [`contracts/ejemplos/`](../contracts/ejemplos/) and with [`contracts/graph_fake.json`](../contracts/graph_fake.json), which have the exact shape of the responses.
 
-## Cómo correr todo junto (pantalla de la demo)
+## How to run everything together (demo screen)
 
 ```powershell
-# 1) motor de Said (terminal 1, desde la raíz; ver engine/README.md)
+# 1) Said's engine (terminal 1, from the repo root; see engine/README.md)
 $env:GRAPH_PATH = "contracts/graph_fake.json"
 .\.venv\Scripts\python.exe -m uvicorn engine.main:app --port 8000
 
-# 2) pantalla (terminal 2). Incluye el mapa de web/map: no hace falta instalar nada allá
+# 2) screen (terminal 2). It includes the web/map map: nothing needs to be installed there
 cd web/ui; npm install; npm run dev     # http://localhost:5173
 ```
 
-- La pantalla arranca contra el motor real: el botón de arriba a la derecha dice `Live engine`. Al hacerle clic cambia a `Sample data`, que usa los archivos de `contracts/`.
-- Los datos de prueba (`web/ui/src/mocks/mockData.ts`) **salen de `contracts/`**: no se escriben números a mano.
-- Si `/chat` falla, el panel lo dice y manda al Plan B. **Nunca muestra una respuesta inventada.**
-- El mapa (`web/map/src/MarsMap.jsx`, de Axl) está arriba de las pestañas, con la barra de alertas (polvo por zona, sin comunicación, reset). Al hacer clic en una estación del mapa se abre su ficha.
-- Las etiquetas del mapa usan una fuente de `demotiles.maplibre.org`: **sin internet no aparecen** los nombres de las estaciones.
+- The screen starts against the real engine: the top-right button says `Live engine`. Clicking it switches to `Sample data`, which uses the files in `contracts/`.
+- The sample data (`web/ui/src/mocks/mockData.ts`) **comes from `contracts/`**: no numbers are written by hand.
+- If `/chat` fails, the panel says so and points to Plan B. **It never shows a made-up answer.**
+- The map (`web/map/src/MarsMap.jsx`, by Axl) sits above the tabs, with the alert bar (dust per zone, comms loss, reset). Clicking a station on the map opens its card.
+- The map labels use a font from `demotiles.maplibre.org`: **without internet the station names do not appear**.
 
 ## Añe — `web/map/`
 
-- Nodos: `GET /estaciones` (o `nodes` de `graph_fake.json`), color por `tipo`.
-- Aristas y zonas: `GET /grafo`, que trae `edges[].geometria` y `zonas[].poligono` en `[lon, lat]`.
-- Ruta resaltada: `tramos[].geometria` de la respuesta de `/mision`, en el orden de `ruta`.
-- Alerta: `aristas_afectadas` de `/alerta` + el polígono de la zona.
-- **Corte 16:00:** si MapLibre no muestra las teselas de Marte, usá la ortoimagen recortada como `image source` con límites fijos.
+- Nodes: `GET /estaciones` (or `nodes` from `graph_fake.json`), colored by `tipo`.
+- Edges and zones: `GET /grafo`, which returns `edges[].geometria` and `zonas[].poligono` in `[lon, lat]`.
+- Highlighted route: `tramos[].geometria` from the `/mision` response, in the order of `ruta`.
+- Alert: `aristas_afectadas` from `/alerta` + the zone polygon.
+- **16:00 cutoff:** if MapLibre does not show the Mars tiles, use the cropped orthoimage as an `image source` with fixed bounds.
 
 ## Axl — `web/ui/`
 
-- Fichas: `GET /estaciones/{id}` (capas, tarea y fotos). `fotos[].url` puede ser `null`: mostrá un placeholder y el sol.
-- Chat: `POST /chat` → mostrar `respuesta`; si `ruta` no es `null`, pasarla al mapa.
-- Formulario plan B (si el LLM falla): estaciones + `tiempo_max_min` + `pendiente_max` → `POST /mision` directo.
+- Cards: `GET /estaciones/{id}` (layers, task and photos). `fotos[].url` can be `null`: show a placeholder and the sol.
+- Chat: `POST /chat` → show `respuesta`; if `ruta` is not `null`, pass it to the map.
+- Plan B form (if the LLM fails): stations + `tiempo_max_min` + `pendiente_max` → `POST /mision` directly.

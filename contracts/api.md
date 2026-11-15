@@ -1,23 +1,27 @@
-# Contrato 2 — API FastAPI (dueño: Said)
+# Contract 2 — FastAPI API (owner: Said)
 
-Base local: `http://localhost:8000`. Todo es JSON en UTF-8. CORS abierto en desarrollo (el frontend corre en otro puerto).
+Local base URL: `http://localhost:8000`. Everything is UTF-8 JSON. CORS is open in development (the frontend runs on another port).
 
-Ejemplos reales de request/response, generados desde `graph_fake.json`, en [`ejemplos/`](ejemplos/). Si tu código funciona con esos archivos, funciona con la API.
+Real request/response examples, generated from `graph_fake.json`, are in [`ejemplos/`](ejemplos/). If your code works with those files, it works with the API.
 
-> **Regla:** este archivo solo se cambia avisando en el grupo. Agregar un campo opcional es seguro; renombrar o quitar uno rompe a alguien.
+> **Rule:** this file only changes after telling the group. Adding an optional field is safe; renaming or removing one breaks someone.
+
+The routes and field names are in Spanish because they are the contract shared by the four modules; this document explains each one in English.
 
 ## Endpoints
 
-| Método | Ruta | Entrada | Salida | Ejemplo |
+| Method | Path | Input | Output | Example |
 | --- | --- | --- | --- | --- |
-| GET | `/estaciones` | — | lista de `EstacionResumen` | `get_estaciones.response.json` |
-| GET | `/estaciones/{id}` | — | nodo completo de `graph.json` (capas y fotos) | `get_estacion_E1.response.json` |
-| GET | `/grafo` | `?pendiente_max=15` (opcional) | `{meta, zonas, nodes, edges}` filtrado | — (**agregado**, ver abajo) |
+| GET | `/estaciones` | — | list of `EstacionResumen` (station summaries) | `get_estaciones.response.json` |
+| GET | `/estaciones/{id}` | — | full `graph.json` node (layers and photos) | `get_estacion_E1.response.json` |
+| GET | `/grafo` | `?pendiente_max=15` (optional) | filtered `{meta, zonas, nodes, edges}` | — (**added**, see below) |
 | POST | `/ruta` | `{origen, destino, pendiente_max}` | `RespuestaMision` | `post_ruta.*.json` |
 | POST | `/mision` | `{estaciones[], tiempo_max_min, pendiente_max, modo}` | `RespuestaMision` | `post_mision.*.json` |
 | POST | `/alerta` | `{zona, tipo}` | `RespuestaMision` + `aristas_afectadas` | `post_alerta.*.json` |
 | POST | `/reset` | — | `{"ok": true}` | — |
-| POST | `/chat` | `{message, history}` | `{answer, calls, route}` | — (lo implementa Manuel, en inglés) |
+| POST | `/chat` | `{message, history}` | `{answer, calls, route}` | — (implemented by Manuel, in English) |
+
+Glossary: `estaciones` = stations, `grafo` = graph, `ruta` = route, `mision` = mission, `alerta` = alert, `origen` / `destino` = origin / destination, `pendiente_max` = maximum slope, `tiempo_max_min` = maximum time in minutes, `modo` = mode, `zona` = zone, `tipo` = type, `tramos` = legs, `omitidas` = skipped stations, `totales` = totals, `factible` = feasible.
 
 ### GET `/estaciones`
 
@@ -32,7 +36,7 @@ Ejemplos reales de request/response, generados desde `graph_fake.json`, en [`eje
 {"origen": "HAB", "destino": "E1", "pendiente_max": 15}
 ```
 
-Camino más corto en tiempo (Dijkstra). Devuelve `RespuestaMision` con `ruta` de origen a destino (puede pasar por nodos intermedios) y `margen_min: null`.
+Shortest path in time (Dijkstra). Returns a `RespuestaMision` with `ruta` from origin to destination (it may go through intermediate nodes) and `margen_min: null`.
 
 ### POST `/mision`
 
@@ -41,15 +45,15 @@ Camino más corto en tiempo (Dijkstra). Devuelve `RespuestaMision` con `ruta` de
  "pendiente_max": 15, "modo": "orientacion", "origen": "HAB"}
 ```
 
-| Campo | Tipo | Default | Nota |
+| Field | Type | Default | Note |
 | --- | --- | --- | --- |
-| `estaciones` | `string[]` | — | ids a visitar |
-| `tiempo_max_min` | número | `null` | sin tope si es `null` (solo en `tsp`) |
-| `pendiente_max` | número | `15` | grados |
-| `modo` | `"tsp"` \| `"orientacion"` | `"tsp"` | `tsp`: todas en el mejor orden, o `factible: false`. `orientacion`: maximiza `valor_cientifico` dentro de `tiempo_max_min` y omite las que no entran |
-| `origen` | string | `"HAB"` | la misión sale y vuelve acá |
+| `estaciones` | `string[]` | — | ids to visit |
+| `tiempo_max_min` | number | `null` | no cap if `null` (only in `tsp`) |
+| `pendiente_max` | number | `15` | degrees |
+| `modo` | `"tsp"` \| `"orientacion"` | `"tsp"` | `tsp`: all of them in the best order, or `factible: false`. `orientacion` (orienteering): maximizes `valor_cientifico` within `tiempo_max_min` and skips the ones that do not fit |
+| `origen` | string | `"HAB"` | the mission starts and ends here |
 
-`tiempo_min` total = marcha + `permanencia_min` de cada estación visitada (los nodos por los que solo se pasa no suman permanencia).
+Total `tiempo_min` = walking + the `permanencia_min` (stay time) of each visited station (nodes the route only passes through add no stay time).
 
 ### POST `/alerta`
 
@@ -57,31 +61,31 @@ Camino más corto en tiempo (Dijkstra). Devuelve `RespuestaMision` con `ruta` de
 {"zona": "Z2", "tipo": "polvo"}
 ```
 
-- `polvo`: se quitan las aristas cuyo `zonas` contiene la zona, y se repite la **última misión** pedida a `/mision`.
-- `comms`: se quitan las aristas con `cobertura_com_pct` < `umbral_cobertura_com_pct` de `params.yaml`.
-- Las alertas se acumulan hasta `/reset`. Si no hubo misión previa: `409`.
+- `polvo` (dust): edges whose `zonas` contain the zone are removed, and the **last mission** requested from `/mision` is run again.
+- `comms`: edges with `cobertura_com_pct` < `umbral_cobertura_com_pct` from `params.yaml` are removed.
+- Alerts add up until `/reset`. If there was no previous mission: `409`.
 
-Respuesta = `RespuestaMision` + `"aristas_afectadas": ["HAB->M2", "M2->M1"]` (los tramos de la misión anterior que cruzaban la zona).
+Response = `RespuestaMision` + `"aristas_afectadas": ["HAB->M2", "M2->M1"]` (the previous mission's legs that crossed the zone).
 
 ### POST `/chat` (Manuel)
 
-El copiloto habla en inglés y sus campos están en inglés (ver `llm/README.md`).
+The copilot speaks English and its fields are in English (see `llm/README.md`).
 
 ```json
-// entrada
+// input
 {"message": "What if I accept up to 12°?",
  "history": [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]}
-// salida
+// output
 {"answer": "With 12° I add the Upper delta (E2)...",
  "calls": [{"tool": "optimize_mission",
             "arguments": {"stations": ["E1","M1","M2","E2"], "max_time_min": 240, "max_slope_deg": 12},
             "ok": true}],
- "route": { "...": "RespuestaMision o null si no hubo ruta" }}
+ "route": { "...": "RespuestaMision, or null if there was no route" }}
 ```
 
 
 
-## `RespuestaMision` (la misma forma para `/ruta`, `/mision` y `/alerta`)
+## `RespuestaMision` (the same shape for `/ruta`, `/mision` and `/alerta`)
 
 ```json
 {
@@ -97,42 +101,42 @@ El copiloto habla en inglés y sus campos están en inglés (ver `llm/README.md`
 }
 ```
 
-`motivo` de una omitida es uno de estos, con su `detalle`:
+The `motivo` (reason) of a skipped station is one of these, with its `detalle` (details):
 
-| `motivo` | `detalle` | El LLM dice… |
+| `motivo` | `detalle` | The LLM says… |
 | --- | --- | --- |
-| `pendiente` | `{pendiente_max_deg, limite}` — la mínima pendiente con que se llega vs. lo pedido | "omití la cima del delta: el camino más suave tiene 18.5° y pediste 15°" |
-| `tiempo` | `{tiempo_max_min}` | "no entra en 240 min" |
-| `alerta` | `{zonas}` | "queda aislada por la alerta en Z2" |
-| `comms` | `{cobertura_com_pct, umbral}` | "no hay camino con cobertura suficiente" |
-| `no_existe` | `{}` | "no conozco esa estación" |
+| `pendiente` (slope) | `{pendiente_max_deg, limite}` — the gentlest slope it can be reached with vs. the one requested | "I skipped the upper delta: the gentlest path has 18.5° and you asked for 15°" |
+| `tiempo` (time) | `{tiempo_max_min}` | "it does not fit in 240 min" |
+| `alerta` (alert) | `{zonas}` | "it is cut off by the alert in Z2" |
+| `comms` | `{cobertura_com_pct, umbral}` | "there is no path with enough coverage" |
+| `no_existe` (does not exist) | `{}` | "I do not know that station" |
 
-`margen_min` = `tiempo_max_min − tiempo_min` (`null` si no hubo tope).
+`margen_min` = `tiempo_max_min − tiempo_min` (`null` if there was no cap).
 
-## Cómo se elige la versión del grafo según `pendiente_max`
+## How the graph version is chosen from `pendiente_max`
 
-`graph.json` trae una versión de cada arista por límite de `meta.limites_pendiente_deg` (grafo real: **8, 12 y 15**; grafo falso: 15, 20 y 25). Para una `pendiente_max` pedida:
+`graph.json` has one version of each edge per limit in `meta.limites_pendiente_deg` (real graph: **8, 12 and 15**; fake graph: 15, 20 and 25). For a requested `pendiente_max`:
 
-1. Se usa la versión más grande que **no supere** lo pedido. Con el grafo real: 10° → versión 8; 13° → versión 12; menos de 8° → versión 8.
-2. Además se descartan las aristas con `pendiente_max_deg` > `pendiente_max`.
+1. The largest version that **does not exceed** the request is used. With the real graph: 10° → version 8; 13° → version 12; under 8° → version 8.
+2. Edges with `pendiente_max_deg` > `pendiente_max` are also dropped.
 
-Así nunca se devuelve un tramo más empinado de lo pedido.
+That way a leg steeper than requested is never returned.
 
-## Errores
+## Errors
 
-| Código | Cuándo | Cuerpo |
+| Code | When | Body |
 | --- | --- | --- |
-| `404` | id de estación inexistente en `/estaciones/{id}` o `/ruta` | `{"detail": "estacion E9 no existe"}` |
-| `409` | `/alerta` sin misión previa | `{"detail": "no hay mision para recalcular"}` |
-| `422` | JSON mal formado o campos inválidos (FastAPI lo hace solo) | formato estándar de FastAPI |
+| `404` | unknown station id in `/estaciones/{id}` or `/ruta` | `{"detail": "station E9 does not exist"}` |
+| `409` | `/alerta` without a previous mission | `{"detail": "there is no mission to recalculate"}` |
+| `422` | malformed JSON or invalid fields (FastAPI does it on its own) | standard FastAPI format |
 
-En `/mision`, una estación inexistente **no** es error: va a `omitidas` con `motivo: "no_existe"`, para que el LLM pueda explicarlo.
+In `/mision`, an unknown station is **not** an error: it goes to `omitidas` with `motivo: "no_existe"`, so the LLM can explain it.
 
-## Agregados respecto al spec original (avisados en el grupo)
+## Additions to the original spec (announced in the group)
 
-Son cambios aditivos; nada del spec se renombró ni se quitó.
+They are additive changes; nothing in the spec was renamed or removed.
 
-- **`GET /grafo`**: el mapa necesita todas las aristas y los polígonos de las zonas para dibujarlos; ninguna ruta del spec los exponía.
-- **`tramos[].geometria`, `tramos[].zonas` y `tramos[].dosis_rel`**: para dibujar la ruta resaltada y la animación de alerta sin pedir otra cosa.
-- **`origen`** opcional en `/mision` (default `HAB`).
-- **`motivo`** con valores cerrados (tabla de arriba).
+- **`GET /grafo`**: the map needs all the edges and the zone polygons to draw them; no route in the spec exposed them.
+- **`tramos[].geometria`, `tramos[].zonas` and `tramos[].dosis_rel`**: to draw the highlighted route and the alert animation without asking for anything else.
+- Optional **`origen`** in `/mision` (default `HAB`).
+- **`motivo`** with a closed set of values (table above).

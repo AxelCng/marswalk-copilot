@@ -37,7 +37,7 @@ class MissionRequest(BaseModel):
     @model_validator(mode="after")
     def require_orientation_budget(self):
         if self.modo == "orientacion" and self.tiempo_max_min is None:
-            raise ValueError("orientacion requiere tiempo_max_min")
+            raise ValueError("orientacion requires tiempo_max_min")
         return self
 
 
@@ -102,18 +102,18 @@ def create_app(graph_path=None):
         app.state.missions = MissionState(app.state.planner, params["comms"]["umbral_cobertura_com_pct"])
         yield
 
-    app = FastAPI(title="MarsWalk Copilot — Motor", lifespan=lifespan)
+    app = FastAPI(title="MarsWalk Copilot — Engine", lifespan=lifespan)
     app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
     @app.get("/geologia")
     def geologia():
         path = ROOT / "data" / "out" / "geologia.geojson"
         if not path.is_file():
-            raise HTTPException(404, detail="capa geologica no disponible")
+            raise HTTPException(404, detail="geology layer not available")
         return FileResponse(path, media_type="application/geo+json")
 
     def require_station(store, station_id):
         if station_id not in store.nodes:
-            raise HTTPException(404, detail=f"estacion {station_id} no existe")
+            raise HTTPException(404, detail=f"station {station_id} does not exist")
 
     @app.get("/estaciones")
     def stations(request: Request):
@@ -174,7 +174,7 @@ def montar_chat(app):
     try:
         from llm.router import router as chat_router
     except ImportError as exc:
-        logger.warning("Sin /chat: no se pudo importar llm.router (%s)", exc)
+        logger.warning("No /chat: could not import llm.router (%s)", exc)
         return
     app.include_router(chat_router)
 
