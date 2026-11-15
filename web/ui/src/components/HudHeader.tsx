@@ -23,9 +23,10 @@ export const HudHeader: React.FC<HudHeaderProps> = ({ activeTab, onTabChange, st
 
   // "Plan B" es el nombre interno del equipo; en pantalla se llama por lo que hace.
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-    { id: 'chat', label: 'Copilot', icon: <MessageSquare className="h-4 w-4" /> },
-    { id: 'planb', label: 'Mission form', icon: <SlidersHorizontal className="h-4 w-4" /> },
-    { id: 'stations', label: `Stations ${stationsCount}`, icon: <MapPin className="h-4 w-4" /> },
+    // Íconos ocultos en el celular: sin ellos las tres pestañas entran en 390 px
+    { id: 'chat', label: 'Copilot', icon: <MessageSquare className="hidden sm:block h-4 w-4" /> },
+    { id: 'planb', label: 'Mission form', icon: <SlidersHorizontal className="hidden sm:block h-4 w-4" /> },
+    { id: 'stations', label: `Stations ${stationsCount}`, icon: <MapPin className="hidden sm:block h-4 w-4" /> },
   ];
 
   return (

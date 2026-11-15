@@ -10,6 +10,7 @@ import { StationModal } from './components/StationModal';
 import { MissionSummary } from './components/MissionSummary';
 import { PlanBForm } from './components/PlanBForm';
 import { MapaMision } from './components/MapaMision';
+import { Portada } from './components/Portada';
 import { MOCK_ALERTA_Z2, MOCK_ESTACIONES, MOCK_GRAFO } from './mocks/mockData';
 import type { Grafo } from './types/mission';
 import type { ChatResponse } from './types/mission';
@@ -221,23 +222,11 @@ export const App: React.FC = () => {
         />
       )}
 
+      {/* Portada: relieve real del delta con el área de la misión (el motor calcula, el LLM explica) */}
+      <Portada grafo={grafo} estaciones={stations.length} />
+
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
-        {/* Introducción: qué es y la promesa central (el motor calcula, el LLM explica) */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-x-10 gap-y-2 pt-1">
-          <div className="max-w-[62ch]">
-            <h2 className="m-0 font-display text-2xl sm:text-[28px] leading-tight font-semibold text-ink">
-              Plan a walk across Jezero Crater
-            </h2>
-            <p className="m-0 mt-1.5 text-[15px] leading-6 text-ink-dim">
-              Every route is computed from NASA and USGS terrain data along Perseverance&apos;s path.
-              The copilot explains the result; it never makes up the numbers.
-            </p>
-          </div>
-          <p className="m-0 text-xs text-ink-mute lg:text-right lg:max-w-[34ch]">
-            Walking speed follows Tobler&apos;s hiking function, adjusted for a pressure suit.
-          </p>
-        </div>
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6 relative z-10 -mt-6">
 
         {/* Mapa de la misión (web/map, Añe) + alertas */}
         <div className="panel overflow-hidden">
