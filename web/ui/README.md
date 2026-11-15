@@ -18,8 +18,8 @@ El servidor de desarrollo correrá por defecto en `http://localhost:5173`.
 
 1. **Panel de Copiloto EVA (Chat):**
    - Interfaz conversacional conectada a `POST /chat`.
-   - Visualización explícita de **Llamadas a Funciones (Tool Calling)** (`optimizar_mision`, `recalcular_por_alerta`, etc.).
-   - Botones rápidos con las 3 preguntas clave del guion de la demo (15°, 20°, alerta de polvo Z2).
+   - Visualización explícita de **Llamadas a Funciones (Tool Calling)** (`optimize_mission`, `reroute_for_alert`, etc.).
+   - Botones rápidos con las 3 preguntas clave del guion de la demo (8°, 12°, alerta de polvo Z2).
 
 2. **Fichas Geológicas de Estación:**
    - Visualización de las 8 estaciones oficiales (`HAB`, `ROV`, `E1`, `M1`, `M2`, `E2`, `REF`, `COM`).
@@ -33,7 +33,7 @@ El servidor de desarrollo correrá por defecto en `http://localhost:5173`.
    - **Explicación física de paradas omitidas:** muestra la razón exacta (ej: pendiente física excesiva vs. límite configurado).
 
 4. **Modo Plan B (Respaldo en Vivo sin LLM):**
-   - Formulario de control directo con selectores de estaciones, sliders de pendiente (10°-25°) y tiempo límite.
+   - Formulario de control directo con selectores de estaciones, selector de pendiente (8°, 12°, 15°) y tiempo límite.
    - Llama directamente a `POST /mision` en FastAPI vía algoritmos de grafos (OR-Tools / Dijkstra).
    - Botón de disparo de alerta de polvo (`POST /alerta`) y reinicio (`POST /reset`).
 

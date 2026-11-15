@@ -33,7 +33,7 @@ sin `/chat` y la UI ofrece el formulario Plan B.
 `API_URL` indica al chat a qué API llamar (por defecto `http://127.0.0.1:8000`, no
 `localhost`: en Windows `localhost` prueba IPv6 primero y cada herramienta se demora).
 Una configuración explícita de `llm/.env` o del entorno tiene prioridad: comprobar
-`GET /chat/estado`. No usar el puerto 8001 del mock para una demo con el motor real.
+`GET /chat/status`. No usar el puerto 8001 del mock para una demo con el motor real.
 
 Con el grafo real, la demo de pendiente usa 8° y 12° con tope de 4 horas
 (`data/HALLAZGO_pendiente_demo.md`): a 8° la cima del delta (E2) queda omitida por
