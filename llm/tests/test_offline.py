@@ -203,10 +203,81 @@ def test_summary_is_english_and_sourced(api):
     assert agent.unsourced_numbers(text, [json.dumps(res)]) == []
 
 
-def test_comms_alert_uses_a_valid_zone(api):
+def test_comms_alert_is_global(api):
+    """The engine needs some valid zone, but comms closes low-coverage legs on the whole map: the call and the
+    summary must not present it as an alert in one zone."""
     _run("optimize_mission", agent.detect_mission(DEMO_1))
-    call, _ = _run("reroute_for_alert", {"type": "comms"})
-    assert call["ok"] and call["arguments"]["zone"] in {z["id"] for z in tools._zones()}
+    call, res = _run("reroute_for_alert", {"type": "comms", "zone": "Z1"})
+    assert call == {"tool": "reroute_for_alert", "arguments": {"type": "comms", "scope": "global"}, "ok": True}
+    text = agent.summary(res, agent.station_names())
+    assert "global" in text and "crossed zone" not in text
+    assert agent.phrasing_problems(text, res, agent.station_names()) == []
+    assert "comms alert not explained as global" in agent.phrasing_problems(
+        "The route was recalculated for the lost signal in zone Z1.", res, agent.station_names())
+
+
+def test_dust_summary_names_the_zone(api):
+    _run("optimize_mission", agent.detect_mission(DEMO_1))
+    _, res = _run("reroute_for_alert", agent.detect_alert(DEMO_3))
+    assert "crossed zone Z2 (" in agent.summary(res, agent.station_names())
+
+
+def test_phrasing_problems_catch_wrong_stories(api):
+    """Answers whose numbers all come from the engine but tell the wrong story."""
+    names = agent.station_names()
+    _, res = _run("optimize_mission", agent.detect_mission(DEMO_1))  # 8°: E2 skipped for slope
+    assert agent.phrasing_problems(agent.summary(res, names), res, names) == []
+    wrong_reason = agent.summary(res, names) + " The Upper delta was skipped because of the dust storm."
+    assert any("E2 skipped with the wrong reason" in p for p in agent.phrasing_problems(wrong_reason, res, names))
+    missing = "Go from the habitat to the Three Forks depot and back."
+    assert any("E1 of the route is missing" in p for p in agent.phrasing_problems(missing, res, names))
+
+    _, res = _run("optimize_mission", agent.detect_change(DEMO_2))  # 12°: E2 added
+    comp = res["comparison_with_previous"]
+    no_comparison = " ".join(names[s] for s in res["ruta"]) + " Total time unchanged."
+    problems = agent.phrasing_problems(no_comparison, res, names)
+    assert f"time difference {comp['time_difference_min']:g} min is missing" in problems
+
+
+def test_stations_the_user_never_named_are_refused(api):
+    """'How many minutes does the walk take?': the model must ask, not pick E1 and M1 itself."""
+    plan = {"stations": ["E1", "M1"], "max_time_min": 240, "max_slope_deg": 15}
+    assert agent.invented_stations("optimize_mission", plan, "How many minutes does the walk take?", [])
+    assert not agent.invented_stations("optimize_mission", plan, "Plan a walk to Amalik and Séítah", [])
+    assert not agent.invented_stations("optimize_mission", {"stations": ["M1", "M2"]},
+                                       "Visit the two sampling points in 3 hours", [])
+    _run("optimize_mission", agent.detect_mission(DEMO_1))  # previous mission: its stations are allowed
+    assert not agent.invented_stations("optimize_mission", plan, "Same walk but with 3 hours", [])
+
+
+class _FakeMessage:
+    def __init__(self, content):
+        self.content, self.tool_calls = content, None
+
+
+class _FakeOllama:
+    """Phrasing model that writes the tool call as text instead of phrasing (what qwen2.5:3b did on demo 2)."""
+    def __init__(self):
+        self.calls = 0
+
+    def chat(self, **kwargs):
+        self.calls += 1
+        last = kwargs["messages"][-2]["tool_calls"][0]["function"]
+        return type("R", (), {"message": _FakeMessage(json.dumps({"name": last["name"],
+                                                                   "arguments": last["arguments"]}))})()
+
+
+def test_forced_call_is_not_repeated(api, monkeypatch):
+    """Demo 2: if the model repeats the forced call, the mission must not be compared with itself."""
+    fake = _FakeOllama()
+    monkeypatch.setattr(agent, "_phrase_client", fake)
+    first = agent.respond(DEMO_1, [])
+    second = agent.respond(DEMO_2, first["history"])
+    assert [c["tool"] for c in second["calls"]] == ["optimize_mission"]
+    comp = second["route"]["comparison_with_previous"]
+    assert comp["stations_added"] == ["E2"] and comp["time_difference_min"] > 0
+    assert comp["previous_time_min"] == first["route"]["totales"]["tiempo_min"]
+    assert f"+{comp['time_difference_min']:g} min" in second["answer"] and second["fallback"]
 
 
 def test_tool_errors_are_readable(api):

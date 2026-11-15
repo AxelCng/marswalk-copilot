@@ -14,7 +14,7 @@ from ollama import Client
 from config import (DEFAULT_SLOPE_DEG, DEFAULT_TIME_MIN, KEEP_ALIVE, MAX_STEPS, MODEL, OLLAMA_TIMEOUT_S,
                     OLLAMA_URL, PHRASE_TIMEOUT_S)
 from tools import (REASONS_EN, STATION_NAMES_EN, STATION_TASKS_EN, TOOLS, TYPES_EN, _norm, _stations, _zones,
-                   execute, station_names, zone_in_text)
+                   execute, resolve_id, station_names, zone_in_text)
 
 SYSTEM = """You are MarsWalk Copilot, the EVA (walk) planning assistant for Jezero crater, Mars.
 You talk to the crew member in the habitat who supports the astronaut on the surface.
@@ -26,7 +26,8 @@ Rules:
 4. If the user changes a condition ("what if I accept 12°?"), call optimize_mission again with the SAME stations as the previous mission and the new condition. Use "comparison_with_previous" to say what changed and how much time it adds or saves.
 5. For alerts use reroute_for_alert and explain which legs were avoided:
    - storm, dust, wind or sand -> type "dust" with the zone id from the catalog ("dune field" -> its Z id).
-   - lost communication, signal, radio or the relay -> type "comms" (no zone needed).
+   - lost communication, signal, radio or the relay -> type "comms" (no zone needed). It is global: say it
+     applies to the whole map and closes every leg without enough coverage; never name a zone for it.
    If there is no previous mission, ask for a mission first.
 6. For questions about a place ("what is at...?", "what task...?") use station_info and give its task and dwell time. The catalog below already has ids and names: do not call list_stations unless asked.
 7. If no origin is given, start from the habitat (HAB). To go from one point to another without several stops use point_to_point_route.
@@ -197,10 +198,81 @@ def summary(res, names):
                      f"added: {', '.join(names.get(s, s) for s in c['stations_added']) or 'none'}; "
                      f"removed: {', '.join(names.get(s, s) for s in c['stations_removed']) or 'none'}.")
     if res.get("aristas_afectadas") is not None:
-        avoided = [" → ".join(names.get(x, x) for x in a.split("->")) for a in res["aristas_afectadas"]]
-        parts.append("Legs of the previous route that crossed the zone and were avoided: "
-                     + ("; ".join(avoided) if avoided else "none") + ".")
+        avoided = "; ".join(" → ".join(names.get(x, x) for x in a.split("->")) for a in res["aristas_afectadas"])
+        alert = res.get("alert") or {}
+        if alert.get("type") == "comms":
+            # The engine closes every leg with low coverage on the whole map, not the legs of one zone
+            parts.append("The communications alert is global: it applies to the whole map, not to one zone, and "
+                         "closes every leg without enough communication coverage. Legs of the previous route that "
+                         "were closed: " + (avoided or "none") + ".")
+        else:
+            zone = alert.get("zone")
+            where = f"zone {zone} ({_zone_names().get(zone, zone)})" if zone else "the zone"
+            parts.append(f"Legs of the previous route that crossed {where} and were avoided: "
+                         + (avoided or "none") + ".")
     return " ".join(parts)
+
+
+def _zone_names():
+    try:
+        return {z["id"]: z["name"] for z in _zones()}
+    except Exception:
+        return {}
+
+
+# ---------------------------------------------------------------- answer vs. engine result
+# Words that must appear in a sentence that names a skipped station, by engine reason
+_REASON_WORDS = {
+    "pendiente": ("slope", "degree", "°", "steep", "gentl"),
+    "tiempo": ("time", "minute", "min", "fit", "hour"),
+    "alerta": ("alert", "dust", "storm", "zone", "cut off"),
+    "comms": ("coverage", "communication", "comms", "signal"),
+}
+
+
+def _mentions(text, station):
+    """True if the (normalized) text names the station by id, English name or a distinctive alias."""
+    sid = station["id"].lower()
+    if re.search(rf"\b{re.escape(sid)}\b", text):
+        return True
+    phrases = _aliases(station) | {_norm(station.get("name", ""))}
+    if station.get("tipo") == "habitat":
+        phrases.add("habitat")
+    return any(p and re.search(rf"\b{re.escape(p)}\b", text) for p in phrases)
+
+
+def phrasing_problems(text, route, names):
+    """What the model's wording gets wrong about a mission result, even when every number in it comes from
+    the engine: a station of the route left out, a skipped station given the wrong reason, the comparison
+    with the previous mission dropped, or a comms alert presented as local. [] if none."""
+    if not text or not isinstance(route, dict) or "totales" not in route:
+        return []
+    try:
+        stations = {e["id"]: e for e in _stations()}
+    except Exception:
+        return []
+    norm = _norm(text)
+    problems = [f"{sid} of the route is missing" for sid in dict.fromkeys(route.get("ruta") or [])
+                if sid in stations and not _mentions(norm, stations[sid])]
+    sentences = [s for s in re.split(r"(?<=[.!?])\s+|\n+", text) if s.strip()]
+    for o in route.get("omitidas") or []:
+        words = _REASON_WORDS.get(o.get("motivo"))
+        if not words or o["id"] not in stations:
+            continue
+        for s in sentences:
+            if _mentions(_norm(s), stations[o["id"]]) and not any(w in s.lower() for w in words):
+                problems.append(f"{o['id']} skipped with the wrong reason (engine: {o['motivo']})")
+                break
+    c = route.get("comparison_with_previous")
+    if c and c.get("time_difference_min"):
+        if f"{abs(c['time_difference_min']):g}" not in text:
+            problems.append(f"time difference {c['time_difference_min']:g} min is missing")
+        problems += [f"added station {s} is missing" for s in c.get("stations_added") or []
+                     if s in stations and not _mentions(norm, stations[s])]
+    if (route.get("alert") or {}).get("type") == "comms" and not re.search(r"global|whole map|entire map|all legs",
+                                                                           text, re.I):
+        problems.append("comms alert not explained as global")
+    return problems
 
 
 def _for_model(res, names, tool_name=""):
@@ -215,7 +287,7 @@ def _for_model(res, names, tool_name=""):
                 "route": res.get("ruta"), "totals": _en(res.get("totales")),
                 "skipped": _en(res.get("omitidas")),
                 "comparison_with_previous": res.get("comparison_with_previous"),
-                "affected_edges": res.get("aristas_afectadas")}
+                "affected_edges": res.get("aristas_afectadas"), "alert": res.get("alert")}
     out = dict(res)
     if "tramos" in out:
         out["tramos"] = [{k: t.get(k) for k in _LEG_FIELDS} for t in out["tramos"]]
@@ -400,6 +472,29 @@ def detect_change(message):
     return {k: new[k] for k in ("stations", "max_time_min", "max_slope_deg")}
 
 
+def invented_stations(name, args, message, history):
+    """True if the model plans a mission whose stations the user never named (nor were in the previous
+    mission): 'How many minutes does the walk take?' must get a question, not a walk to stations it chose."""
+    if name != "optimize_mission":
+        return False
+    requested = args.get("stations") or args.get("estaciones") or []
+    if not isinstance(requested, list) or not requested:
+        return False  # the tool itself refuses an empty mission
+    previous = set((_STATE["mission"] or {}).get("stations") or [])
+    said = _norm(" ".join([message] + [h["content"] for h in history if h["role"] == "user"]))
+    try:
+        stations = {e["id"]: e for e in _stations()}
+    except Exception:
+        return False
+    sampling = bool(_RE_SAMPLING.search(said))
+    for ref in requested:
+        sid = resolve_id(str(ref))
+        e = stations.get(sid)
+        if sid in previous or (e and (_mentions(said, e) or (sampling and e.get("tipo") == "muestreo"))):
+            return False
+    return True
+
+
 def detect_mission(message):
     """'I want to visit the delta front, the two sampling points and the upper delta, back in under 4 hours,
     no slopes over 8°' -> optimize_mission arguments (no LLM).
@@ -451,6 +546,8 @@ def _run_and_record(name, args, calls, sources, names):
         comp = _compare(_STATE["result"], res, requested_prev, requested)
         if comp:
             res = {**res, "comparison_with_previous": comp}
+        if name == "reroute_for_alert":
+            res = {**res, "alert": used}  # the summary explains dust (one zone) and comms (global) differently
         if name == "optimize_mission":
             _STATE["mission"] = used
         _STATE["result"] = res
@@ -496,6 +593,12 @@ def respond(message, history=None, model=None):
     def run_batch(requested):
         nonlocal route
         for name, args in requested:
+            if invented_stations(name, args, message, history):
+                calls.append({"tool": name, "arguments": args, "ok": False})
+                messages.append({"role": "tool", "tool_name": name, "content": json.dumps({
+                    "error": "The user did not name any station to visit. Do not choose stations: ask which "
+                             "stations, the time limit and the maximum slope."})})
+                continue
             content, new_route = _run_and_record(name, args, calls, sources, names)
             route = new_route or route
             messages.append({"role": "tool", "content": content, "tool_name": name})
@@ -542,6 +645,12 @@ def respond(message, history=None, model=None):
             if requested:
                 msg = {"role": "assistant", "content": "",
                        "tool_calls": [{"function": {"name": n, "arguments": a}} for n, a in requested]}
+        if requested and forced:
+            # The code already called the tool: running the model's repeat would compare the mission with
+            # itself (+0.0 min, nothing added) and overwrite the right comparison. Use the code summary.
+            fallback = "summary (the model asked for a tool again)"
+            text = summary(route, names) if route else ""
+            break
         if requested:
             messages.append(msg)
             run_batch(requested)
@@ -566,5 +675,10 @@ def respond(message, history=None, model=None):
     if not text or not text.strip():
         text = summary(route, names) if route else \
             "I could not complete the calculation. Try rephrasing the request or use the mission form."
+    problems = phrasing_problems(text, route, names) if not fallback else []
+    if problems:
+        # Right numbers, wrong story (a station left out, a wrong reason...): the code summary is safer
+        fallback = "summary (" + "; ".join(problems) + ")"
+        text = summary(route, names)
     sources.append(text)
     return output(text)
