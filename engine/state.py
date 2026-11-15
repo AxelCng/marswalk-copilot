@@ -41,9 +41,9 @@ class MissionState:
     def alert(self, zone, kind):
         with self.lock:
             if self.last_request is None:
-                raise NoPreviousMission("no hay mision para recalcular")
+                raise NoPreviousMission("there is no mission to recalculate")
             if zone not in {z["id"] for z in self.store.data.get("zonas", [])}:
-                raise UnknownZone(f"zona {zone} no existe")
+                raise UnknownZone(f"zone {zone} does not exist")
             if kind == "polvo":
                 added = Restrictions(frozenset([zone]))
                 candidate = Restrictions(self.restrictions.closed_zones | {zone},

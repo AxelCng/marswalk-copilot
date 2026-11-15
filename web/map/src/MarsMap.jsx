@@ -551,7 +551,8 @@ export default function MarsMap({
       const el = document.createElement('div');
       el.className = 'aviso-mapa';
       const n = alerta.aristas_afectadas?.length ?? 0;
-      const tipo = (alerta.tipo ?? 'polvo').toUpperCase();
+      // El motor manda el tipo en español ("polvo", "comms"): en pantalla va en inglés
+      const tipo = ({ polvo: 'Dust', comms: 'Comms' }[alerta.tipo ?? 'polvo'] ?? alerta.tipo).toUpperCase();
       el.innerHTML = '<span class="aviso-titulo">Critical alert · ' + tipo + '</span>'
         + '<span class="aviso-zona">' + (zona.nombre ?? zona.id) + ' · ' + zona.id + '</span>'
         + '<span class="aviso-dato">' + n + (n === 1 ? ' leg blocked' : ' legs blocked') + '</span>';

@@ -60,7 +60,7 @@ def test_same_origin(client):
 def test_missing_station(client):
     for response in [client.get("/estaciones/E9"), client.post("/ruta", json={"origen": "HAB", "destino": "E9"})]:
         assert response.status_code == 404
-        assert response.json() == {"detail": "estacion E9 no existe"}
+        assert response.json() == {"detail": "station E9 does not exist"}
 
 
 @pytest.mark.parametrize("slope", [-1, 91, "no-es-numero"])

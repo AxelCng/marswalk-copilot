@@ -60,7 +60,7 @@ def reset():
     _STATE.update(mission=None, result=None)
 
 
-# Engine error messages are in Spanish: translate the ones the copilot may show.
+# The engine answers in English; these cover older engines that answered in Spanish.
 _ERRORS_EN = [
     (re.compile(r"no hay mision para recalcular", re.I), "there is no mission to recalculate"),
     (re.compile(r"zona (\S+) no existe", re.I), r"zone \1 does not exist"),
