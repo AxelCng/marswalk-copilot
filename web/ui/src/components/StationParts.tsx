@@ -44,15 +44,15 @@ export const FotoEstacionView: React.FC<FotoProps> = ({ foto, alt, className = '
           <Camera className={`${grande ? 'h-9 w-9' : 'h-6 w-6'} text-ink-mute`} />
           <span className="label-caps">{fallo ? 'Photo not available' : 'No photo'}</span>
           {foto?.sol != null && (
-            <span className="font-mono text-[10px] text-ink-mute dato-num">
-              Referencia: sol {foto.sol}
+            <span className="text-[11px] text-ink-mute dato-num">
+              Nearest photo: sol {foto.sol}
             </span>
           )}
         </div>
       )}
       {hayImagen && foto && (
-        <span className="absolute bottom-1.5 right-1.5 z-10 px-1.5 py-0.5 rounded bg-black/75 border border-hud-border font-mono text-[9px] tracking-[0.06em] uppercase text-ink-dim dato-num">
-          {nombreCamara(foto.camara)} · sol {foto.sol}
+        <span className="absolute bottom-1.5 right-1.5 z-10 px-1.5 py-0.5 rounded bg-black/70 text-[11px] text-ink-dim dato-num">
+          {nombreCamara(foto.camara)}, sol {foto.sol}
         </span>
       )}
     </div>

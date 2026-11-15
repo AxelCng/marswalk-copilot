@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import type { ChatResponse, MensajeHistorial, RespuestaMision } from '../types/mission';
 import { ChatMessage } from './ChatMessage';
 import { api } from '../services/api';
-import { Send, Sparkles, Loader2, RefreshCw, Radio, Mic, Square } from 'lucide-react';
+import { Send, Loader2, RotateCcw, Mic, Square } from 'lucide-react';
 import { DEMO, FRASES } from '../demo';
 
 // Web Speech is not yet included in TypeScript's standard DOM definitions.
@@ -29,25 +29,31 @@ interface ChatPanelProps {
   onIrPlanB?: () => void;
 }
 
+// Las 3 preguntas del guion de la demo, en orden (es una secuencia real: cada una depende de la anterior).
 const DEMO_PRESETS = [
-  { label: `Step 1: Mission ${DEMO.pendiente_1}° (<4h)`, text: FRASES.paso1 },
-  { label: `Step 2: What if I accept ${DEMO.pendiente_2}°?`, text: FRASES.paso2 },
-  { label: `Step 3: Dust alert ${DEMO.zona}`, text: FRASES.paso3 },
+  { label: `Walk at ${DEMO.pendiente_1}°, under 4 h`, text: FRASES.paso1 },
+  { label: `Allow ${DEMO.pendiente_2}°`, text: FRASES.paso2 },
+  { label: `Dust in ${DEMO.zona}`, text: FRASES.paso3 },
 ];
 
-const hora = () => `SOL 415 ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+// Hora local de quien usa la consola (antes se mostraba un "SOL 415" inventado).
+const hora = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+const SALUDO =
+  `Where do you want to walk? Tell me the stations, how much time you have and the steepest slope you'll accept. ` +
+  `For example: "the delta front and Séítah, back in 3 hours, no slopes over ${DEMO.pendiente_2}°".`;
 
 const saludo = (contenido: string): MensajeHistorial => ({
   id: `init-${Date.now()}`,
   rol: 'asistente',
   contenido,
-  timestamp: 'SOL 415',
+  timestamp: '',
   local: true,
 });
 
 export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRoute, onIrPlanB }) => {
   const [messages, setMessages] = useState<MensajeHistorial[]>([
-    saludo("MarsWalk EVA copilot online. Tell me the science targets for the walk in Jezero Crater, the life-support time limit and the maximum slope the suit can take.")
+    saludo(SALUDO)
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -56,10 +62,13 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
   const [speechStatus, setSpeechStatus] = useState('');
   const recognitionRef = useRef<BrowserRecognition | null>(null);
   const Recognition = (window as SpeechWindow).SpeechRecognition ?? (window as SpeechWindow).webkitSpeechRecognition;
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const listaRef = useRef<HTMLDivElement>(null);
 
+  // Baja al último mensaje desplazando solo la lista del chat. scrollIntoView movía la página entera,
+  // así que al cargar (sobre todo en el celular) la pantalla saltaba sola hasta el chat.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const lista = listaRef.current;
+    if (lista) lista.scrollTo({ top: lista.scrollHeight, behavior: 'smooth' });
   }, [messages, loading]);
 
   // Contador de espera: el modelo local tarda decenas de segundos en CPU.
@@ -188,7 +197,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
       setMessages((prev) => [...prev, {
         id: `err-${Date.now()}`,
         rol: 'asistente',
-        contenido: "No link to the copilot. Compute the mission directly with Mission Planner.",
+        contenido: "The copilot isn't reachable right now. Mission Planner plans the same walk with the route engine directly.",
         timestamp: hora(),
         error: true,
         local: true,
@@ -199,75 +208,62 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
   };
 
   const handleClear = () => {
-    setMessages([saludo("History cleared. Ready to plan a new EVA in Jezero Crater.")]);
+    setMessages([saludo(SALUDO)]);
   };
 
   return (
     <div className="panel flex flex-col h-full overflow-hidden">
       {/* Encabezado */}
-      <div className="flex items-center justify-between border-b border-hud-border/80 px-4 py-3 bg-hud-panel/90 backdrop-blur-sm">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Radio className="h-4 w-4 text-hud-cyan animate-pulse" />
-            <span className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-hud-cyan animate-ping" />
-          </div>
-          <div>
-            <h3 className="m-0 font-display text-sm font-semibold text-ink">
-              EVA Channel / Walk Copilot
-            </h3>
-            <span className="label-caps">
-              Tool calling · FastAPI
-            </span>
-          </div>
+      <div className="flex items-center justify-between border-b border-hud-border/80 px-4 py-3">
+        <div>
+          <h3 className="m-0 font-display text-base font-semibold text-ink">Copilot</h3>
+          <p className="m-0 text-xs text-ink-mute">Asks the route engine, then explains the plan</p>
         </div>
 
         <button
           onClick={handleClear}
           disabled={loading}
-          title="Restart conversation"
-          className="p-1.5 rounded text-ink-dim hover:bg-hud-glass hover:text-ink transition-colors disabled:opacity-40"
+          title="Start a new conversation"
+          className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs text-ink-dim hover:bg-hud-glass hover:text-ink transition-colors disabled:opacity-40"
         >
-          <RefreshCw className="h-3.5 w-3.5" />
+          <RotateCcw className="h-3.5 w-3.5" /> New
         </button>
       </div>
 
-      {/* Guion de la demo */}
-      <div className="flex items-center gap-1.5 px-3 py-2 bg-hud-deep/60 border-b border-hud-subtle overflow-x-auto text-[11px] font-mono">
-        <span className="label-caps flex-shrink-0 flex items-center gap-1">
-          <Sparkles className="h-3 w-3 text-hud-cyan" /> Demo script
-        </span>
+      {/* Guion de la demo: las 3 preguntas en orden */}
+      <div className="flex items-center gap-1.5 px-3 py-2 border-b border-hud-subtle overflow-x-auto text-[13px]">
+        <span className="text-ink-mute flex-shrink-0 mr-1">Try</span>
         {DEMO_PRESETS.map((preset, i) => (
           <button
             key={i}
             onClick={() => handleSend(preset.text)}
             disabled={loading}
             title={preset.text}
-            className="flex-shrink-0 px-2.5 py-1 rounded bg-hud-glass/80 border border-hud-border hover:border-hud-cyan text-hud-cyan transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-hud-border text-ink hover:border-hud-cyan transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {preset.label}
+            <span className="dato-num text-hud-cyan">{i + 1}</span> {preset.label}
           </button>
         ))}
       </div>
 
       {/* Mensajes */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4" aria-live="polite">
+      <div ref={listaRef} className="flex-1 overflow-y-auto p-4 space-y-4" aria-live="polite">
         {messages.map((msg) => (
           <ChatMessage key={msg.id} message={msg} onViewRoute={onViewRoute} onIrPlanB={onIrPlanB} />
         ))}
 
         {loading && (
-          <div className="flex items-center gap-2 text-xs font-mono text-hud-cyan bg-hud-cyan/5 border border-hud-cyan/40 rounded p-3 w-fit">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Copilot computing with the graph engine…</span>
-            <span className="dato-num text-ink-dim">{espera} s</span>
+          <div className="flex flex-wrap items-center gap-2 text-[13px] text-ink-dim border border-hud-border rounded px-3 py-2 w-fit" role="status">
+            <Loader2 className="h-4 w-4 animate-spin text-hud-cyan" />
+            <span>Planning the route</span>
+            <span className="dato-num text-ink-mute">{espera} s</span>
             {espera >= 20 && onIrPlanB && (
               <button type="button" onClick={onIrPlanB} className="ml-1 underline text-ink-dim hover:text-hud-cyan">
-                use Mission Planner
+                Taking long? Use Mission Planner
               </button>
             )}
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Entrada */}
@@ -283,16 +279,17 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={`E.g.: I want to visit E1 and M1 with at most ${DEMO.pendiente_2}° of slope...`}
+            placeholder="Ask for a walk, or change the last one"
             disabled={loading}
             aria-label="Message to the copilot"
-            className="flex-1 min-w-0 bg-hud-deep/90 border border-hud-border rounded px-4 py-2.5 text-sm text-ink placeholder-ink-mute focus:outline-none focus:border-hud-cyan focus:shadow-glow-focus transition-all font-mono"
+            className="flex-1 min-w-0 bg-hud-deep/90 border border-hud-border rounded px-3.5 py-2.5 text-[15px] text-ink placeholder-ink-mute focus:outline-none focus:border-hud-cyan transition-colors"
           />
 
+          {/* Dictado por voz (Said, PR #10) */}
           <button type="button" onClick={toggleDictation} disabled={loading || !Recognition}
             aria-label={listening ? 'Stop voice input' : 'Start voice input'} aria-pressed={listening}
             title={Recognition ? (listening ? 'Stop voice input' : 'Dictate a message') : 'Voice input is not supported by this browser'}
-            className={`flex items-center justify-center h-10 w-10 shrink-0 rounded border border-hud-border disabled:opacity-40 ${listening ? 'bg-critical text-ink' : 'bg-hud-deep text-hud-cyan'}`}>
+            className={`flex items-center justify-center h-10 w-10 shrink-0 rounded border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${listening ? 'bg-critical border-critical text-ink' : 'bg-hud-deep border-hud-border text-ink-dim hover:text-ink hover:border-ink-mute'}`}>
             {listening ? <Square className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
           </button>
 
@@ -300,12 +297,12 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
             type="submit"
             disabled={loading || !input.trim()}
             aria-label="Send"
-            className="flex items-center justify-center h-10 w-10 shrink-0 rounded bg-hud-cyan text-hud-deep hover:shadow-glow-cyan disabled:opacity-40 disabled:cursor-not-allowed transition-shadow"
+            className="flex items-center justify-center h-10 w-10 shrink-0 rounded bg-hud-cyan text-hud-deep hover:bg-[#5cefff] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <Send className="h-4 w-4" />
           </button>
         </form>
-        <p className="mt-1 mb-0 text-[10px] text-ink-mute" role="status" aria-live="polite">
+        <p className={`mt-1.5 mb-0 text-[11px] leading-4 ${listening ? 'text-hud-cyan' : 'text-ink-mute'}`} role="status" aria-live="polite">
           {speechStatus || (Recognition ? 'Voice transcription may use an online browser service. Review text before sending.' : 'Voice input is unavailable in this browser; type your message.')}
         </p>
       </div>
