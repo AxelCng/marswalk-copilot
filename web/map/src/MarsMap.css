@@ -4,7 +4,8 @@
 
 /* Waypoints cartográficos (marcadores HTML de MapLibre) */
 .wp {
-  position: relative; width: 22px; height: 22px; padding: 0; min-height: 0;
+  /* absolute, como .maplibregl-marker: con relative los botones se apilan y cada uno se corre 22 px */
+  position: absolute; width: 22px; height: 22px; padding: 0; min-height: 0;
   background: transparent; border: 0; border-radius: 0; cursor: pointer; box-shadow: none;
 }
 .wp:hover, .wp:focus-visible { border: 0; outline: none; background: transparent; }
