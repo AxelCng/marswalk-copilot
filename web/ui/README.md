@@ -37,5 +37,10 @@ The development server runs at `http://localhost:5173` by default.
    - Calls `POST /mision` on FastAPI directly, through graph algorithms (OR-Tools / Dijkstra).
    - Buttons to trigger a dust alert (`POST /alerta`) and to reset (`POST /reset`).
 
-5. **Offline mode / live backend:**
+5. **Astronaut visor (first-person HUD):**
+   - Talk to the copilot without leaving the visor: press **Talk** or the `T` key, ask out loud, and the question is sent when you stop speaking.
+   - The answer is read aloud and shown on the visor (a mute button turns the voice off). Without browser speech recognition, Talk opens a text field.
+   - It is the same conversation as the console chat, also when the visor is open in its own window.
+
+6. **Offline mode / live backend:**
    - Header switch to toggle between **full local mocks** and the **live backend (`http://localhost:8000`)**.

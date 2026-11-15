@@ -1,29 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import type { ChatResponse, MensajeHistorial, RespuestaMision } from '../types/mission';
 import { ChatMessage } from './ChatMessage';
-import { api } from '../services/api';
+import { copiloto, useCopiloto } from '../services/copiloto';
 import { Send, Loader2, RotateCcw, Mic, Square } from 'lucide-react';
 import { DEMO, FRASES } from '../demo';
 
-// Web Speech is not yet included in TypeScript's standard DOM definitions.
-type SpeechResultEvent = Event & { resultIndex: number; results: { length: number; [index: number]: { isFinal: boolean; [index: number]: { transcript: string } } } };
-type SpeechErrorEvent = Event & { error: string };
-interface BrowserRecognition {
-  lang: string;
-  continuous: boolean;
-  interimResults: boolean;
-  onresult: ((event: SpeechResultEvent) => void) | null;
-  onerror: ((event: SpeechErrorEvent) => void) | null;
-  onend: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-  abort: () => void;
-}
-type RecognitionConstructor = new () => BrowserRecognition;
-type SpeechWindow = Window & { SpeechRecognition?: RecognitionConstructor; webkitSpeechRecognition?: RecognitionConstructor };
+import { Reconocimiento, ERRORES_VOZ } from '../types/speech';
+import type { BrowserRecognition } from '../types/speech';
 
 interface ChatPanelProps {
-  onRouteGenerated?: (ruta: RespuestaMision, respuesta?: ChatResponse) => void;
   onViewRoute?: () => void;
   /** Lleva al formulario Plan B cuando el copiloto no responde. */
   onIrPlanB?: () => void;
@@ -36,32 +20,15 @@ const DEMO_PRESETS = [
   { label: `Dust in ${DEMO.zona}`, text: FRASES.paso3 },
 ];
 
-// Hora local de quien usa la consola (antes se mostraba un "SOL 415" inventado).
-const hora = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-const SALUDO =
-  `Where do you want to walk? Tell me the stations, how much time you have and the steepest slope you'll accept. ` +
-  `For example: "the delta front and Séítah, back in 3 hours, no slopes over ${DEMO.pendiente_2}°".`;
-
-const saludo = (contenido: string): MensajeHistorial => ({
-  id: `init-${Date.now()}`,
-  rol: 'asistente',
-  contenido,
-  timestamp: '',
-  local: true,
-});
-
-export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRoute, onIrPlanB }) => {
-  const [messages, setMessages] = useState<MensajeHistorial[]>([
-    saludo(SALUDO)
-  ]);
+export const ChatPanel: React.FC<ChatPanelProps> = ({ onViewRoute, onIrPlanB }) => {
+  // La conversación es compartida con el visor del astronauta (services/copiloto.ts)
+  const { mensajes: messages, cargando: loading, desde } = useCopiloto();
   const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
   const [espera, setEspera] = useState(0);
   const [listening, setListening] = useState(false);
   const [speechStatus, setSpeechStatus] = useState('');
   const recognitionRef = useRef<BrowserRecognition | null>(null);
-  const Recognition = (window as SpeechWindow).SpeechRecognition ?? (window as SpeechWindow).webkitSpeechRecognition;
+  const Recognition = Reconocimiento;
   const listaRef = useRef<HTMLDivElement>(null);
 
   // Baja al último mensaje desplazando solo la lista del chat. scrollIntoView movía la página entera,
@@ -72,13 +39,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
   }, [messages, loading]);
 
   // Contador de espera: el modelo local tarda decenas de segundos en CPU.
+  // Cuenta desde que empezó la pregunta, aunque se haya hecho en otra ventana.
   useEffect(() => {
-    if (!loading) return;
-    setEspera(0);
-    const t0 = Date.now();
-    const id = setInterval(() => setEspera(Math.floor((Date.now() - t0) / 1000)), 1000);
+    if (!loading || desde == null) return;
+    const contar = () => setEspera(Math.floor((Date.now() - desde) / 1000));
+    contar();
+    const id = setInterval(contar, 1000);
     return () => clearInterval(id);
-  }, [loading]);
+  }, [loading, desde]);
 
   useEffect(() => () => {
     const recognition = recognitionRef.current;
@@ -114,14 +82,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
       }
     };
     recognition.onerror = (event) => {
-      const messages: Record<string, string> = {
-        'not-allowed': 'Microphone permission denied. Allow it in browser settings to use voice input.',
-        'service-not-allowed': 'Speech recognition is blocked in this browser.',
-        'audio-capture': 'No microphone found. Check your microphone and try again.',
-        'no-speech': 'No speech detected. Try again.',
-        'network': 'Speech recognition needs a network connection. You can type instead.',
-      };
-      setSpeechStatus(messages[event.error] ?? `Voice input failed (${event.error}). You can type instead.`);
+      setSpeechStatus(ERRORES_VOZ[event.error] ?? `Voice input failed (${event.error}). You can type instead.`);
     };
     recognition.onend = () => {
       if (recognitionRef.current === recognition) recognitionRef.current = null;
@@ -154,62 +115,11 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onRouteGenerated, onViewRo
     }
     setSpeechStatus('');
 
-    const userMsg: MensajeHistorial = {
-      id: `user-${Date.now()}`,
-      rol: 'usuario',
-      contenido: text,
-      timestamp: hora()
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
     if (!textToSend) setInput('');
-    setLoading(true);
-
-    try {
-      // Solo la conversación real: un historial vacío hace que /chat empiece de cero.
-      const historyPayload = messages
-        .filter((m) => !m.local)
-        .map((m) => ({ role: m.rol === 'usuario' ? 'user' : 'assistant', content: m.contenido }));
-
-      const res = await api.postChat(text, historyPayload);
-
-      const botMsg: MensajeHistorial = {
-        id: `bot-${Date.now()}`,
-        rol: 'asistente',
-        contenido: res.answer,
-        timestamp: hora(),
-        llamadas: res.calls,
-        ruta: res.route,
-        segundos: res.seconds,
-        numeros_sin_fuente: res.unsourced_numbers,
-        // Con error, /chat igual responde 200: el mensaje no entra al historial y se ofrece el Plan B.
-        error: Boolean(res.error),
-        local: Boolean(res.error),
-      };
-
-      setMessages((prev) => [...prev, botMsg]);
-
-      if (res.route && !res.error) {
-        onRouteGenerated?.(res.route, res);
-      }
-    } catch (err) {
-      console.error(err);
-      setMessages((prev) => [...prev, {
-        id: `err-${Date.now()}`,
-        rol: 'asistente',
-        contenido: "The copilot isn't reachable right now. Mission Planner plans the same walk with the route engine directly.",
-        timestamp: hora(),
-        error: true,
-        local: true,
-      }]);
-    } finally {
-      setLoading(false);
-    }
+    await copiloto.preguntar(text);
   };
 
-  const handleClear = () => {
-    setMessages([saludo(SALUDO)]);
-  };
+  const handleClear = () => copiloto.reiniciar();
 
   return (
     <div className="panel flex flex-col h-full overflow-hidden">
