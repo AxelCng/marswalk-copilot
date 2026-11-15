@@ -6,7 +6,15 @@ FROM node:22-slim AS build
 WORKDIR /repo
 # web/ui importa el mapa (web/map/src), los datos de prueba (contracts/), web/shared y params.yaml
 COPY web/ui/package.json web/ui/package-lock.json web/ui/
-RUN cd web/ui && npm ci --no-audit --no-fund
+# Un solo registro para todo (el lockfile mezcla npmjs.org y npmmirror) y reintentos:
+# si una descarga se cuelga, npm falla con "Exit handler never called!".
+# Otro registro: docker compose build --build-arg NPM_REGISTRY=https://registry.npmjs.org web
+ARG NPM_REGISTRY=https://registry.npmmirror.com
+RUN cd web/ui \
+ && npm config set registry "$NPM_REGISTRY" \
+ && npm config set fetch-retries 5 \
+ && npm config set fetch-timeout 120000 \
+ && npm ci --no-audit --no-fund
 COPY contracts/ contracts/
 # el visor 3D (web/map/src/visor3d.js) lee la función de marcha de params.yaml
 COPY params.yaml ./
