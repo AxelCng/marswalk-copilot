@@ -28,6 +28,10 @@ MAX_STEPS = int(_env_any("MAX_STEPS", "MAX_PASOS", default="6"))  # max tool rou
 KEEP_ALIVE = _env_any("KEEP_ALIVE", default="60m")
 # Max seconds per Ollama call: if the GPU laptop hangs, /chat returns an error instead of waiting forever.
 OLLAMA_TIMEOUT_S = float(_env_any("OLLAMA_TIMEOUT_S", default="120"))
+# When the tool was already called by code (alerts, mission requests, changes), the model only phrases the
+# answer (~4 s on the GPU). If Ollama hangs there, wait at most this long and answer with the code-built summary
+# of the route instead of "copilot not available" (seen 2 of 5 full test runs on the comms question).
+PHRASE_TIMEOUT_S = float(_env_any("PHRASE_TIMEOUT_S", default="30"))
 # The GPU answers one question at a time: /chat calls beyond this wait CHAT_QUEUE_WAIT_S and then get "busy".
 CHAT_CONCURRENCY = int(_env_any("CHAT_CONCURRENCY", default="1"))
 CHAT_QUEUE_WAIT_S = float(_env_any("CHAT_QUEUE_WAIT_S", default="20"))
