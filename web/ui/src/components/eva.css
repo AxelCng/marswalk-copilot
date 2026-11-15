@@ -57,6 +57,32 @@
   border: 1px solid #2D333B; border-radius: 2px; background: #161B22; font: 600 10px/14px 'JetBrains Mono', monospace;
 }
 
+/* copiloto: última pregunta y respuesta, sobre los controles */
+.eva-abajo {
+  position: absolute; z-index: 3; left: 50%; bottom: var(--gutter, 16px); transform: translateX(-50%);
+  width: calc(100% - 32px); display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none;
+}
+.eva-abajo > * { pointer-events: auto; }
+.eva .hud .eva-abajo .controles { position: static; transform: none; }
+.eva-copiloto {
+  width: min(560px, 100%); display: flex; flex-direction: column;
+  background: #0E1117; border: 1px solid #2D333B; border-left: 3px solid #00E5FF; border-radius: 2px;
+}
+.eva-copiloto-cab { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 10px; border-bottom: 1px solid #21262D; }
+.eva-copiloto-estado { font: 600 11px/14px 'JetBrains Mono', monospace; color: #8B949E; }
+.eva-copiloto-estado.escuchando { color: #00E5FF; }
+.eva-copiloto-cuerpo { max-height: 30vh; overflow-y: auto; padding: 6px 10px; }
+.eva-copiloto-cuerpo p { margin: 0 0 4px; font-size: 13px; line-height: 18px; color: #E6EDF3; }
+.eva-copiloto-cuerpo b { font-weight: 600; color: #8B949E; }
+.eva-copiloto-cuerpo .eva-copiloto-resp b { color: #00E5FF; }
+.eva-copiloto-cuerpo .error, .eva-copiloto-cuerpo .error b { color: #D29922; }
+.eva-copiloto-form { padding: 6px 10px; border-top: 1px solid #21262D; }
+.eva-copiloto-form input {
+  width: 100%; min-height: 32px; padding: 0 8px; border: 1px solid #2D333B; border-radius: 2px;
+  background: #161B22; color: #E6EDF3; font: 500 13px/16px Inter, system-ui, sans-serif;
+}
+.eva .hud .eva-controles .eva-talk.escuchando { border-color: #00E5FF; color: #00E5FF; }
+
 /* mapa del tablero en vivo */
 .eva-tablero {
   position: absolute; top: 0; bottom: 0; right: 0; width: 38%;

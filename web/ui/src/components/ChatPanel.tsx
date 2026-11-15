@@ -4,22 +4,8 @@ import { copiloto, useCopiloto } from '../services/copiloto';
 import { Send, Loader2, RotateCcw, Mic, Square } from 'lucide-react';
 import { DEMO, FRASES } from '../demo';
 
-// Web Speech is not yet included in TypeScript's standard DOM definitions.
-type SpeechResultEvent = Event & { resultIndex: number; results: { length: number; [index: number]: { isFinal: boolean; [index: number]: { transcript: string } } } };
-type SpeechErrorEvent = Event & { error: string };
-interface BrowserRecognition {
-  lang: string;
-  continuous: boolean;
-  interimResults: boolean;
-  onresult: ((event: SpeechResultEvent) => void) | null;
-  onerror: ((event: SpeechErrorEvent) => void) | null;
-  onend: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-  abort: () => void;
-}
-type RecognitionConstructor = new () => BrowserRecognition;
-type SpeechWindow = Window & { SpeechRecognition?: RecognitionConstructor; webkitSpeechRecognition?: RecognitionConstructor };
+import { Reconocimiento, ERRORES_VOZ } from '../types/speech';
+import type { BrowserRecognition } from '../types/speech';
 
 interface ChatPanelProps {
   onViewRoute?: () => void;
@@ -42,7 +28,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onViewRoute, onIrPlanB }) 
   const [listening, setListening] = useState(false);
   const [speechStatus, setSpeechStatus] = useState('');
   const recognitionRef = useRef<BrowserRecognition | null>(null);
-  const Recognition = (window as SpeechWindow).SpeechRecognition ?? (window as SpeechWindow).webkitSpeechRecognition;
+  const Recognition = Reconocimiento;
   const listaRef = useRef<HTMLDivElement>(null);
 
   // Baja al último mensaje desplazando solo la lista del chat. scrollIntoView movía la página entera,
@@ -96,14 +82,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ onViewRoute, onIrPlanB }) 
       }
     };
     recognition.onerror = (event) => {
-      const messages: Record<string, string> = {
-        'not-allowed': 'Microphone permission denied. Allow it in browser settings to use voice input.',
-        'service-not-allowed': 'Speech recognition is blocked in this browser.',
-        'audio-capture': 'No microphone found. Check your microphone and try again.',
-        'no-speech': 'No speech detected. Try again.',
-        'network': 'Speech recognition needs a network connection. You can type instead.',
-      };
-      setSpeechStatus(messages[event.error] ?? `Voice input failed (${event.error}). You can type instead.`);
+      setSpeechStatus(ERRORES_VOZ[event.error] ?? `Voice input failed (${event.error}). You can type instead.`);
     };
     recognition.onend = () => {
       if (recognitionRef.current === recognition) recognitionRef.current = null;
