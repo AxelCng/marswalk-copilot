@@ -22,6 +22,7 @@ const VENTANA_VISOR = new URLSearchParams(window.location.search).get('vista') =
 export const App: React.FC = () => {
   const [stations, setStations] = useState<EstacionDetalle[]>(MOCK_ESTACIONES);
   const [selectedStation, setSelectedStation] = useState<EstacionDetalle | null>(null);
+  const [selectedStations, setSelectedStations] = useState<string[]>([]);
   const [activeMission, setActiveMission] = useState<RespuestaMision | null>(null);
   const [grafo, setGrafo] = useState<Grafo | null>(null);
   const [zonaAlerta, setZonaAlerta] = useState<string | null>(null);
@@ -157,6 +158,17 @@ export const App: React.FC = () => {
     }
   };
 
+  const toggleMissionStation = (id: string) => {
+    setSelectedStations((current) => current.includes(id)
+      ? current.filter((stationId) => stationId !== id)
+      : [...current, id]);
+  };
+
+  const openMissionPlanner = () => {
+    setActiveTab('planb');
+    requestAnimationFrame(() => document.getElementById('mission-planner')?.scrollIntoView({ behavior: 'smooth' }));
+  };
+
   const filteredStations = stations.filter((s) => {
     if (filterTipo === 'all') return true;
     return s.tipo === filterTipo;
@@ -267,6 +279,18 @@ export const App: React.FC = () => {
             astronauta={astronauta ? { pos: astronauta.pos, rumbo: astronauta.rumbo } : null}
             onClickMapa={astronauta ? (q) => eva.ir(q) : undefined}
           />
+          <div className="flex flex-wrap items-center gap-2 px-3 py-3 border-t border-hud-border font-mono text-xs" aria-label="Selected mission destinations">
+            <span className="text-ink-dim">Mission destinations:</span>
+            {selectedStations.length === 0 && <span className="text-ink-mute">Select a station on the map to add it.</span>}
+            {selectedStations.map((id) => (
+              <button key={id} type="button" onClick={() => toggleMissionStation(id)}
+                aria-label={`Remove ${id} from mission`} className="px-2 py-1 rounded border border-hud-border text-hud-cyan hover:border-critical">
+                {id} · {stations.find((s) => s.id === id)?.nombre ?? id} ×
+              </button>
+            ))}
+            <button type="button" onClick={openMissionPlanner} disabled={selectedStations.length === 0}
+              className="btn primario ml-auto">Plan selected mission</button>
+          </div>
           {astronauta && (
             <div className="flex flex-wrap gap-x-4 gap-y-1 px-3 py-2 border-t border-hud-border font-mono text-xs tabular-nums text-ink-dim">
               <span className="text-hud-cyan">● Astronaut live</span>
@@ -344,10 +368,12 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'planb' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div id="mission-planner" className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             <div className="lg:col-span-7">
               <PlanBForm
                 stations={stations}
+                selectedStations={selectedStations}
+                onSelectedStationsChange={setSelectedStations}
                 onMissionCalculated={mostrarMision}
                 zonas={grafo?.zonas ?? []}
                 onAlertaCalculada={(r, z, ej) => { setAvisoAlerta(null); aplicarAlerta(r, z, ej); }}
@@ -427,6 +453,8 @@ export const App: React.FC = () => {
       <StationModal
         station={selectedStation}
         onClose={() => setSelectedStation(null)}
+        selected={selectedStation ? selectedStations.includes(selectedStation.id) : false}
+        onToggleMission={toggleMissionStation}
       />
 
       {/* Footer credits and NASA compliance note */}
