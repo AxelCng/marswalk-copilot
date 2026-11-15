@@ -175,7 +175,7 @@ class AlertaIn(BaseModel):
 
 def _existe(id):
     if id not in NODOS:
-        raise HTTPException(404, f"estacion {id} no existe")
+        raise HTTPException(404, f"station {id} does not exist")
 
 
 @app.get("/estaciones")
@@ -221,7 +221,7 @@ def mision(body: MisionIn):
 def alerta(body: AlertaIn):
     m = ESTADO["ultima_mision"]
     if not m:
-        raise HTTPException(409, "no hay mision para recalcular")
+        raise HTTPException(409, "there is no mission to recalculate")
     if body.tipo == "comms":
         ESTADO["sin_comms"] = True
         afecta = lambda t: t["cobertura_com_pct"] < UMBRAL_COMMS  # noqa: E731

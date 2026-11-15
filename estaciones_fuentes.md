@@ -1,116 +1,116 @@
-# Estaciones: por qué estas 8 y de dónde sale cada dato
+# Stations: why these 8 and where each value comes from
 
-Este documento justifica cada elección de [`estaciones.csv`](estaciones.csv). Cada dato es de uno de tres tipos:
+This document justifies every choice in [`estaciones.csv`](estaciones.csv). Each value is one of three kinds:
 
-- **[DATO NASA]**: sale tal cual de un archivo o página oficial de NASA/JPL.
-- **[VERIFICADO]**: lo inferimos de los datos y lo confirmamos con una fuente publicada.
-- **[SUPUESTO]**: lo decidimos nosotros para la simulación. Se presenta como supuesto ante el jurado, como pide el spec.
+- **[NASA DATA]**: taken as is from an official NASA/JPL file or page.
+- **[VERIFIED]**: we inferred it from the data and confirmed it with a published source.
+- **[ASSUMPTION]**: we decided it for the simulation. It is presented to the judges as an assumption, as the spec asks.
 
-## Método
+## Method
 
-1. **[DATO NASA]** Se bajaron los 708 waypoints oficiales de Perseverance (soles 13 a 2022) de `M20_waypoints.json` (JPL). Cada uno trae sol, lon/lat, elevación e inclinación del rover.
-2. Se filtraron los 278 waypoints del área de estudio del spec, el fondo del cráter cerca del aterrizaje y el frente del delta: lon 77.37–77.47°E, lat 18.41–18.48°N.
-3. Se buscaron **los lugares donde el rover se quedó muchos soles sin moverse**. Una estadía larga indica trabajo científico (abrasión, núcleo de muestra, análisis).
-4. Cada estadía se cruzó, sol por sol, con la [tabla oficial de muestras de NASA](https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples) y con los comunicados de cada campaña. **Las 4 estaciones científicas coinciden con un registro oficial.**
-5. Las 4 estaciones de apoyo (hábitat, rover, refugio, repetidora) son elementos de una misión tripulada ficticia, ubicados en waypoints reales elegidos por su función.
+1. **[NASA DATA]** We downloaded Perseverance's 708 official waypoints (sols 13 to 2022) from `M20_waypoints.json` (JPL). Each one has the sol, lon/lat, elevation and rover tilt.
+2. We kept the 278 waypoints inside the spec's study area, the crater floor near the landing site and the delta front: lon 77.37–77.47°E, lat 18.41–18.48°N.
+3. We looked for **the places where the rover stayed for many sols without moving**. A long stay points to science work (abrasion, sample core, analysis).
+4. Each stay was matched, sol by sol, against [NASA's official sample table](https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples) and the announcements for each campaign. **All 4 science stations match an official record.**
+5. The 4 support stations (habitat, rover, shelter, relay) belong to a fictional crewed mission, placed on real waypoints chosen for their role.
 
-## Por qué 8 estaciones y por qué estas
+## Why 8 stations and why these
 
-- **El spec pide 6 a 8 estaciones** y los tipos `habitat`, `rover`, `ciencia`, `muestreo`, `refugio` y `comms`. Con 8 hay uno de cada tipo de apoyo y 4 científicas.
-- **Cubren las 3 campañas científicas de Perseverance dentro del área:** fondo del cráter (Séítah), frente del delta (Amalik y Three Forks) y cima del delta (Upper Fan). Así la demo cuenta la historia geológica real de Jezero: roca ígnea del fondo → sedimentos del lago → abanico superior.
-- **Distancias caminables:** la estación más lejana (la cima del delta) está a 2.9 km del hábitat en línea recta. Encaja en "un recorte de pocos km²" que pide el spec.
-- **La demo necesita una estación que solo se alcance con más pendiente.** La cima del delta cumple esto con un dato medido: el rover llegó a 20.3° de inclinación al subir (sol 700).
+- **The spec asks for 6 to 8 stations** and the types `habitat`, `rover`, `ciencia` (science), `muestreo` (sampling), `refugio` (shelter) and `comms`. With 8 there is one of each support type and 4 science stations.
+- **They cover Perseverance's 3 science campaigns inside the area:** crater floor (Séítah), delta front (Amalik and Three Forks) and upper delta (Upper Fan). That way the demo tells Jezero's real geologic story: igneous floor rock → lake sediments → upper fan.
+- **Walkable distances:** the farthest station (the upper delta) is 2.9 km from the habitat in a straight line. It fits the "small area of a few km²" the spec asks for.
+- **The demo needs a station that can only be reached with more slope.** The upper delta meets this with a measured value: the rover reached a 20.3° tilt on the way up (sol 700).
 
-## Estación por estación
+## Station by station
 
-### HAB — Hábitat Octavia E. Butler
-- **Dónde:** sitio de aterrizaje de Perseverance (18 de febrero de 2021). Waypoint del sol 13: 77.45089°E, 18.44463°N, −2570 m. **[DATO NASA]**
-- **Verificación:** NASA ubica el sitio en 18.44°N 77.45°E, y lo nombró en honor a la escritora Octavia E. Butler. **[VERIFICADO]** ([JPL PIA24483](https://www.jpl.nasa.gov/images/pia24483-welcome-to-octavia-e-butler-landing/), [Wikipedia](https://en.wikipedia.org/wiki/Octavia_E._Butler_Landing))
-- **Por qué acá:** NASA eligió este lugar como seguro para aterrizar (terreno plano: el rover midió 1.2° de inclinación). Es el lugar lógico para un hábitat.
-- **Valor 0, permanencia 0:** es el origen y fin de la misión, no un objetivo. **[SUPUESTO]**
+### HAB — Octavia E. Butler habitat
+- **Where:** Perseverance's landing site (February 18, 2021). Sol 13 waypoint: 77.45089°E, 18.44463°N, −2570 m. **[NASA DATA]**
+- **Verification:** NASA places the site at 18.44°N 77.45°E, and named it after the writer Octavia E. Butler. **[VERIFIED]** ([JPL PIA24483](https://www.jpl.nasa.gov/images/pia24483-welcome-to-octavia-e-butler-landing/), [Wikipedia](https://en.wikipedia.org/wiki/Octavia_E._Butler_Landing))
+- **Why here:** NASA chose this place as safe to land (flat terrain: the rover measured a 1.2° tilt). It is the logical place for a habitat.
+- **Value 0, stay 0:** it is where the mission starts and ends, not a target. **[ASSUMPTION]**
 
-### E1 — Frente del delta, afloramiento Amalik
-- **Dónde:** waypoint del sol 565: 77.40144°E, 18.45073°N, −2527 m. **[DATO NASA]**
-- **Verificación:** NASA tomó acá dos núcleos de roca sedimentaria del afloramiento **Amalik**: Shuyak (sellado el sol 575) y Mageik (tomado el sol 579). Según los waypoints, el rover no se movió entre los soles 557 y 592. NASA ubica Amalik "en la región de Enchanted Lake, en la base del delta de Jezero". **[VERIFICADO]** ([tabla de muestras](https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples), [blog de NASA sobre Amalik](https://science.nasa.gov/blog/perseverance-activities-at-amalik-outcrop/))
-- **Por qué es importante:** el frente del delta guarda los sedimentos de un antiguo lago, que es el ambiente con más chance de preservar señales de vida pasada. Es la razón por la que Perseverance fue a Jezero. ([Mangold et al. 2021, *Science*, doi:10.1126/science.abl4051](https://earthsky.org/space/ancient-martian-lake-delta-floods-perseverance/))
-- **Valor 9:** el más alto, porque es el objetivo central de la misión real. **[SUPUESTO con fundamento]**
-- **Nota:** las fuentes de NASA no coinciden en el sol de Mageik (el blog dice sol 579, la tabla dice sellado el sol 619). Puede que la muestra se haya tomado en el 579 y sellado en el 619. No cambia la ubicación.
+### E1 — Delta front, Amalik outcrop
+- **Where:** sol 565 waypoint: 77.40144°E, 18.45073°N, −2527 m. **[NASA DATA]**
+- **Verification:** NASA took two sedimentary rock cores here from the **Amalik** outcrop: Shuyak (sealed on sol 575) and Mageik (taken on sol 579). According to the waypoints, the rover did not move between sols 557 and 592. NASA places Amalik "in the Enchanted Lake region, at the base of the Jezero delta". **[VERIFIED]** ([sample table](https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples), [NASA blog on Amalik](https://science.nasa.gov/blog/perseverance-activities-at-amalik-outcrop/))
+- **Why it matters:** the delta front holds the sediments of an ancient lake, the environment most likely to preserve signs of past life. It is the reason Perseverance went to Jezero. ([Mangold et al. 2021, *Science*, doi:10.1126/science.abl4051](https://earthsky.org/space/ancient-martian-lake-delta-floods-perseverance/))
+- **Value 9:** the highest, because it is the central target of the real mission. **[GROUNDED ASSUMPTION]**
+- **Note:** NASA sources disagree on Mageik's sol (the blog says sol 579, the table says sealed on sol 619). The sample may have been taken on 579 and sealed on 619. It does not change the location.
 
-### M1 — Séítah sur, afloramiento Brac
-- **Dónde:** waypoint del sol 248: 77.44302°E, 18.43396°N, −2569 m. **[DATO NASA]**
-- **Verificación:** NASA tomó acá dos núcleos del afloramiento **Brac** en "South Séítah": Salette (sol 262) y Coulettes (sol 271). Según los waypoints, el rover no se movió entre los soles 248 y 278. **[VERIFICADO]** ([tabla de muestras](https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples))
-- **Por qué es importante:** Brac es una roca ígnea formada por cristales de olivino que se acumularon en el fondo de una cámara de magma (un "cumulado de olivino"). Sirve para fechar el cráter y para entender cómo la roca se alteró con agua. ([Liu et al. 2022, *Science* 377:1513](https://ntrs.nasa.gov/api/citations/20220012767/downloads/Liu%20et%20al.%202022%20olivine%20cumulate%20Seitah%20science.abo2756.pdf))
-- **Valor 8:** alto, pero un punto menos que el delta porque es roca ígnea (cronología) y no sedimento de lago (habitabilidad). **[SUPUESTO con fundamento]**
-- **Inclinación 12.3°:** la más alta medida por el rover en esa estadía (sol 238). Séítah es terreno irregular. **[DATO NASA]**
+### M1 — South Séítah, Brac outcrop
+- **Where:** sol 248 waypoint: 77.44302°E, 18.43396°N, −2569 m. **[NASA DATA]**
+- **Verification:** NASA took two cores here from the **Brac** outcrop in "South Séítah": Salette (sol 262) and Coulettes (sol 271). According to the waypoints, the rover did not move between sols 248 and 278. **[VERIFIED]** ([sample table](https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples))
+- **Why it matters:** Brac is an igneous rock made of olivine crystals that piled up at the bottom of a magma chamber (an "olivine cumulate"). It helps date the crater and understand how the rock was altered by water. ([Liu et al. 2022, *Science* 377:1513](https://ntrs.nasa.gov/api/citations/20220012767/downloads/Liu%20et%20al.%202022%20olivine%20cumulate%20Seitah%20science.abo2756.pdf))
+- **Value 8:** high, but one point below the delta because it is igneous rock (chronology) and not lake sediment (habitability). **[GROUNDED ASSUMPTION]**
+- **12.3° tilt:** the highest the rover measured during that stay (sol 238). Séítah is rough terrain. **[NASA DATA]**
 
-### M2 — Depósito de muestras Three Forks
-- **Dónde:** waypoint del sol 693: 77.40844°E, 18.45342°N, −2545 m. **[DATO NASA]**
-- **Verificación:** NASA armó el depósito entre el **sol 653** (21 de diciembre de 2022) y el **sol 690** (28 de enero de 2023), "en terreno plano cerca de la base del delta", con 10 tubos en zigzag separados 5 a 15 m. Los waypoints muestran justo eso: avances de pocos metros entre los soles 652 y 693, en terreno plano (1.6° como máximo). **[VERIFICADO]** ([JPL PIA25682](https://www.jpl.nasa.gov/images/pia25682-perseverances-three-forks-sample-depot-map/))
-- **Por qué es importante:** es el respaldo del retorno de muestras a la Tierra. Si el rover falla, una misión futura recoge estos tubos.
-- **Valor 7:** su importancia es estratégica, no científica nueva: los tubos ya están tomados. La tarea "verificar tubos" es una actividad creíble para una misión tripulada. **[SUPUESTO]**
+### M2 — Three Forks sample depot
+- **Where:** sol 693 waypoint: 77.40844°E, 18.45342°N, −2545 m. **[NASA DATA]**
+- **Verification:** NASA built the depot between **sol 653** (December 21, 2022) and **sol 690** (January 28, 2023), "on flat terrain near the base of the delta", with 10 tubes in a zigzag 5 to 15 m apart. The waypoints show exactly that: moves of a few meters between sols 652 and 693, on flat terrain (1.6° at most). **[VERIFIED]** ([JPL PIA25682](https://www.jpl.nasa.gov/images/pia25682-perseverances-three-forks-sample-depot-map/))
+- **Why it matters:** it is the backup for returning samples to Earth. If the rover fails, a future mission picks up these tubes.
+- **Value 7:** its importance is strategic, not new science: the tubes are already filled. The task "check the tubes" is a credible activity for a crewed mission. **[ASSUMPTION]**
 
-### E2 — Cima del delta (Upper Fan)
-- **Dónde:** waypoint del sol 709: 77.40293°E, 18.46167°N, −2497 m. Está 48 m más alto que el depósito. **[DATO NASA]**
-- **Verificación:** la campaña **Upper Fan** (la tercera de la misión) empieza en el **sol 708**, cuando el rover llega arriba del frente del abanico. **[VERIFICADO]** ([blog de NASA sobre Upper Fan](https://science.nasa.gov/blog/up-and-soon-away-perseverance-continues-exploring-the-upper-fan/))
-- **Por qué es importante:** la cima tiene los sedimentos más jóvenes del abanico. Comparados con los del frente, muestran cómo cambió el agua en el tiempo.
-- **La pendiente (clave para la demo):** en la subida (soles 698–709), el rover midió **20.3° de inclinación en el sol 700**. **[DATO NASA]** Por eso, con un límite de 15° la cima no se puede alcanzar y con 20° sí: no es un truco nuestro.
-- **Valor 8:** importante, pero en este punto exacto no se tomó un núcleo (la primera muestra del Upper Fan, Melyn, es del sol 749 y está más adelante). **[SUPUESTO con fundamento]**
-- **Pendiente:** un abstract de GSA 2023 describe la subida por "Beagle Gap". No confirmamos si nuestros waypoints de los soles 698–707 corresponden a ese tramo, así que no usamos ese nombre.
+### E2 — Upper delta (Upper Fan)
+- **Where:** sol 709 waypoint: 77.40293°E, 18.46167°N, −2497 m. It is 48 m higher than the depot. **[NASA DATA]**
+- **Verification:** the **Upper Fan** campaign (the mission's third) starts on **sol 708**, when the rover gets to the top of the fan front. **[VERIFIED]** ([NASA blog on the Upper Fan](https://science.nasa.gov/blog/up-and-soon-away-perseverance-continues-exploring-the-upper-fan/))
+- **Why it matters:** the top holds the fan's youngest sediments. Compared with those at the front, they show how the water changed over time.
+- **The slope (key for the demo):** on the way up (sols 698–709), the rover measured a **20.3° tilt on sol 700**. **[NASA DATA]** That is why the upper delta cannot be reached with a 15° limit and can with 20°: it is not a trick of ours.
+- **Value 8:** important, but no core was taken at this exact spot (the first Upper Fan sample, Melyn, is from sol 749 and further ahead). **[GROUNDED ASSUMPTION]**
+- **Open point:** a GSA 2023 abstract describes the climb through "Beagle Gap". We did not confirm whether our sol 698–707 waypoints belong to that stretch, so we do not use that name.
 
-### REF — Refugio en la base de Hawksbill Gap
-- **Dónde:** waypoint del sol 437: 77.40875°E, 18.45710°N, −2540 m. **[DATO NASA]**
-- **Verificación:** la subida por el canal Hawksbill Gap empieza en el **sol 441**, y este waypoint es la última parada antes en el mismo lugar. **[VERIFICADO]** ([NASA: Next stop Hawksbill Gap](https://science.nasa.gov/missions/mars-2020-perseverance/next-stop-hawksbill-gap/))
-- **Por qué un refugio acá:** al pie del escarpe del delta, el relieve tapa parte del cielo. Eso reduce la radiación y protege del viento con polvo (es el "blindaje" que calcula el modelo de dosis del spec). Además queda a 220 m del depósito y a 425 m de la cima, en el camino de subida (distancias en línea recta). **[SUPUESTO]**
+### REF — Shelter at the base of Hawksbill Gap
+- **Where:** sol 437 waypoint: 77.40875°E, 18.45710°N, −2540 m. **[NASA DATA]**
+- **Verification:** the climb up the Hawksbill Gap channel starts on **sol 441**, and this waypoint is the last stop before it, at the same place. **[VERIFIED]** ([NASA: Next stop Hawksbill Gap](https://science.nasa.gov/missions/mars-2020-perseverance/next-stop-hawksbill-gap/))
+- **Why a shelter here:** at the foot of the delta scarp, the relief blocks part of the sky. That reduces radiation and protects from dusty wind (it is the "shielding" computed by the spec's dose model). It is also 220 m from the depot and 425 m from the upper delta, on the way up (straight-line distances). **[ASSUMPTION]**
 
-### COM — Repetidora, llanura norte
-- **Dónde:** waypoint del sol 404: 77.42576°E, 18.45932°N, −2548 m. **[DATO NASA]**
-- **Verificación:** es un punto del **Rapid Traverse** (soles 379–409), el traslado rápido del aterrizaje al delta. **[VERIFICADO]** ([JPL Robotics, Rapid Traverse](https://robotics.jpl.nasa.gov/media/documents/2023-rapid-traverse.pdf))
-- **Por qué una repetidora acá:** queda **en el medio**, entre el hábitat (1.7 km) y el frente del delta (1.5 km), en terreno plano (distancias en línea recta). Así puede tener línea de vista con los dos. **[SUPUESTO]** La línea de vista real la calcula Pedro con la DTM.
-- **La foto** es del sol 405 porque la del 404 era del Sol (deslumbrada).
+### COM — Relay antenna, northern plain
+- **Where:** sol 404 waypoint: 77.42576°E, 18.45932°N, −2548 m. **[NASA DATA]**
+- **Verification:** it is a point of the **Rapid Traverse** (sols 379–409), the quick drive from the landing site to the delta. **[VERIFIED]** ([JPL Robotics, Rapid Traverse](https://robotics.jpl.nasa.gov/media/documents/2023-rapid-traverse.pdf))
+- **Why a relay here:** it sits **in the middle**, between the habitat (1.7 km) and the delta front (1.5 km), on flat terrain (straight-line distances). That way it can have line of sight to both. **[ASSUMPTION]** Pedro computes the real line of sight with the DTM.
+- **The photo** is from sol 405 because the sol 404 one was of the Sun (glare).
 
-### ROV — Rover de apoyo, fondo sur
-- **Dónde:** waypoint del sol 135: 77.45215°E, 18.43114°N, −2580 m, en la ruta real del rover hacia el sur durante la campaña del fondo del cráter. **[DATO NASA]**
-- **Por qué acá:** queda a 540 m de Séítah en línea recta, para relevar baterías y muestras en la parte sur, mientras el hábitat cubre el norte. **[SUPUESTO]**
+### ROV — Support rover, south floor
+- **Where:** sol 135 waypoint: 77.45215°E, 18.43114°N, −2580 m, on the rover's real route south during the crater floor campaign. **[NASA DATA]**
+- **Why here:** it is 540 m from Séítah in a straight line, to swap batteries and samples in the south while the habitat covers the north. **[ASSUMPTION]**
 
-## Criterios comunes
+## Shared criteria
 
-### Valor científico (0–10) **[SUPUESTO con fundamento]**
+### Science value (0–10) **[GROUNDED ASSUMPTION]**
 
-| Valor | Criterio | Estaciones |
+| Value | Criterion | Stations |
 | --- | --- | --- |
-| 9 | NASA tomó muestras acá **y** es el ambiente de lago, el objetivo central de la misión | E1 |
-| 8 | NASA tomó muestras acá (roca ígnea) o es la cima del abanico, sin muestra en ese punto | M1, E2 |
-| 7 | Importancia estratégica (respaldo de muestras), sin ciencia nueva | M2 |
-| 1–2 | Apoyo logístico | ROV, REF, COM |
-| 0 | Origen de la misión | HAB |
+| 9 | NASA took samples here **and** it is the lake environment, the central target of the mission | E1 |
+| 8 | NASA took samples here (igneous rock), or it is the top of the fan, with no sample at that spot | M1, E2 |
+| 7 | Strategic importance (sample backup), no new science | M2 |
+| 1–2 | Logistics support | ROV, REF, COM |
+| 0 | Mission origin | HAB |
 
-### Permanencia (minutos) **[SUPUESTO]**
-25 min para estratigrafía, 20 min para panorámica, 15 min para tomar o verificar muestras y 10 min para tareas de apoyo. Son valores para la simulación y están en un solo lugar, para que el compañero de Estadística los revise.
+### Stay time (minutes) **[ASSUMPTION]**
+25 min for stratigraphy, 20 min for a panorama, 15 min to take or check samples and 10 min for support tasks. They are simulation values and live in a single place, so the team's statistics member can review them.
 
-### Inclinación del rover como pendiente local **[DATO NASA, usado como aproximación]**
-La columna `inclinacion_rover_max_deg` es la inclinación medida por el rover (campo `tilt` del waypoint). Mide el terreno donde estaba parado el rover, no la pendiente del camino entero. La pendiente real de cada tramo la calcula Pedro con la DTM. Mientras tanto, el grafo falso usa la inclinación como aproximación.
+### Rover tilt as local slope **[NASA DATA, used as an approximation]**
+The `inclinacion_rover_max_deg` column is the tilt measured by the rover (the waypoint's `tilt` field). It measures the ground where the rover was standing, not the slope of the whole path. Pedro computes each leg's real slope with the DTM. Meanwhile, the fake graph uses the tilt as an approximation.
 
-### Fotos **[DATO NASA]**
-De la [API de Raw Images de Mars 2020](https://mars.nasa.gov/mars2020/multimedia/raw-images/). Los criterios:
-- La misma estación y el mismo sol (o el siguiente).
-- Navcam izquierda, cuadro completo.
-- La cámara mirando un poco hacia abajo, para una vista en primera persona.
-- Se descartaron a mano las fotos que mostraban sobre todo cielo, el Sol o la cubierta del rover.
+### Photos **[NASA DATA]**
+From the [Mars 2020 Raw Images API](https://mars.nasa.gov/mars2020/multimedia/raw-images/). The criteria:
+- The same station and the same sol (or the next one).
+- Left Navcam, full frame.
+- The camera looking slightly down, for a first-person view.
+- Photos showing mostly sky, the Sun or the rover deck were discarded by hand.
 
-Crédito: **NASA/JPL-Caltech**.
+Credit: **NASA/JPL-Caltech**.
 
-## Qué no viene de datos reales
+## What does not come from real data
 
-- Los roles de hábitat, rover, refugio y repetidora (la misión tripulada es ficticia).
-- El valor científico, la permanencia y las tareas.
-- En `graph_fake.json`: THEMIS, la unidad geológica, las zonas de alerta y todos los atributos de las aristas. Eso lo reemplaza el `graph.json` de Pedro.
+- The habitat, rover, shelter and relay roles (the crewed mission is fictional).
+- The science value, the stay time and the tasks.
+- In `graph_fake.json`: THEMIS, the geologic unit, the alert zones and every edge attribute. Pedro's `graph.json` replaces those.
 
-## Fuentes
+## Sources
 
-- JPL, waypoints de Mars 2020: https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json
-- NASA, tabla de muestras de Perseverance: https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples
-- NASA, actividades en el afloramiento Amalik: https://science.nasa.gov/blog/perseverance-activities-at-amalik-outcrop/
-- JPL, mapa del depósito Three Forks (PIA25682): https://www.jpl.nasa.gov/images/pia25682-perseverances-three-forks-sample-depot-map/
+- JPL, Mars 2020 waypoints: https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json
+- NASA, Perseverance sample table: https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples
+- NASA, activities at the Amalik outcrop: https://science.nasa.gov/blog/perseverance-activities-at-amalik-outcrop/
+- JPL, Three Forks depot map (PIA25682): https://www.jpl.nasa.gov/images/pia25682-perseverances-three-forks-sample-depot-map/
 - NASA, Upper Fan: https://science.nasa.gov/blog/up-and-soon-away-perseverance-continues-exploring-the-upper-fan/
 - NASA, Next stop Hawksbill Gap: https://science.nasa.gov/missions/mars-2020-perseverance/next-stop-hawksbill-gap/
 - JPL Robotics, Rapid Traverse (2023): https://robotics.jpl.nasa.gov/media/documents/2023-rapid-traverse.pdf

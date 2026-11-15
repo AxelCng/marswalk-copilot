@@ -1,119 +1,119 @@
-# Plan de trabajo: copiloto LLM listo para la demo
+# Work plan: LLM copilot ready for the demo
 
-**Proyecto:** MarsWalk Copilot (NASA Space Apps 2026)
-**Fecha:** sábado 14 de noviembre de 2026, noche
-**Alcance:** todo lo que falta para que las 3 preguntas de la demo funcionen desde el chat, con el modelo, contra el motor real y con el `graph.json` real.
-
----
-
-## 1. Dónde estamos
-
-| Pieza | Estado | Fuente |
-| --- | --- | --- |
-| Agente (`llm/agent.py`) y sus 5 herramientas | Listo. No inventa cifras: revisa cada número y, si hace falta, responde con un resumen hecho por código | `llm/README.md` |
-| Modelo | `qwen2.5:3b` en Ollama: 6/6 chequeos, 0 números sin fuente | `llm/README.md` |
-| Velocidad | **~47 s por pregunta en CPU** (~3.5 min la demo). El spec pide la demo en < 1 min | `llm/README.md` |
-| `/chat` en la API real | **No está montado** en `engine/main.py`. Hoy solo funciona con el mock de Manuel (puerto 8001) | `engine/main.py` |
-| Motor con el grafo real | El motor carga `contracts/graph_fake.json` salvo que se pase `GRAPH_PATH` | `engine/main.py:86` |
-| Pregunta 2 de la demo con el grafo real | **No funciona**: ninguna estación queda bloqueada a 15°, así que "¿y si acepto 20°?" no cambia nada | `data/HALLAZGO_pendiente_demo.md` |
-| UI (`web/ui`) | Lista: chat con manejo de error, espera larga y acceso al Plan B; probada contra el motor real | PR #4 |
-
-**Tres bloqueos:** (1) la velocidad del modelo, (2) `/chat` no está en el motor, (3) la pregunta 2 no tiene sentido con el terreno real.
+**Project:** MarsWalk Copilot (NASA Space Apps 2026)
+**Date:** Saturday, November 14, 2026, evening
+**Scope:** everything still missing for the 3 demo questions to work from the chat, with the model, against the real engine and with the real `graph.json`.
 
 ---
 
-## 2. Decisiones que hay que tomar primero
+## 1. Where we are
 
-Sin estas dos, el resto del trabajo puede tener que rehacerse.
-
-### D1 · Dónde corre el modelo · decide Manuel (integrador final) · corte: dom 09:00
-
-Meta: **≤ 20 s por pregunta** (3 preguntas en ~1 min).
-
-| Opción | Velocidad esperada | Coste / riesgo |
+| Piece | Status | Source |
 | --- | --- | --- |
-| A. Ollama en una laptop **con GPU** | La meta parece alcanzable, pero hay que medirla | Hay que tener esa laptop en la demo y en la grabación |
-| B. **API comercial** para la demo; Ollama como "modo offline" en la presentación | Rápida | Es el plan B del spec. Necesita clave y cambiar el cliente en `agent.py` |
-| C. Seguir en CPU con `qwen2.5:3b` | ~47 s por pregunta | La demo en vivo no entra en 1 min. Solo sirve si el video se edita |
+| Agent (`llm/agent.py`) and its 5 tools | Ready. It does not make up numbers: it checks every number and, if needed, answers with a summary built by code | `llm/README.md` |
+| Model | `qwen2.5:3b` on Ollama: 6/6 checks, 0 unsourced numbers | `llm/README.md` |
+| Speed | **~47 s per question on CPU** (~3.5 min for the demo). The spec asks for the demo in < 1 min | `llm/README.md` |
+| `/chat` on the real API | **Not mounted** in `engine/main.py`. Today it only works with Manuel's mock (port 8001) | `engine/main.py` |
+| Engine with the real graph | The engine loads `contracts/graph_fake.json` unless `GRAPH_PATH` is set | `engine/main.py:86` |
+| Demo question 2 with the real graph | **Does not work**: no station is blocked at 15°, so "what if I accept 20°?" changes nothing | `data/HALLAZGO_pendiente_demo.md` |
+| UI (`web/ui`) | Ready: chat with error handling, long-wait handling and access to Plan B; tested against the real engine | PR #4 |
 
-### D2 · Qué pregunta 2 usamos con el grafo real · deciden Pedro + Jeicoll (`params.yaml`) + Manuel · corte: sáb 22:00
+**Three blockers:** (1) the model's speed, (2) `/chat` is not in the engine, (3) question 2 makes no sense with the real terrain.
 
-Opciones de `data/HALLAZGO_pendiente_demo.md`:
+---
 
-| Opción | Efecto |
+## 2. Decisions to make first
+
+Without these two, the rest of the work may have to be redone.
+
+### D1 · Where the model runs · Manuel decides (final integrator) · deadline: Sun 09:00
+
+Goal: **≤ 20 s per question** (3 questions in ~1 min).
+
+| Option | Expected speed | Cost / risk |
+| --- | --- | --- |
+| A. Ollama on a laptop **with a GPU** | The goal looks reachable, but it has to be measured | That laptop has to be at the demo and at the recording |
+| B. **Commercial API** for the demo; Ollama as "offline mode" in the presentation | Fast | It is the spec's Plan B. It needs a key and a client change in `agent.py` |
+| C. Stay on CPU with `qwen2.5:3b` | ~47 s per question | The live demo does not fit in 1 min. Only works if the video is edited |
+
+### D2 · Which question 2 we use with the real graph · Pedro + Jeicoll (`params.yaml`) + Manuel decide · deadline: Sat 22:00
+
+Options from `data/HALLAZGO_pendiente_demo.md`:
+
+| Option | Effect |
 | --- | --- |
-| **A. Límites 8° y 12°** (recomendada por Pedro) | A 8° E2 y REF quedan fuera; a 12° entra E2. Cambia `limites_pendiente_deg` en `params.yaml` y se regenera `graph.json` |
-| D. Cambiar la pregunta 2 por una de **tiempo** ("¿y si tengo 3 horas?") | Cero riesgo técnico, pero se pierde el contraste de pendiente |
+| **A. 8° and 12° limits** (recommended by Pedro) | At 8° E2 and REF are left out; at 12° E2 fits. Changes `limites_pendiente_deg` in `params.yaml` and `graph.json` is regenerated |
+| D. Replace question 2 with a **time** one ("what if I have 3 hours?") | Zero technical risk, but the slope contrast is lost |
 
-> La pregunta 3 (polvo en Z2) **sí** funciona con el grafo real: las alertas cambian la ruta.
+> Question 3 (dust in Z2) **does** work with the real graph: alerts change the route.
 
 ---
 
-## 3. Tareas
+## 3. Tasks
 
-Las horas siguen el cronograma del spec: hito sábado 22:00, Said congela el backend el domingo a las 15:00 y la primera toma del video es el domingo a las 14:00.
+The times follow the spec's schedule: milestone Saturday 22:00, Said freezes the backend on Sunday at 15:00 and the first video take is on Sunday at 14:00.
 
-### Fase 1 · Backend (sábado noche → domingo 12:00)
+### Phase 1 · Backend (Saturday night → Sunday 12:00)
 
-| # | Tarea | Dueño | Depende de | Hecho cuando |
+| # | Task | Owner | Depends on | Done when |
 | --- | --- | --- | --- | --- |
-| 1 | Montar `/chat` en el motor: `from llm.router import router as chat_router` y `app.include_router(chat_router)` en `engine/main.py` | Said | — | `POST http://127.0.0.1:8000/chat` responde. Ya se probó con un lanzador local: importa bien desde la raíz del repo |
-| 2 | Arrancar el motor con el grafo real: `GRAPH_PATH=data/out/graph.json` (o cambiar el valor por defecto) | Said + Jeicoll | D2 | `/estaciones` y `/mision` devuelven datos con `meta.fake = false` |
-| 3 | Si D2 = A: `limites_pendiente_deg: [8, 12, …]` en `params.yaml` y regenerar `graph.json` | Jeicoll (`params.yaml`) + Pedro | D2 | A 8° E2 sale en `omitidas` por pendiente y a 12° entra |
-| 4 | `llm/.env`: `API_URL=http://127.0.0.1:8000`. Con `localhost`, en Windows una prueba se colgó intentando IPv6 | Manuel | 1 | Las herramientas llaman al motor real sin demoras |
+| 1 | Mount `/chat` in the engine: `from llm.router import router as chat_router` and `app.include_router(chat_router)` in `engine/main.py` | Said | — | `POST http://127.0.0.1:8000/chat` responds. Already tried with a local launcher: it imports fine from the repo root |
+| 2 | Start the engine with the real graph: `GRAPH_PATH=data/out/graph.json` (or change the default) | Said + Jeicoll | D2 | `/estaciones` and `/mision` return data with `meta.fake = false` |
+| 3 | If D2 = A: `limites_pendiente_deg: [8, 12, …]` in `params.yaml` and regenerate `graph.json` | Jeicoll (`params.yaml`) + Pedro | D2 | At 8° E2 shows up in `omitidas` for slope and at 12° it fits |
+| 4 | `llm/.env`: `API_URL=http://127.0.0.1:8000`. With `localhost`, on Windows one test hung trying IPv6 | Manuel | 1 | The tools call the real engine without delays |
 
-### Fase 2 · Modelo (domingo 09:00 → 12:00)
+### Phase 2 · Model (Sunday 09:00 → 12:00)
 
-| # | Tarea | Dueño | Depende de | Hecho cuando |
+| # | Task | Owner | Depends on | Done when |
 | --- | --- | --- | --- | --- |
-| 5 | Dejar el modelo andando donde se decidió en D1 (descargar el modelo o configurar la API) | Manuel | D1 | `GET /chat/estado` muestra el modelo correcto |
-| 6 | Precalentar el modelo antes de la demo (una pregunta de prueba, o `keep_alive` de Ollama) para que la primera respuesta no cargue el modelo en vivo | Manuel | 5 | La primera pregunta tarda lo mismo que las siguientes |
-| 7 | Ajustar `PENDIENTE_DEFAULT` y `TIEMPO_DEFAULT` a la demo elegida (si D2 = A, la pendiente por defecto ya no es 15) | Manuel | D2 | El agente usa los valores nuevos cuando el astronauta no los dice |
-| 8 | Actualizar `llm/test_preguntas.py`: frases y valores esperados con el grafo real (hoy espera 15°/20° y valores del grafo falso) | Manuel | 2, 3 | 6/6 chequeos y 0 números sin fuente contra el motor real |
-| 9 | Correr las "10 preguntas de prueba" del spec y medir el tiempo de cada una | Manuel | 5, 8 | Tabla de resultados en `llm/README.md`, con tiempos ≤ meta de D1 |
+| 5 | Get the model running where D1 decided (download the model or set up the API) | Manuel | D1 | `GET /chat/estado` shows the right model |
+| 6 | Warm up the model before the demo (a test question, or Ollama's `keep_alive`) so the first answer does not load the model live | Manuel | 5 | The first question takes as long as the next ones |
+| 7 | Set `PENDIENTE_DEFAULT` and `TIEMPO_DEFAULT` to the chosen demo (if D2 = A, the default slope is no longer 15) | Manuel | D2 | The agent uses the new values when the astronaut does not give them |
+| 8 | Update `llm/test_preguntas.py`: phrases and expected values with the real graph (today it expects 15°/20° and fake-graph values) | Manuel | 2, 3 | 6/6 checks and 0 unsourced numbers against the real engine |
+| 9 | Run the spec's "10 test questions" and time each one | Manuel | 5, 8 | Results table in `llm/README.md`, with times ≤ the D1 goal |
 
-> `detectar_cambio` en `agent.py` ya toma cualquier número de grados u horas del mensaje, así que "¿y si acepto hasta 12°?" funciona sin cambiar código.
+> `detectar_cambio` in `agent.py` already picks up any number of degrees or hours in the message, so "what if I accept up to 12°?" works without code changes.
 
-### Fase 3 · UI y demo (domingo 11:00 → 14:00)
+### Phase 3 · UI and demo (Sunday 11:00 → 14:00)
 
-| # | Tarea | Dueño | Depende de | Hecho cuando |
+| # | Task | Owner | Depends on | Done when |
 | --- | --- | --- | --- | --- |
-| 10 | Ajustar los botones "Guion demo" del chat y las preguntas del Plan B a la demo final (si D2 = A: 8° / 12° en vez de 15° / 20°; el selector de pendiente del Plan B también) | Axl | D2 | Los 3 botones mandan las frases finales |
-| 11 | Revisar que la pregunta 1 entre en el tiempo pedido: con el grafo real la misión óptima de la cima es de ~200 min, y la frase actual dice "volver en menos de 3 horas" (180 min) | Axl + Manuel | 2 | La frase y el resultado del motor coinciden en el guion |
-| 12 | Prueba de punta a punta: UI → `/chat` → motor real → mapa y visor, con las 3 preguntas | Axl + Manuel | 1, 4, 5 | Las 3 dan ruta en el mapa y el chip del visor dice **API** |
-| 13 | Si el modelo corre en otra laptop: apuntar la UI con `VITE_API_BASE=http://<ip>:8000` | Axl | 12 | La UI de la laptop de la demo habla con ese motor |
-| 14 | Guion final con los números reales (minutos, margen y estación agregada salen de la prueba 12, no de `contracts/ejemplos/`) | Axl + Jeicoll | 12 | Ningún número del guion contradice lo que se ve en pantalla |
+| 10 | Set the chat's "Demo script" buttons and the Plan B questions to the final demo (if D2 = A: 8° / 12° instead of 15° / 20°; the Plan B slope selector too) | Axl | D2 | The 3 buttons send the final phrases |
+| 11 | Check that question 1 fits in the requested time: with the real graph the optimal mission to the upper delta is ~200 min, and the current phrase says "back in under 3 hours" (180 min) | Axl + Manuel | 2 | The phrase and the engine's result match in the script |
+| 12 | End-to-end test: UI → `/chat` → real engine → map and visor, with the 3 questions | Axl + Manuel | 1, 4, 5 | All 3 give a route on the map and the visor chip says **API** |
+| 13 | If the model runs on another laptop: point the UI at it with `VITE_API_BASE=http://<ip>:8000` | Axl | 12 | The UI on the demo laptop talks to that engine |
+| 14 | Final script with the real numbers (minutes, margin and added station come from test 12, not from `contracts/ejemplos/`) | Axl + Jeicoll | 12 | No number in the script contradicts what is on screen |
 
-### Fase 4 · Congelar (domingo 14:00 → 15:00)
+### Phase 4 · Freeze (Sunday 14:00 → 15:00)
 
-| # | Tarea | Dueño | Hecho cuando |
+| # | Task | Owner | Done when |
 | --- | --- | --- | --- |
-| 15 | Primera toma del video **en local**, por si se cae internet | Axl + Jeicoll | Toma grabada con el chat real |
-| 16 | Backend congelado: después de esto, solo fixes críticos | Said | 15:00 |
-| 17 | Ensayar el respaldo: si el modelo falla en vivo, Plan B → mismas 3 preguntas | Axl | El Plan B da las mismas rutas que el chat |
+| 15 | First video take **locally**, in case the internet goes down | Axl + Jeicoll | Take recorded with the real chat |
+| 16 | Backend frozen: after this, only critical fixes | Said | 15:00 |
+| 17 | Rehearse the backup: if the model fails live, Plan B → same 3 questions | Axl | Plan B gives the same routes as the chat |
 
 ---
 
-## 4. Riesgos
+## 4. Risks
 
-| Riesgo | Señal | Respuesta |
+| Risk | Signal | Response |
 | --- | --- | --- |
-| El modelo sigue lento | > 20 s por pregunta en la prueba 9 | Opción B de D1, o grabar la demo y editar los tiempos de espera |
-| Ollama no está en la laptop de la demo | `/chat` responde con `error` | La UI ya ofrece "Abrir Plan B"; el Plan B usa el mismo motor |
-| La pregunta 2 no muestra contraste | La misión es igual con los dos límites | Decisión D2; en último caso, la opción D (pregunta de tiempo) |
-| Los ejemplos de `contracts/` no coinciden con el grafo real | Sin motor, la UI muestra los números del grafo falso | Ya están marcados como "ejemplo". Para el video, usar siempre el motor real |
-| Respuestas en inglés para el video | La pregunta en inglés falla | Está en `test_preguntas.py` ("ingles"); revisarla en la prueba 9 |
+| The model is still slow | > 20 s per question in test 9 | Option B of D1, or record the demo and edit out the waits |
+| Ollama is not on the demo laptop | `/chat` answers with `error` | The UI already offers "Open Plan B"; Plan B uses the same engine |
+| Question 2 shows no contrast | The mission is the same with both limits | Decision D2; as a last resort, option D (time question) |
+| The `contracts/` examples do not match the real graph | Without the engine, the UI shows the fake graph's numbers | They are already marked as "example". For the video, always use the real engine |
+| English answers for the video | The question in English fails | It is in `test_preguntas.py` ("ingles"); check it in test 9 |
 
 ---
 
-## 5. Lista de "listo para la demo"
+## 5. "Ready for the demo" checklist
 
-- [ ] D1 y D2 decididas y avisadas en el grupo
-- [ ] `/chat` montado en `engine/main.py` y motor con `data/out/graph.json`
-- [ ] `llm/.env` con `API_URL=http://127.0.0.1:8000` y el modelo elegido
-- [ ] `test_preguntas.py` 6/6 contra el motor real, con tiempos medidos
-- [ ] Botones de la UI con las frases finales
-- [ ] Prueba de punta a punta: chat → mapa → visor, chip **API**
-- [ ] Guion con los números reales
-- [ ] Primera toma del video (dom 14:00)
-- [ ] Plan B ensayado como respaldo
+- [ ] D1 and D2 decided and announced in the group
+- [ ] `/chat` mounted in `engine/main.py` and the engine running with `data/out/graph.json`
+- [ ] `llm/.env` with `API_URL=http://127.0.0.1:8000` and the chosen model
+- [ ] `test_preguntas.py` 6/6 against the real engine, with measured times
+- [ ] UI buttons with the final phrases
+- [ ] End-to-end test: chat → map → visor, chip **API**
+- [ ] Script with the real numbers
+- [ ] First video take (Sun 14:00)
+- [ ] Plan B rehearsed as a backup

@@ -45,7 +45,7 @@ def test_no_previous_mission_and_reset(client):
     for _ in range(2):
         response = client.post("/alerta", json={"zona": "Z2", "tipo": "polvo"})
         assert response.status_code == 409
-        assert response.json() == {"detail": "no hay mision para recalcular"}
+        assert response.json() == {"detail": "there is no mission to recalculate"}
         assert client.post("/reset").json() == {"ok": True}
     client.post("/mision", json={"estaciones": ["E1"]})
     client.post("/reset")

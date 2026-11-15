@@ -1,27 +1,27 @@
-# contracts/ — los dos contratos del proyecto
+# contracts/ — the project's two contracts
 
-Los cuatro módulos se comunican **solo** por estos dos contratos. Si respetás la forma, podés avanzar sin esperar a nadie.
+The four modules talk to each other **only** through these two contracts. If you respect their shape, you can move forward without waiting for anyone.
 
-| Archivo | Qué es | Dueño |
+| File | What it is | Owner |
 | --- | --- | --- |
-| [`graph_fake.json`](graph_fake.json) | Contrato 1: grafo **falso** con la forma exacta del `graph.json` real | Jeicoll (el real: Pedro) |
-| [`api.md`](api.md) | Contrato 2: endpoints, entradas, salidas y errores de la API | Said |
-| [`ejemplos/`](ejemplos/) | Requests y responses de la API calculados sobre el grafo falso | generado |
-| [`tools/generar_graph_fake.py`](tools/generar_graph_fake.py) | Regenera el grafo falso y los ejemplos | Jeicoll |
-| [`tools/validar_graph.py`](tools/validar_graph.py) | Revisa que un `graph.json` cumpla el contrato | Pedro lo corre antes de entregar |
+| [`graph_fake.json`](graph_fake.json) | Contract 1: a **fake** graph with the exact shape of the real `graph.json` | Jeicoll (the real one: Pedro) |
+| [`api.md`](api.md) | Contract 2: the API's endpoints, inputs, outputs and errors | Said |
+| [`ejemplos/`](ejemplos/) | API requests and responses computed on the fake graph | generated |
+| [`tools/generar_graph_fake.py`](tools/generar_graph_fake.py) | Regenerates the fake graph and the examples | Jeicoll |
+| [`tools/validar_graph.py`](tools/validar_graph.py) | Checks that a `graph.json` meets the contract | Pedro runs it before delivering |
 
-> **Regla:** los contratos solo se cambian avisando en el grupo.
+> **Rule:** the contracts only change after telling the group.
 
 ```bash
-python contracts/tools/generar_graph_fake.py          # regenera graph_fake.json y ejemplos/
+python contracts/tools/generar_graph_fake.py          # regenerates graph_fake.json and ejemplos/
 python contracts/tools/validar_graph.py contracts/graph_fake.json
 ```
 
-Ambos usan solo la biblioteca estándar de Python 3.10+.
+Both use only the Python 3.10+ standard library.
 
-## Contrato 1: `graph.json`
+## Contract 1: `graph.json`
 
-Lo genera el pipeline (`data/`) y lo lee el motor al arrancar. El motor toma la ruta del archivo de la variable `GRAPH_PATH` (default `contracts/graph_fake.json`). El sábado a las 22:00 se cambia esa variable y nadie toca código.
+The pipeline (`data/`) generates it and the engine reads it at startup. The engine takes the file path from the `GRAPH_PATH` variable (default `contracts/graph_fake.json`). On Saturday at 22:00 that variable changes and nobody touches code.
 
 ```json
 {
@@ -47,39 +47,41 @@ Lo genera el pipeline (`data/`) y lo lee el motor al arrancar. El motor toma la 
 }
 ```
 
-### Reglas
+The field names and the values in `nombre` and `tarea` are in Spanish because they are part of the contract. The screen and the copilot show them in English through [`web/shared/i18n_en.json`](../web/shared/i18n_en.json).
 
-- **Tipos de nodo:** `habitat`, `rover`, `ciencia`, `muestreo`, `refugio`, `comms`. Tiene que haber exactamente un `habitat` (id `HAB`).
-- **Coordenadas** de nodos y `geometria` en **lon/lat grados** (este positivo, 0–360 o −180–180), no en metros MTM: el mapa las usa directo. Pedro reproyecta antes de escribir.
-- **Aristas dirigidas:** A→B y B→A son dos aristas (subir y bajar cuestan distinto). La geometría de B→A es la de A→B invertida.
-- **3 versiones por límite de pendiente:** cada arista lleva `limite_deg` ∈ `meta.limites_pendiente_deg`. Con 8 nodos son hasta 3 × 56 = 168 aristas. **Si no hay camino bajo un límite, la arista no se incluye** en esa versión (así salen las omitidas por pendiente).
-- `pendiente_max_deg` ≤ `limite_deg` siempre.
-- `zonas` de una arista: ids de `zonas` que cruza el camino. La alerta de polvo trabaja sobre eso.
-- `energia_rel` y `dosis_rel` son índices relativos (modelos), no kcal ni mSv.
-- `fotos[].url` puede ser `null` si una estación no tiene foto (el frontend muestra un placeholder). `credito` es opcional.
-- `themis_noche`: temperatura de brillo nocturna en K.
+### Rules
 
-### Agregados respecto al spec original
+- **Node types:** `habitat`, `rover`, `ciencia` (science), `muestreo` (sampling), `refugio` (shelter), `comms`. There must be exactly one `habitat` (id `HAB`).
+- **Coordinates** of nodes and `geometria` in **lon/lat degrees** (east positive, 0–360 or −180–180), not MTM meters: the map uses them directly. Pedro reprojects before writing.
+- **Directed edges:** A→B and B→A are two edges (going up and going down cost differently). The geometry of B→A is that of A→B reversed.
+- **3 versions per slope limit:** each edge carries `limite_deg` ∈ `meta.limites_pendiente_deg`. With 8 nodes that is up to 3 × 56 = 168 edges. **If there is no path under a limit, the edge is left out** of that version (that is how stations get skipped for slope).
+- `pendiente_max_deg` ≤ `limite_deg` always.
+- An edge's `zonas`: ids of the `zonas` the path crosses. The dust alert works on that.
+- `energia_rel` and `dosis_rel` are relative indices (models), not kcal or mSv.
+- `fotos[].url` can be `null` if a station has no photo (the frontend shows a placeholder). `credito` is optional.
+- `themis_noche`: night brightness temperature in K.
 
-Son aditivos; no se renombró ni quitó nada.
+### Additions to the original spec
 
-- `edges[].limite_deg`: el spec pide 3 versiones del grafo pero no decía cómo guardarlas. Van en un mismo archivo, marcadas con este campo.
-- `zonas` en la raíz (polígonos) y `nodes[].zona`: el frontend necesita dibujar las zonas de alerta.
-- `meta.fake` y `meta.limites_pendiente_deg`.
+They are additive; nothing was renamed or removed.
 
-## Qué trae el grafo falso
+- `edges[].limite_deg`: the spec asks for 3 versions of the graph but did not say how to store them. They go in the same file, tagged with this field.
+- `zonas` at the root (polygons) and `nodes[].zona`: the frontend needs to draw the alert zones.
+- `meta.fake` and `meta.limites_pendiente_deg`.
 
-8 estaciones **reales**, 4 zonas y 154 aristas (15°: 42, 20°: 56, 25°: 56).
+## What the fake graph contains
 
-- **Reales** (de [`estaciones.csv`](../estaciones.csv)): posición y elevación de waypoints de Perseverance, inclinación del rover cerca de cada estación y una foto Navcam de Raw Images por estación.
-- **Inventado** (lo reemplaza el `graph.json` de Pedro): THEMIS, unidad geológica, zonas y todos los atributos de las aristas. Igual son coherentes con el modelo de costo del spec (Tobler × factor_traje, ida ≠ vuelta).
+8 **real** stations, 4 zones and 154 edges (15°: 42, 20°: 56, 25°: 56).
 
-Con las distancias reales (el delta queda a unos 3 km del hábitat) la demo no entra en 3 h, así que el tope pasó a **4 h**. Está armado para que la demo funcione:
+- **Real** (from [`estaciones.csv`](../estaciones.csv)): position and elevation of Perseverance waypoints, the rover's tilt near each station and one Navcam photo from Raw Images per station.
+- **Made up** (replaced by Pedro's `graph.json`): THEMIS, geologic unit, zones and every edge attribute. They are still consistent with the spec's cost model (Tobler × suit factor, out ≠ back).
 
-| Caso | Ejemplo | Resultado con datos falsos |
+With the real distances (the delta is about 3 km from the habitat) the demo does not fit in 3 h, so the cap became **4 h**. It is set up so the demo works:
+
+| Case | Example | Result with fake data |
 | --- | --- | --- |
-| 1. Frente del delta + 2 muestreos (Séítah y Three Forks) + cima, < 4 h, ≤ 15° | `post_mision.demo1_mision_15deg.*` | HAB→M2→E1→M2→M1→HAB, 164.0 min; **E2 (cima) omitida por pendiente** (18.5° > 15°: el camino más suave es un desvío) |
-| 2. "¿Y si acepto 20°?" | `post_mision.demo2_mision_20deg.*` | entra la cima: HAB→REF→E2→E1→M2→M1→HAB, 201.6 min (+37.6 min) |
-| 3. "Alerta de polvo en Z2" (sobre la misión 1) | `post_alerta.*` | evita los tramos HAB→M2 y M2→M1 rodeando por la repetidora: HAB→COM→M2→E1→M2→COM→HAB→M1→HAB, 186.9 min |
+| 1. Delta front + 2 sampling sites (Séítah and Three Forks) + upper delta, < 4 h, ≤ 15° | `post_mision.demo1_mision_15deg.*` | HAB→M2→E1→M2→M1→HAB, 164.0 min; **E2 (upper delta) skipped for slope** (18.5° > 15°: the gentlest path is a detour) |
+| 2. "What if I accept 20°?" | `post_mision.demo2_mision_20deg.*` | the upper delta fits: HAB→REF→E2→E1→M2→M1→HAB, 201.6 min (+37.6 min) |
+| 3. "Dust alert in Z2" (on mission 1) | `post_alerta.*` | avoids the HAB→M2 and M2→M1 legs by going around through the relay: HAB→COM→M2→E1→M2→COM→HAB→M1→HAB, 186.9 min |
 
-Los ejemplos los calcula una referencia de fuerza bruta dentro del generador. Said puede usarlos como resultado esperado en sus tests (el óptimo de OR-Tools debe dar el mismo tiempo total).
+The examples are computed by a brute-force reference inside the generator. Said can use them as the expected result in his tests (the OR-Tools optimum must give the same total time).
