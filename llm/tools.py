@@ -280,7 +280,8 @@ def execute(name, args):
             if kind == "comms" and zone not in {z["id"] for z in _zones()}:
                 # comms affects every edge, but the API requires a valid zone: use the first one in the graph
                 zone = next((z["id"] for z in _zones()), "Z1")
-            used = {"zone": zone, "type": kind}
+            # comms is global: report it as such (the zone sent above only satisfies the API)
+            used = {"type": "comms", "scope": "global"} if kind == "comms" else {"zone": zone, "type": kind}
             r = requests.post(f"{API_URL}/alerta", timeout=TIMEOUT,
                               json={"zona": zone, "tipo": "polvo" if kind == "dust" else "comms"})
 
