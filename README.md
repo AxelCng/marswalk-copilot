@@ -17,6 +17,9 @@ comes from a function call to the engine.
 - **Reacts to alerts:** "Dust alert in zone Z2" or "we lost communication" reroutes the walk around the affected zone.
 - **Shows everything on a map:** geologic map of Jezero (USGS SIM 3464), real elevation, slope and thermal layers,
   the route leg by leg, station cards with Perseverance photos, and a first-person 3D view of the walk.
+- **Talks with the astronaut in the visor:** in the first-person 3D view, press **Talk** (or `T`) and ask out loud,
+  for example "What's my mission?". The question is sent when you stop speaking, and the copilot answers on the
+  visor and out loud, at the start or in the middle of the walk. It is the same conversation as the console chat.
 - **Works without the LLM:** the Mission Planner form calls the engine directly, so a mission can always be computed
   even if the model is offline.
 
@@ -42,7 +45,13 @@ astronaut ──► web/ui (chat, voice, map, Mission Planner)
 3. **Copilot (`llm/`):** Qwen2.5 3B running locally with Ollama. It has 5 tools (`list_stations`, `station_info`,
    `point_to_point_route`, `optimize_mission`, `reroute_for_alert`) and only chooses tools and phrases answers.
 4. **Screen (`web/`):** React + MapLibre console with the chat, the map, station cards, mission telemetry and the
-   astronaut's 3D visor.
+   astronaut's 3D visor. The visor can open in its own window; the chat is shared with it over a browser channel,
+   so a question asked in either one shows up in both and the new route is drawn in both.
+5. **Voice (browser):** speech recognition turns the astronaut's question into text, and speech synthesis reads the
+   answer with the most natural voice the browser has (Edge's neural "Natural" voices, then "Google US English" in
+   Chrome). Before speaking, the answer is rewritten for the ear: "HAB → M2" becomes "the habitat, then Three Forks
+   sample depot", "7490.8 m" becomes "about 7.5 kilometers", "9.18°" becomes "9.18 degrees". The screen keeps the
+   original text.
 
 Every assumption of the cost model (spacesuit speed factor, terrain multipliers, thresholds) is labeled in
 [`params.yaml`](params.yaml) as `[dato]` (from NASA/USGS data), `[formula]` (published formula) or `[supuesto]`
@@ -85,13 +94,16 @@ python -m uvicorn engine.main:app --port 8000
 cd web/ui; npm ci; npm run dev     # http://localhost:5173
 ```
 
-Voice input uses the browser's speech recognition: it works in Chrome or Edge on `localhost` or over HTTPS.
+Voice uses the browser: speaking to the copilot needs Chrome or Edge on `localhost` or over HTTPS, and the most
+natural spoken answers come from **Edge** (its neural voices). In a browser without speech recognition (e.g.
+Firefox), the visor's Talk button opens a text field instead. The 🔊/🔇 button in the visor mutes the voice.
 
 ### Tests
 
 ```powershell
 python -m pytest engine/tests llm/tests -q              # no model needed
 python -m pytest data/tests -q                          # needs data/requirements.txt (rasterio, pyproj...)
+node web/ui/scripts/probar-voz.ts                       # how answers are rewritten for speech, and voice choice
 cd llm; python test_questions.py qwen2.5:3b             # the demo conversation with the real model (needs Ollama)
 ```
 
@@ -107,7 +119,7 @@ Each folder has its own README with details: [`data/`](data/README.md), [`engine
 | [`engine/`](engine/) | Said | FastAPI + NetworkX + OR-Tools: routes, missions and alerts |
 | [`llm/`](llm/) | Manuel | Ollama copilot: tools, `/chat` and safeguards against invented numbers |
 | [`web/map/`](web/map/) | Axl | MapLibre map: stations, edges, highlighted route and alert animation |
-| [`web/ui/`](web/ui/) | Axel | Console: chat panel, station cards, HUD mode and Mission Planner form |
+| [`web/ui/`](web/ui/) | Axel | Console: chat panel, station cards, astronaut visor (talk to the copilot, spoken answers) and Mission Planner form |
 | root | Jeicoll | `params.yaml`, `estaciones.csv` (sources in `estaciones_fuentes.md`), Docker, deployment |
 
 ## Team
@@ -135,14 +147,16 @@ Full list of station sources: [`estaciones_fuentes.md`](estaciones_fuentes.md).
 Image credits: NASA/JPL-Caltech, USGS, MSSS/ASU, as indicated on each image.
 This project is not endorsed by NASA.
 
-Software: FastAPI, NetworkX, Google OR-Tools, Ollama, Qwen2.5, React, Vite, MapLibre GL, Tailwind CSS.
+Software: FastAPI, NetworkX, Google OR-Tools, Ollama, Qwen2.5, React, Vite, MapLibre GL, Tailwind CSS, Web Speech API.
 
 ## Use of AI
 
 - **In the product:** the copilot uses Qwen2.5 3B, an open-weight model run locally with Ollama on a laptop GPU.
   The model only chooses tools and writes the answer; all numbers come from the graph engine and are checked by code
-  before reaching the astronaut. Voice input uses the browser's built-in speech recognition (Web Speech API), which
-  may send audio to the browser vendor's online service; the text is shown for review before it is sent.
+  before reaching the astronaut. Voice uses the browser's built-in Web Speech API. Speech recognition may send audio to
+  the browser vendor's online service: in the console the text is shown for review before it is sent; in the visor
+  it is sent as soon as the astronaut stops speaking, and shown on screen. Spoken answers use the browser's voices;
+  Edge's "Natural" voices are an online Microsoft service, so the answer text is sent to it to be read.
 - **During development:** we used AI coding assistants (Claude Code) to write and review parts of the code, translate
   the interface to English and write tests. A team member reviewed every change before it was merged.
 
