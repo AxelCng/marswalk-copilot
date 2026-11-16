@@ -1,0 +1,38 @@
+# MarsWalk Copilot — servidor en la nube (se suma a docker-compose.yml, no lo reemplaza)
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+#
+# Diferencias con la PC:
+#   - El modelo corre en Ollama Cloud (GPU de ollama.com): no hace falta laptop prendida.
+#     La librería `ollama` lee OLLAMA_API_KEY sola, sin cambios en el código.
+#   - Caddy da HTTPS automático (sin HTTPS el navegador bloquea el micrófono y no hay voz).
+#   - Solo se publican los puertos 80 y 443; la API y nginx quedan dentro de Docker.
+# Variables: copiar deploy/.env.example como .env en la raíz y completarlo.
+services:
+  api:
+    ports: !reset []
+    environment:
+      OLLAMA_URL: ${OLLAMA_URL:-https://ollama.com}
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:?falta OLLAMA_API_KEY en .env}
+      MODELO: ${MODELO:-gpt-oss:20b}
+
+  web:
+    ports: !reset []
+
+  caddy:
+    image: caddy:2.8-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMINIO: ${DOMINIO:?falta DOMINIO en .env}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data        # certificados: no se piden de nuevo en cada reinicio
+      - caddy_config:/config
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

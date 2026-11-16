@@ -1,0 +1,6 @@
+# HTTPS automático (Let's Encrypt) para el dominio de .env, y todo se reenvía a la pantalla (nginx),
+# que a su vez manda /api/* al motor.
+{$DOMINIO} {
+	encode gzip
+	reverse_proxy web:80
+}
