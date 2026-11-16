@@ -11,7 +11,8 @@ import type { EstacionDetalle, EstacionResumen, Grafo } from './types/mission';
 const sinTildes = (s: string) =>
   s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
 
-const ESTACIONES = i18n.estaciones as Record<string, string>;
+/** id de estación → nombre en inglés (lo usa también la voz del copiloto). */
+export const ESTACIONES = i18n.estaciones as Record<string, string>;
 const TAREAS = i18n.tareas as Record<string, string>;
 const ZONAS = i18n.zonas as Record<string, string>;
 const TIPOS = i18n.tipos as Record<string, string>;
