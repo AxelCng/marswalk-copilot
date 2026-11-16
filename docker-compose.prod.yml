@@ -2,8 +2,8 @@
 #   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
 #
 # Diferencias con la PC:
-#   - El modelo corre en Ollama Cloud (GPU de ollama.com): no hace falta laptop prendida.
-#     La librería `ollama` lee OLLAMA_API_KEY sola, sin cambios en el código.
+#   - El modelo corre en Groq (API gratuita con GPU, compatible con OpenAI): no hace falta laptop prendida.
+#     llm/llm_client.py traduce entre Groq y el copiloto; en las PCs se sigue usando Ollama.
 #   - Caddy da HTTPS automático (sin HTTPS el navegador bloquea el micrófono y no hay voz).
 #   - Solo se publican los puertos 80 y 443; la API y nginx quedan dentro de Docker.
 # Variables: copiar deploy/.env.example como .env en la raíz y completarlo.
@@ -11,9 +11,10 @@ services:
   api:
     ports: !reset []
     environment:
-      OLLAMA_URL: ${OLLAMA_URL:-https://ollama.com}
-      OLLAMA_API_KEY: ${OLLAMA_API_KEY:?falta OLLAMA_API_KEY en .env}
-      MODELO: ${MODELO:-gpt-oss:20b}
+      LLM_PROVIDER: openai
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.groq.com/openai/v1}
+      LLM_API_KEY: ${GROQ_API_KEY:?falta GROQ_API_KEY en .env}
+      MODELO: ${MODELO:-llama-3.3-70b-versatile}
 
   web:
     ports: !reset []

@@ -17,6 +17,10 @@ def _env_any(*names, default):
 
 
 OLLAMA_URL = _env_any("OLLAMA_URL", default="http://localhost:11434")
+# "ollama" (default) or "openai": an OpenAI-compatible API such as Groq, for the cloud deploy (llm_client.py)
+LLM_PROVIDER = _env_any("LLM_PROVIDER", default="ollama").lower()
+LLM_BASE_URL = _env_any("LLM_BASE_URL", default="https://api.groq.com/openai/v1")
+LLM_API_KEY = _env_any("LLM_API_KEY", "GROQ_API_KEY", default="")
 MODEL = _env_any("MODEL", "MODELO", default="qwen2.5:3b")
 # Real engine (engine/, which also serves /chat). 127.0.0.1 and not "localhost": on Windows "localhost"
 # tries IPv6 first while uvicorn listens on IPv4, and every tool call gets slower.
