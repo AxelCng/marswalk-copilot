@@ -9,10 +9,9 @@ import json
 import re
 import time
 
-from ollama import Client
-
 from config import (DEFAULT_SLOPE_DEG, DEFAULT_TIME_MIN, KEEP_ALIVE, MAX_STEPS, MODEL, OLLAMA_TIMEOUT_S,
-                    OLLAMA_URL, PHRASE_TIMEOUT_S)
+                    PHRASE_TIMEOUT_S)
+from llm_client import make_client
 from tools import (REASONS_EN, STATION_NAMES_EN, STATION_TASKS_EN, TOOLS, TYPES_EN, _norm, _stations, _zones,
                    execute, resolve_id, station_names, zone_in_text)
 
@@ -43,9 +42,9 @@ Rules:
 12. ALWAYS answer in English, short and clear: route order with names, total time, margin and skipped stations. No tables or heavy markdown."""
 
 # With a timeout: if the GPU laptop hangs, /chat answers with an error and the UI offers Plan B.
-_client = Client(host=OLLAMA_URL, timeout=OLLAMA_TIMEOUT_S)
+_client = make_client(OLLAMA_TIMEOUT_S)
 # Only phrases an answer whose route is already computed: short timeout, the code summary is the fallback
-_phrase_client = Client(host=OLLAMA_URL, timeout=min(OLLAMA_TIMEOUT_S, PHRASE_TIMEOUT_S))
+_phrase_client = make_client(min(OLLAMA_TIMEOUT_S, PHRASE_TIMEOUT_S))
 # Same options for chat and warm-up: if num_ctx changes, Ollama reloads the model.
 _OPTIONS = {"temperature": 0, "num_ctx": 8192}
 _LEG_FIELDS = ("origen", "destino", "distancia_m", "tiempo_min", "pendiente_max_deg", "cobertura_com_pct", "zonas")
