@@ -1,6 +1,6 @@
 # web/map — demo map (Añe)
 
-React + Vite + MapLibre with the **AeroHUD Jezero** style ([design system](https://claude.ai/artifact/TDBvRbN9wBCZ4PCoCyV3Yh)). It draws the Jezero CTX mosaic, the SIM 3464 geology, the stations, the edges, the alert zones, the route leg by leg and the alert animation.
+React + Vite + MapLibre with the **AeroHUD Jezero** style (the team's design system). It draws the Jezero CTX mosaic, the SIM 3464 geology, the stations, the edges, the alert zones, the route leg by leg and the alert animation.
 
 ## Run
 

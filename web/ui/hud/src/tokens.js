@@ -1,5 +1,5 @@
 // AeroHUD Jezero: tokens que usa el mapa.
-// Fuente: design system "AeroHUD Jezero" (https://claude.ai/artifact/TDBvRbN9wBCZ4PCoCyV3Yh).
+// Fuente: design system "AeroHUD Jezero" del equipo.
 // MapLibre no lee variables CSS, por eso los colores del mapa viven aquí en JS.
 
 export const HUD = {
